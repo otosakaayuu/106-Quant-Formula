@@ -533,7 +533,7 @@ addF([
     return {
       big:fmtNum(call,2),bigUnit:'',bigLabel:'Harga Opsi Call (C)',
       subs:[{l:'d (jarak standar)',v:fmtNum(d,3)},{l:'Φ(d)',v:fmtNum(ncdf(d),3)}],
-      note:{type:'info',text:'Model Bachelier mengasumsikan harga bergerak aditif (normal), bukan multiplikatif seperti Black-Scholes — secara teoritis bisa menghasilkan harga aset negatif.'},
+      note:{type: d>1?'good':d<-1?'warn':'info', text: d>1?('d='+fmtNum(d,2)+' jauh positif: harga saham sudah jauh di atas strike, opsi ini praktis pasti berakhir in-the-money — nilainya didominasi nilai intrinsik (S−K), bukan ketidakpastian.'):d<-1?('d='+fmtNum(d,2)+' jauh negatif: harga saham jauh di bawah strike, peluang opsi ini berakhir bernilai sangat kecil, sehingga harganya mendekati nol.'):('d='+fmtNum(d,2)+' dekat nol (S dekat K): titik paling tidak pasti, sehingga hampir seluruh harga opsi berasal dari komponen ketidakpastian σ√T, bukan nilai intrinsik.')},
       chart:{xMin:50,xMax:200,yMin:0,yMax:Math.max(...pts.map(p=>p.y),1)*1.15,vline:v.S,series:[{label:'Harga Call vs Harga Saham',color:COLORS.amber,pts}]}
     };
   }
@@ -560,7 +560,7 @@ addF([
     return {
       big:fmtNum(r.modD,2),bigUnit:' th',bigLabel:'Modified Duration',
       subs:[{l:'Harga Obligasi',v:fmtNum(r.price,2)},{l:'Macaulay Duration',v:fmtNum(r.D,2)+' th'}],
-      note:{type:'info',text:'Semakin tinggi yield, semakin rendah durasi — obligasi menjadi kurang sensitif terhadap perubahan suku bunga lebih lanjut.'},
+      note:{type:'info', text: v.coupon<v.yield?('Kupon ('+v.coupon+'%) lebih kecil dari yield ('+v.yield+'%): obligasi diperdagangkan diskon, nilai sekarang terkonsentrasi di pelunasan pokok tahun ke-'+n+' — itu sebabnya durasi mendekati maturitasnya.'):('Kupon ('+v.coupon+'%) lebih besar dari yield ('+v.yield+'%): obligasi diperdagangkan premium, banyak kas diterima lebih awal lewat kupon besar — itu sebabnya durasi jauh lebih pendek dari maturitas '+n+' tahun.')},
       chart:{xMin:0.5,xMax:20,yMin:0,yMax:Math.max(...pts.map(p=>p.y))*1.15,vline:v.yield,series:[{label:'Modified Duration vs Yield',color:COLORS.cyan,pts}]}
     };
   }
@@ -611,7 +611,7 @@ addF([
     return {
       big:fmtNum(base.C,1),bigUnit:'',bigLabel:'Convexity (C)',
       subs:[{l:'Modified Duration',v:fmtNum(base.modD,2)},{l:'Harga Saat Ini',v:fmtNum(base.price,2)}],
-      note:{type:'info',text:'Garis "Duration saja" menyimpang dari "Harga Eksak" saat Δy besar — Convexity mengoreksi penyimpangan kuadratik ini.'},
+      note:{type:'info', text:'Convexity sebesar '+fmtNum(base.C,1)+' ini muncul karena arus kas tersebar di '+n+' tahun — semakin panjang & tersebar jatuh temponya, semakin besar kelengkungan harga terhadap yield, dan semakin besar pula koreksi yang dibutuhkan di atas estimasi Duration linear saja.'},
       chart:{xMin:-3,xMax:3,yMin:Math.min(...allY)-2,yMax:Math.max(...allY)+2,vline:0,series:[
         {label:'Harga Eksak',color:COLORS.amber,pts:exact},
         {label:'Estimasi Duration saja',color:COLORS.red,pts:durOnly,dash:true},
@@ -638,7 +638,7 @@ addF([
     return {
       big:fmtNum(call,2),bigUnit:'',bigLabel:'Harga Call (C)',
       subs:[{l:'Harga Put (P)',v:fmtNum(put,2)},{l:'Cek Put-Call Parity',v:fmtNum(call-put-(v.S-v.K*Math.exp(-v.r/100*v.T)),4)}],
-      note:{type:'info',text:'Model mengasumsikan volatilitas konstan & distribusi log-normal — penyederhanaan yang memicu lahirnya volatility smile/skew di pasar nyata.'},
+      note:{type: v.S/v.K>1.05?'good':v.S/v.K<0.95?'warn':'info', text: v.S/v.K>1.05?('Harga saham ('+fmtNum(v.S,0)+') jauh di atas strike ('+fmtNum(v.K,0)+'): opsi ini in-the-money, harganya didominasi nilai intrinsik S−K dan kurang sensitif lagi terhadap volatilitas.'):v.S/v.K<0.95?('Harga saham di bawah strike: opsi ini out-of-the-money, harganya kecil dan murni bergantung pada peluang harga naik melewati strike sebelum jatuh tempo '+v.T+' tahun.'):('Harga saham dekat strike (at-the-money): di titik inilah harga opsi paling sensitif terhadap volatilitas — sedikit kenaikan σ terasa besar pada harga call.')},
       chart:{xMin:50,xMax:200,yMin:0,yMax:Math.max(...pts.map(p=>p.y))*1.15,vline:v.S,series:[{label:'Harga Call vs S',color:COLORS.amber,pts}]}
     };
   }
@@ -666,7 +666,7 @@ addF([
     return {
       big:fmtNum(g.delta,3),bigUnit:'',bigLabel:'Delta (Δ)',
       subs:[{l:'Gamma',v:fmtNum(g.gamma,4)},{l:'Vega (per 1% IV)',v:fmtNum(g.vega,3)},{l:'Theta (per hari)',v:fmtNum(g.theta,3)},{l:'Rho (per 1%)',v:fmtNum(g.rho,3)}],
-      note:{type:'info',text:'Gamma ditampilkan ×10 pada grafik agar skalanya sebanding secara visual — nilai asli tetap pada panel "Hasil".'},
+      note:{type:'info', text: g.delta>0.7?('Delta='+fmtNum(g.delta,2)+' (mendekati 1): opsi ini deep in-the-money, bergerak hampir 1:1 mengikuti harga saham — itu sebabnya Gamma (kepekaan Delta) menjadi kecil di sini.'):g.delta<0.3?('Delta='+fmtNum(g.delta,2)+' (mendekati 0): opsi ini jauh out-of-the-money, hampir tidak bergerak walau harga saham berubah — Gamma juga kecil karena jauh dari strike.'):('Delta='+fmtNum(g.delta,2)+' di sekitar 0.5: opsi ini paling dekat at-the-money, titik di mana Gamma dan Vega berada di level tertinggi.')},
       chart:{mode:'bars',decimals:3,bars}
     };
   }
@@ -693,7 +693,7 @@ addF([
     return {
       big:fmtNum(call,2),bigUnit:'',bigLabel:'Harga Call Futures',
       subs:[{l:'Faktor Diskonto e^-rT',v:fmtNum(Math.exp(-v.r/100*v.T),4)}],
-      note:{type:'info',text:'Karena posisi futures bersifat self-financing, drift risk-neutral menjadi nol — hanya faktor diskonto yang membedakannya dari Black-Scholes.'},
+      note:{type:'info', text: v.F>v.K?('Harga futures ('+fmtNum(v.F,0)+') di atas strike ('+fmtNum(v.K,0)+'): opsi call ini in-the-money — nilainya didiskon murni lewat e^(−rT) karena posisi futures self-financing (tanpa drift risk-neutral seperti Black-Scholes biasa).'):('Harga futures di bawah/sama strike: opsi ini out-of-the-money, nilainya kecil dan murni mencerminkan ekspektasi futures naik sebelum jatuh tempo '+v.T+' tahun.')},
       chart:{xMin:50,xMax:200,yMin:0,yMax:Math.max(...pts.map(p=>p.y))*1.15,vline:v.F,series:[{label:'Harga Call vs Futures',color:COLORS.amber,pts}]}
     };
   }
@@ -734,7 +734,7 @@ addF([
     return {
       big:fmtNum(price,2),bigUnit:'',bigLabel:'Harga Opsi Call',
       subs:[{l:'Kompensasi Drift (λk)',v:fmtNum(lam*k*100,2)+'%'}],
-      note:{type:'warn',text:'Lintasan simulasi menunjukkan lompatan mendadak (jump) di atas pergerakan difusi normal — klik "Acak Ulang" untuk skenario baru.'},
+      note:{type: lam>2?'warn':'info', text: lam>2?('Intensitas lompatan λ='+fmtNum(lam,1)+'/tahun cukup tinggi: harga opsi naik dibanding Black-Scholes biasa karena pasar memberi premi ekstra untuk risiko crash/lonjakan mendadak.'):('Pada λ='+fmtNum(lam,1)+' ini, kontribusi risiko lompatan masih moderat — harga opsi mendekati estimasi Black-Scholes standar, dengan sedikit premi tambahan untuk kemungkinan jump.')},
       chart:{xMin:0,xMax:v.T,yMin:Math.min(...ys)*0.9,yMax:Math.max(...ys)*1.1,series:[{label:'Lintasan Harga Tersimulasi',color:COLORS.violet,pts}]}
     };
   }
@@ -762,7 +762,7 @@ addF([
     return {
       big:fmtNum(bondPrice,2),bigUnit:'',bigLabel:'Harga Zero-Coupon Bond',
       subs:[{l:'Half-life Reversi',v:fmtNum(Math.log(2)/a,2)+' th'}],
-      note:{type:'info',text:'Kelemahan model: suku bunga secara teoritis bisa menjadi negatif (terlihat bila lintasan menukik di bawah 0%).'},
+      note:{type:'info', text: v.r0>v.b?('Suku bunga awal ('+fmtNum(v.r0,2)+'%) di atas rata-rata jangka panjang ('+fmtNum(v.b,2)+'%): model menarik lintasan turun seiring waktu, sehingga harga zero-coupon bond sedikit lebih tinggi dari skenario suku bunga konstan.'):('Suku bunga awal ('+fmtNum(v.r0,2)+'%) di bawah rata-rata jangka panjang ('+fmtNum(v.b,2)+'%): model menarik lintasan naik seiring waktu — efek mean-reversion ini memengaruhi harga obligasi lewat faktor diskonto B(t).')},
       chart:{xMin:0,xMax:T,yMin:Math.min(...ys,0)-1,yMax:Math.max(...ys)+1,hlines:[{y:b*100,color:COLORS.faint,dash:true}],series:[{label:'Lintasan Suku Bunga Simulasi',color:COLORS.cyan,pts}]}
     };
   }
@@ -819,7 +819,7 @@ addF([
     return {
       big:fmtNum(call,4),bigUnit:'',bigLabel:'Harga Call FX',
       subs:[{l:'Forward Implisit',v:fmtNum(v.S*Math.exp((v.rd-v.rf)/100*v.T),4)}],
-      note:{type:'info',text:'Selisih suku bunga domestik-asing berperan seperti dividend yield dalam Black-Scholes klasik.'},
+      note:{type:'info', text: v.rd>v.rf?('Suku bunga domestik ('+v.rd+'%) lebih tinggi dari suku bunga asing ('+v.rf+'%): forward FX implisit berada di atas spot, sehingga opsi call bernilai lebih besar dibanding versi tanpa penyesuaian dua-suku-bunga ini.'):('Suku bunga domestik ('+v.rd+'%) lebih rendah dari suku bunga asing ('+v.rf+'%): forward FX implisit berada di bawah spot, menekan harga call dibanding skenario suku bunga domestik lebih tinggi.')},
       chart:{xMin:0.5,xMax:2,yMin:0,yMax:Math.max(...pts.map(p=>p.y))*1.15,vline:v.S,series:[{label:'Harga Call vs Spot FX',color:COLORS.amber,pts}]}
     };
   }
@@ -873,7 +873,7 @@ addF([
     return {
       big:fmtNum(r*100,2),bigUnit:'%',bigLabel:'Suku Bunga Akhir r(T)',
       subs:[{l:'Drift Kumulatif',v:fmtNum(mu*T*100,2)+'%'}],
-      note:{type:'info',text:'Tanpa mean-reversion, varian suku bunga terus bertambah seiring waktu — model ini cocok jangka pendek namun kurang realistis jangka panjang.'},
+      note:{type: v.mu>0?'info':'warn', text: v.mu>0?('Drift positif (θ='+fmtNum(v.mu,2)+'%/th) mendorong suku bunga akhir naik dari titik awalnya — karena model ini tanpa mean-reversion, dorongan drift ini terus terakumulasi linear seiring T='+T+' tahun.'):('Drift negatif/nol membuat suku bunga akhir relatif stabil/turun — namun tanpa mean-reversion, varians (ketidakpastian) tetap terus bertambah seiring waktu meski rata-ratanya tak kembali ke titik manapun.')},
       chart:{xMin:0,xMax:T,yMin:Math.min(...pts.map(p=>p.y),0)-1,yMax:Math.max(...pts.map(p=>p.y))+1,series:[{label:'Lintasan Suku Bunga Ho-Lee',color:COLORS.violet,pts}]}
     };
   }
@@ -895,7 +895,7 @@ addF([
     return {
       big:fmtNum(er,2),bigUnit:'%',bigLabel:'Expected Return Total',
       subs:[{l:'Premi Faktor Growth',v:f1+'%'},{l:'Premi Faktor Inflasi',v:f2+'%'},{l:'Premi Faktor Kredit',v:f3+'%'}],
-      note:{type:'info',text:'Premi tiap faktor (Growth, Inflasi, Kredit) bersifat tetap pada model edukatif ini; eksposur (β) yang menentukan kontribusi akhir.'},
+      note:{type:'info', text:'Expected return '+fmtNum(er,2)+'% = Rf + kontribusi tiap faktor: Growth '+fmtNum(c1,2)+'% (β₁='+v.b1+'×3%), Inflasi '+fmtNum(c2,2)+'% (β₂='+v.b2+'×−1.5%), Kredit '+fmtNum(c3,2)+'% (β₃='+v.b3+'×2%) — '+((c1+c2+c3)>=0?'totalnya net positif karena eksposur dominan searah faktor berpremi positif.':'totalnya net negatif karena eksposur dominan melawan arah faktor berpremi positif.')},
       chart:{mode:'bars',decimals:2,bars:[
         {label:'Rf',value:v.rf,color:COLORS.faint},
         {label:'Growth',value:c1,color:COLORS.amber},
@@ -931,7 +931,7 @@ addF([
     return {
       big:fmtNum(r*100,2),bigUnit:'%',bigLabel:'Suku Bunga Akhir r(T)',
       subs:[{l:'Target Akhir b(T)',v:fmtNum(v.b1,2)+'%'}],
-      note:{type:'info',text:'Garis putus-putus menunjukkan target kurva b(t) yang bergerak naik/turun seiring waktu — Hull-White menarik r(t) ke target dinamis ini.'},
+      note:{type:'info', text: v.b1>v.b0?('Target kurva bergerak naik dari '+v.b0+'% menuju '+v.b1+'%: Hull-White menarik lintasan r(t) mengikuti tren naik ini, sehingga suku bunga akhir cenderung lebih tinggi dari titik awal r₀='+v.r0+'%.'):('Target kurva bergerak turun dari '+v.b0+'% menuju '+v.b1+'%: lintasan r(t) ditarik turun mengikuti tren ini, mendorong suku bunga akhir menjauhi r₀='+v.r0+'% ke arah bawah.')},
       chart:{xMin:0,xMax:T,yMin:Math.min(...pts.map(p=>p.y),...target.map(p=>p.y))-1,yMax:Math.max(...pts.map(p=>p.y),...target.map(p=>p.y))+1,series:[
         {label:'Lintasan r(t)',color:COLORS.amber,pts},
         {label:'Target b(t)',color:COLORS.faint,pts:target,dash:true}
@@ -958,7 +958,7 @@ addF([
     return {
       big:fmtNum(f1(5),3),bigUnit:'%',bigLabel:'Forward Rate f(0,5th) Setelah Kejutan',
       subs:[{l:'Forward Rate Awal f(0,5th)',v:fmtNum(f0(5),3)+'%'},{l:'Pergeseran',v:fmtNum(shiftAt5,3)+'%'}],
-      note:{type:'info',text:'Volatilitas kejutan meluruh secara eksponensial untuk maturitas yang lebih jauh — tenor pendek lebih terpengaruh kejutan pasar instan.'},
+      note:{type: v.shock>0?'good':v.shock<0?'warn':'info', text: v.shock>0?('Kejutan pasar positif (z='+v.shock+') menggeser kurva forward naik '+fmtNum(shiftAt5,3)+'% di tenor 5 tahun — pergeseran ini meluruh di tenor lebih jauh karena faktor e^(−κT) pada volatilitas.'):v.shock<0?('Kejutan pasar negatif (z='+v.shock+') menekan kurva forward turun '+fmtNum(Math.abs(shiftAt5),3)+'% di tenor 5 tahun — efeknya mengecil di tenor lebih panjang karena peluruhan volatilitas e^(−κT).'):('Tanpa kejutan pasar (z=0), kurva forward saat ini identik dengan kurva dasar — geser slider Kejutan Pasar untuk melihat reaksi tiap titik di kurva.')},
       chart:{xMin:0.25,xMax:30,yMin:Math.min(...pts0.map(p=>p.y),...pts1.map(p=>p.y))-0.5,yMax:Math.max(...pts0.map(p=>p.y),...pts1.map(p=>p.y))+0.5,vline:5,series:[
         {label:'Kurva Forward Awal',color:COLORS.faint,pts:pts0,dash:true},
         {label:'Kurva Forward Setelah Kejutan',color:COLORS.amber,pts:pts1}
@@ -988,7 +988,7 @@ addF([
     return {
       big:fmtNum(L*100,2),bigUnit:'%',bigLabel:'Forward Rate Akhir L(T)',
       subs:[{l:'Forward Rate Awal',v:fmtNum(v.L0,2)+'%'}],
-      note:{type:'info',text:'Karena lognormal, forward rate dijamin tetap positif — keunggulan dibanding model Gaussian seperti Vasicek/Ho-Lee.'},
+      note:{type:'info', text: L>v.L0/100?('Forward rate akhir naik dari titik awal karena drift μ='+v.mu+'% dan/atau guncangan volatilitas σ='+v.sigma+'% mendorongnya ke atas — karena lognormal, nilainya dijamin tetap positif berapapun guncangannya.'):('Forward rate akhir turun dari titik awal — namun karena proses lognormal (bukan Gaussian seperti Vasicek), forward rate tidak akan pernah jatuh ke nol atau negatif, hanya mengecil secara multiplikatif.')},
       chart:{xMin:0,xMax:T,yMin:0,yMax:Math.max(...pts.map(p=>p.y))*1.2+0.5,series:[{label:'Lintasan Forward Rate Lognormal',color:COLORS.green,pts}]}
     };
   }
@@ -1009,7 +1009,7 @@ addF([
     return {
       big:fmtNum(spreadBps,0),bigUnit:' bps',bigLabel:'Par Spread CDS',
       subs:[{l:'Probabilitas Default Tahunan',v:fmtNum(lam*100,2)+'%'},{l:'Survival Prob. di Maturitas',v:fmtNum(Math.exp(-lam*v.maturity)*100,1)+'%'}],
-      note:{type:'info',text:'Formula disederhanakan dengan asumsi hazard rate flat dan mengabaikan diskonto — versi institusional memperhitungkan kurva suku bunga penuh.'},
+      note:{type: spreadBps>300?'warn':'info', text:'Par spread '+fmtNum(spreadBps,0)+' bps = (1−R)×λ: hazard rate λ='+fmtNum(v.lambda,2)+'% dikalikan kerugian saat default (1−R)='+fmtNum(1-R,2)+' (recovery '+v.recovery+'%) — '+(v.recovery<30?'recovery rendah membuat spread melebar signifikan karena kreditor kehilangan lebih banyak saat gagal bayar.':'recovery yang cukup tinggi menahan spread agar tidak terlalu lebar meski hazard rate naik.')},
       chart:{xMin:0,xMax:v.maturity,yMin:0,yMax:105,vline:v.maturity,series:[{label:'Survival Probability S(t) %',color:COLORS.cyan,pts}]}
     };
   }
@@ -1033,7 +1033,7 @@ addF([
     return {
       big:fmtNum(call,0),bigUnit:'',bigLabel:'Harga Call (Skewed Vol)',
       subs:[{l:'Implied Vol di Strike',v:fmtNum(vol(v.K),1)+'%'}],
-      note:{type:'info',text:'Skew negatif (umum di kripto) membuat OTM put lebih mahal — mencerminkan permintaan lindung risiko crash mendadak.'},
+      note:{type: v.skew<0?'warn':'info', text: v.K>v.S?(v.skew<0?('Strike di atas spot dengan skew negatif ('+v.skew+'): opsi call OTM ini memakai implied vol LEBIH RENDAH dari ATM ('+fmtNum(vol(v.K),1)+'% vs '+v.sigmaATM+'%) — kebalikan dari put OTM yang justru lebih mahal pada skew negatif khas kripto.'):('Strike di atas spot dengan skew positif: call OTM ini memakai implied vol lebih tinggi dari ATM, mencerminkan ekspektasi pasar akan lonjakan harga ke atas.')):('Strike di bawah/sama spot: opsi ini sudah ITM/ATM, harganya didominasi nilai intrinsik ditambah sedikit time value dari implied vol di sekitar '+fmtNum(vol(v.K),1)+'%.')},
       chart:{xMin:v.S*0.5,xMax:v.S*1.5,yMin:0,yMax:Math.max(...pts.map(p=>p.y))*1.15,vline:v.K,series:[{label:'Smile Implied Vol σ(K) %',color:COLORS.amber,pts}]}
     };
   }
@@ -1059,7 +1059,7 @@ addF([
     return {
       big:fmtNum(tStar,2),bigUnit:' th',bigLabel:'Estimasi Waktu Hingga Kolaps',
       subs:[{l:'Laju Pengikisan Cadangan',v:fmtNum(lossRate*100,2)+'%/th'},{l:'Cadangan Kritis',v:fmtNum(v.R0*v.critical/100,1)+' M$'}],
-      note:{type:'warn',text:'Saat cadangan devisa menyentuh ambang kritis, serangan spekulatif mendadak biasanya memicu kolaps kurs sepenuhnya — bukan penurunan bertahap.'},
+      note:{type: tStar<2?'warn':'info', text: tStar<2?('Pertumbuhan kredit ('+v.creditGrowth+'%) jauh melebihi permintaan uang ('+v.moneyDemand+'%), menggerus cadangan '+fmtNum(lossRate*100,1)+'%/tahun — pada laju ini cadangan menyentuh ambang kritis dalam waktu sangat singkat, '+fmtNum(tStar,1)+' tahun saja.'):('Selisih pertumbuhan kredit ('+v.creditGrowth+'%) dan permintaan uang ('+v.moneyDemand+'%) relatif moderat, cadangan terkikis perlahan ('+fmtNum(lossRate*100,1)+'%/tahun) — butuh '+fmtNum(tStar,1)+' tahun untuk mencapai ambang kritis.')},
       chart:{xMin:0,xMax:tStar*1.6,yMin:0,yMax:v.R0*1.1,vline:tStar,hlines:[{y:v.R0*v.critical/100,color:COLORS.red,dash:true}],series:[{label:'Cadangan Devisa R(t)',color:COLORS.amber,pts}]}
     };
   }
@@ -1088,7 +1088,7 @@ addF([
     return {
       big:fmtNum(Math.sqrt(vv)*100,2),bigUnit:'%',bigLabel:'Volatilitas Akhir Simulasi',
       subs:[{l:'Volatilitas Jangka Panjang (target)',v:fmtNum(v.thetaVol,2)+'%'}],
-      note:{type:'info',text:'Volatilitas berfluktuasi acak namun selalu ditarik kembali ke level jangka panjang θ — pola "volatility clustering" khas pasar nyata.'},
+      note:{type:'info', text: v.v0Vol>v.thetaVol?('Volatilitas awal ('+v.v0Vol+'%) di atas target jangka panjang ('+v.thetaVol+'%): mean-reversion menarik lintasan turun, sehingga hasil akhir simulasi cenderung mendekati atau di bawah titik awal.'):('Volatilitas awal ('+v.v0Vol+'%) di bawah target jangka panjang ('+v.thetaVol+'%): mean-reversion menarik lintasan naik — dikombinasikan guncangan acak ξ='+v.xi+', hasil akhir bisa overshoot di atas maupun di bawah target.')},
       chart:{xMin:0,xMax:T,yMin:0,yMax:Math.max(...pts.map(p=>p.y))*1.2+5,hlines:[{y:v.thetaVol,color:COLORS.faint,dash:true}],series:[{label:'Lintasan Volatilitas √v(t)',color:COLORS.red,pts}]}
     };
   }
@@ -1111,7 +1111,7 @@ addF([
     return {
       big:fmtNum(VaR,2),bigUnit:' M',bigLabel:'VaR '+fmtNum(v.conf,1)+'% / '+Math.round(v.horizon)+' hari',
       subs:[{l:'Z-score',v:fmtNum(z,3)},{l:'Volatilitas Horizon',v:fmtNum(sigT,2)+'%'}],
-      note:{type:'warn',text:'Dengan keyakinan '+fmtNum(v.conf,1)+'%, kerugian portofolio diestimasikan tidak melebihi nilai VaR ini dalam '+Math.round(v.horizon)+' hari ke depan.'},
+      note:{type:'warn', text:'VaR='+fmtNum(VaR,1)+' M = Z-score ('+fmtNum(z,2)+' pada keyakinan '+fmtNum(v.conf,1)+'%) × volatilitas horizon ('+fmtNum(sigT,2)+'%, dari σ harian '+v.vol+'%×√'+v.horizon+' hari) × nilai portofolio — '+(v.conf>=99?'keyakinan setinggi ini mendorong Z-score jauh ke ekor distribusi, membuat VaR melonjak dibanding keyakinan 95%.':'menaikkan horizon atau volatilitas harian memperbesar VaR proporsional dengan akar waktu (√t).')},
       chart:{xMin:-4*sigT,xMax:4*sigT,yMin:0,yMax:Math.max(...pts.map(p=>p.y))*1.15,vline:-VaR/v.value*100,series:[{label:'Distribusi Return Portofolio (%)',color:COLORS.cyan,pts,fillRange:[-4*sigT,-VaR/v.value*100]}]}
     };
   }
@@ -1168,7 +1168,7 @@ addF([
     return {
       big:fmtNum(atmVol,2),bigUnit:'%',bigLabel:'Implied Vol ATM',
       subs:[{l:'Forward Rate',v:fmtNum(v.F,2)+'%'}],
-      note:{type:'info',text:'Parameter ρ mengontrol kemiringan (skew) smile, sedangkan ν mengontrol kelengkungan (kurvatur) — keduanya hasil kalibrasi pasar harian.'},
+      note:{type:'info', text: Math.abs(v.rho)>0.5?('Korelasi |ρ|='+Math.abs(v.rho)+' cukup besar: smile menjadi miring tajam ke satu sisi (skewed) — geser slider Forward Rate untuk melihat asimetrinya pada grafik.'):('Korelasi ρ='+v.rho+' relatif kecil: smile lebih simetris, dengan kelengkungan terutama didorong oleh vol-of-vol ν='+v.nu+' daripada arah skew.')},
       chart:{xMin:v.F*0.3,xMax:v.F*2,yMin:0,yMax:Math.max(...pts.map(p=>p.y))*1.15,vline:v.F,series:[{label:'Smile Implied Vol σ(K) %',color:COLORS.amber,pts}]}
     };
   }
@@ -1191,7 +1191,7 @@ addF([
     return {
       big:fmtNum(ES,2),bigUnit:' M',bigLabel:'Expected Shortfall '+fmtNum(v.conf,1)+'%',
       subs:[{l:'VaR (pembanding)',v:fmtNum(VaR,2)+' M'},{l:'Rasio ES / VaR',v:fmtNum(ES/VaR,2)+'×'}],
-      note:{type:'warn',text:'ES selalu ≥ VaR karena merata-ratakan seluruh kerugian di ekor distribusi, bukan hanya satu titik ambang — lebih konservatif untuk risiko ekor tebal.'},
+      note:{type:'warn', text:'ES='+fmtNum(ES,1)+' M sekitar '+fmtNum(ES/VaR,2)+'× dari VaR ('+fmtNum(VaR,1)+' M) — ES merata-ratakan SEMUA kerugian melebihi VaR (bukan cuma satu titik ambang), sehingga selalu lebih besar, terutama pada tingkat keyakinan tinggi ('+fmtNum(v.conf,1)+'%).'},
       chart:{xMin:-4*sig,xMax:4*sig,yMin:0,yMax:Math.max(...pts.map(p=>p.y))*1.15,vline:-VaR/v.value*100,series:[{label:'Distribusi Return (%)',color:COLORS.cyan,pts,fillRange:[-4*sig,-VaR/v.value*100]}]}
     };
   }
@@ -1252,7 +1252,7 @@ addF([
     return {
       big:fmtNum(X*100,2),bigUnit:'%',bigLabel:'Return Kumulatif Tersimulasi',
       subs:[{l:'Excess Kurtosis Teoritis',v:fmtNum(3*v.nu+3*v.theta*v.theta*v.nu/(v.sigma*v.sigma),2)}],
-      note:{type:'info',text:'Berbeda dari gerak Brown yang mulus, lintasan VG murni-lompatan menunjukkan perubahan tersentak-sentak — sumber "fat tails" pada return aset riil.'},
+      note:{type:'info', text: v.nu>0.5?('Variance rate ν='+v.nu+' cukup besar: lompatan dalam proses Gamma menjadi lebih sering & besar, menghasilkan ekor distribusi (fat tail) jauh lebih tebal dari gerak Brown biasa.'):('Variance rate ν='+v.nu+' kecil: proses ini mendekati difusi kontinu standar, dengan lompatan yang lebih halus dan jarang.')},
       chart:{xMin:0,xMax:v.T,yMin:Math.min(...ys)-0.05,yMax:Math.max(...ys)+0.05,series:[{label:'Lintasan Proses Variance Gamma',color:COLORS.violet,pts}]}
     };
   }
@@ -1309,7 +1309,7 @@ addF([
     return {
       big:fmtNum(localVol(v.S),2),bigUnit:'%',bigLabel:'Local Vol di Spot',
       subs:[{l:'Implied Vol di Spot',v:fmtNum(impliedVol(v.S),2)+'%'}],
-      note:{type:'info',text:'Local volatility cenderung "melebih-lebihkan" kemiringan skew dibanding implied volatility — fenomena ini dikenal sebagai aturan 2x skew Dupire.'},
+      note:{type:'info', text: v.skew<0?('Skew negatif ('+v.skew+'): local vol melebih-lebihkan kemiringan implied vol sekitar 2× (aturan Dupire) — kurva Local Vol (oranye) terlihat lebih curam dari Implied Vol (cyan).'):v.skew>0?('Skew positif ('+v.skew+'): local vol naik lebih tajam ke arah strike tinggi dibanding implied vol — pola yang jarang di ekuitas namun umum di beberapa komoditas.'):('Skew=0 (flat): local vol dan implied vol hampir berimpit karena tidak ada kemiringan untuk dilipatgandakan.')},
       chart:{xMin:v.S*0.5,xMax:v.S*1.5,yMin:0,yMax:Math.max(...ptsImp.map(p=>p.y),...ptsLoc.map(p=>p.y))*1.15,vline:v.S,series:[
         {label:'Implied Vol σ_impl(K)',color:COLORS.cyan,pts:ptsImp,dash:true},
         {label:'Local Vol σ_loc(K)',color:COLORS.amber,pts:ptsLoc}
@@ -1337,7 +1337,7 @@ addF([
     return {
       big:fmtNum(total,2),bigUnit:' jt',bigLabel:'Total Penyesuaian xVA',
       subs:[{l:'CVA',v:fmtNum(CVA,2)+' jt'},{l:'FVA',v:fmtNum(FVA,2)+' jt'},{l:'KVA',v:fmtNum(KVA,2)+' jt'}],
-      note:{type:'info',text:'xVA mengubah derivatif yang secara teori "bebas risiko" menjadi instrumen dengan biaya riil — komponen ini wajib diperhitungkan trading desk pasca krisis 2008.'},
+      note:{type:'info', text: CVA>=FVA&&CVA>=KVA?('CVA ('+fmtNum(CVA,1)+' jt) mendominasi total xVA — wajar karena probabilitas default counterparty ('+v.pd+'%) dan recovery rendah ('+v.recovery+'%) membuat risiko gagal bayar jadi komponen terbesar.'):FVA>=KVA?('FVA ('+fmtNum(FVA,1)+' jt) mendominasi — funding spread ('+v.fundingSpread+'%) yang relatif tinggi membuat biaya pendanaan posisi ini jadi komponen terbesar.'):('KVA ('+fmtNum(KVA,1)+' jt) mendominasi — biaya modal regulasi ('+v.capitalCost+'%) jadi komponen terbesar dari total penyesuaian xVA pada parameter ini.')},
       chart:{mode:'bars',decimals:1,unit:' jt',bars:[
         {label:'CVA',value:CVA,color:COLORS.red},
         {label:'FVA',value:FVA,color:COLORS.amber},
@@ -1377,7 +1377,7 @@ addF([
     return {
       big:fmtNum(totalVariation,1),bigUnit:'',bigLabel:'Total Variasi Lintasan (Kekasaran)',
       subs:[{l:'Volatilitas Akhir',v:fmtNum(ys[ys.length-1],2)+'%'}],
-      note:{type:'info',text:'Semakin kecil H, lintasan semakin "kasar"/jagged (total variasi makin tinggi) — riset Gatheral menemukan H pasar riil sangat rendah, sekitar 0.1.'},
+      note:{type:'info', text: v.H<0.15?('Hurst H='+v.H+' sangat rendah (mendekati estimasi pasar riil ~0.1): lintasan sangat kasar/jagged, total variasi mencapai '+fmtNum(totalVariation,1)+' — makin kecil H, makin sering volatilitas tersentak naik-turun dalam interval pendek.'):('Hurst H='+v.H+' relatif lebih tinggi: lintasan lebih halus dari estimasi pasar riil, total variasi '+fmtNum(totalVariation,1)+' — mendekati gerak Brown standar (H=0.5) saat H makin besar.')},
       chart:{xMin:0,xMax:T,yMin:0,yMax:Math.max(...ys)*1.2+2,series:[{label:'Lintasan Volatilitas Kasar v(t)',color:COLORS.violet,pts}]}
     };
   }
@@ -1452,7 +1452,7 @@ addF([
     return {
       big:fmtNum(vol(v.K),2),bigUnit:'%',bigLabel:'Implied Vol di Strike & Maturitas Terpilih',
       subs:[{l:'Vol ATM pada T ini',v:fmtNum(atmVolT(v.T),2)+'%'},{l:'Skew Efektif pada T ini',v:fmtNum(skewT(v.T),1)}],
-      note:{type:'info',text:'Skew meluruh secara eksponensial untuk maturitas lebih panjang — opsi jangka pendek kripto biasanya menunjukkan kemiringan smile paling tajam.'},
+      note:{type:'info', text: v.K>v.S?('Strike di atas spot dengan skew efektif '+fmtNum(skewT(v.T),1)+': karena skew dasar negatif khas kripto meluruh seiring T (κ='+v.decay+'), opsi tenor pendek ini masih membawa skew tajam, mendorong implied vol di strike OTM berbeda jauh dari ATM ('+fmtNum(atmVolT(v.T),1)+'%).'):('Strike di bawah/sama spot: implied vol di sini lebih dekat ke level ATM ('+fmtNum(atmVolT(v.T),1)+'%) karena efek skew bekerja ke arah sebaliknya untuk strike rendah.')},
       chart:{xMin:v.S*0.5,xMax:v.S*1.5,yMin:0,yMax:Math.max(...pts.map(p=>p.y))*1.15,vline:v.K,series:[{label:'Smile Implied Vol σ(K) di T Terpilih',color:COLORS.amber,pts}]}
     };
   }
@@ -1487,7 +1487,7 @@ addF([
     return {
       big:fmtNum(sp,2),bigUnit:'%',bigLabel:'Volatilitas Portofolio σₚ',
       subs:[{l:'Expected Return Portofolio',v:fmtNum(rp,2)+'%'},{l:'Sharpe Ratio (Rf=3%)',v:fmtNum((rp-3)/sp,3)}],
-      note:{type:'info',text:'Titik merah pada grafik menunjukkan bobot yang dipilih (w₁='+v.w1+'%). Diversifikasi menurunkan risiko di bawah rata-rata tertimbang volatilitas dua aset.'},
+      note:{type:'info', text: v.rho<0.3?('Korelasi rendah (ρ='+v.rho+') antar dua aset membuat diversifikasi sangat efektif — volatilitas portofolio σₚ='+fmtNum(sp,2)+'% jauh di bawah rata-rata tertimbang volatilitas individual ('+fmtNum(w1*v.s1+w2*v.s2,2)+'%).'):('Korelasi tinggi (ρ='+v.rho+') antar dua aset membuat diversifikasi kurang efektif — volatilitas portofolio σₚ='+fmtNum(sp,2)+'% mendekati rata-rata tertimbang volatilitas individual ('+fmtNum(w1*v.s1+w2*v.s2,2)+'%), karena kedua aset cenderung bergerak searah.')},
       chart:{xMin:Math.min(...allX)*0.9,xMax:Math.max(...allX)*1.1,yMin:Math.min(...allY)*0.9,yMax:Math.max(...allY)*1.1,vline:sp,series:[{label:'Efficient Frontier (Return % vs Risiko %)',color:COLORS.green,pts:pts.slice().sort((a,b)=>a.x-b.x)}]}
     };
   }
@@ -1511,7 +1511,7 @@ addF([
     return {
       big:fmtNum(Vl,0),bigUnit:' M',bigLabel:'Nilai Perusahaan Levered (Vₗ)',
       subs:[{l:'Tax Shield Nilai',v:fmtNum(v.Tc/100*v.D,0)+' M'},{l:'WACC',v:fmtNum(wacc,2)+'%'}],
-      note:{type:'info',text:'Tanpa pajak MM menyatakan Vₗ=Vᵤ (struktur modal irrelevant). Pajak menciptakan insentif menggunakan utang lewat penghematan pajak bunga.'},
+      note:{type:'info', text: v.Tc>0?('Tax shield Tc×D = '+fmtNum(v.Tc/100*v.D,0)+' M menambah nilai perusahaan di atas Vᵤ — makin tinggi tarif pajak ('+v.Tc+'%) dan utang ('+v.D+' M), makin besar penghematan pajak bunga yang mendorong Vₗ naik.'):('Tanpa pajak (Tc=0%), MM klasik berlaku murni: Vₗ=Vᵤ — struktur modal sama sekali tidak memengaruhi nilai perusahaan, geser slider Tarif Pajak untuk melihat tax shield muncul.')},
       chart:{xMin:0,xMax:5000,yMin:v.vu*0.9,yMax:(v.vu+5000*v.Tc/100)*1.1,vline:v.D,series:[{label:'Nilai Perusahaan vs Utang',color:COLORS.green,pts}]}
     };
   }
@@ -1533,7 +1533,7 @@ addF([
     return {
       big:fmtNum(er,2),bigUnit:'%',bigLabel:'Expected Return 3-Faktor',
       subs:[{l:'Kontribusi Market',v:fmtNum(c1,2)+'%'},{l:'Kontribusi SMB',v:fmtNum(c2,2)+'%'},{l:'Kontribusi HML',v:fmtNum(c3,2)+'%'}],
-      note:{type:'info',text:'Premi SMB≈2%, HML≈3.5% adalah estimasi historis jangka panjang. Faktor Size & Value menjelaskan anomali imbal hasil yang tidak tertangkap CAPM.'},
+      note:{type:'info', text:'Expected return '+fmtNum(er,2)+'% didorong terutama oleh '+(Math.abs(c1)>=Math.abs(c2)&&Math.abs(c1)>=Math.abs(c3)?('eksposur pasar (βₘₖₜ='+v.bMkt+'×5%) — faktor market masih dominan dibanding Size/Value.'):Math.abs(c2)>=Math.abs(c3)?('eksposur ukuran SMB (βₛₘᵦ='+v.bSmb+'×2%) — saham ini condong ke karakteristik small-cap.'):('eksposur valuasi HML (βₕₘₗ='+v.bHml+'×3.5%) — saham ini condong ke karakteristik value/murah.'))},
       chart:{mode:'bars',decimals:2,unit:'%',bars:[
         {label:'Rf',value:v.rf,color:COLORS.faint},
         {label:'Market Premium',value:c1,color:COLORS.amber},
@@ -1610,7 +1610,7 @@ addF([
     return {
       big:fmtNum(er,2),bigUnit:'%',bigLabel:'Expected Return 4-Faktor',
       subs:[{l:'Kontribusi Momentum',v:fmtNum(c4,2)+'%'},{l:'Alpha Residual (target)',v:'?'}],
-      note:{type:'info',text:'Premi momentum historis ≈8%/tahun — salah satu anomali terbesar di pasar ekuitas meski rentan "momentum crash" saat market reversal tiba-tiba.'},
+      note:{type: v.bMom>0.5?'good':'info', text: v.bMom>0.5?('Eksposur momentum tinggi (βₘₒₘ='+v.bMom+') menyumbang '+fmtNum(c4,2)+'% dari total return — saham ini condong ke "winner" yang sedang tren naik, namun ingat: eksposur tinggi juga rentan "momentum crash" mendadak saat tren berbalik.'):('Eksposur momentum rendah/negatif (βₘₒₘ='+v.bMom+') hanya menyumbang '+fmtNum(c4,2)+'% — return saham ini lebih banyak dijelaskan faktor Market/SMB/HML daripada tren harga.')},
       chart:{mode:'bars',decimals:2,unit:'%',bars:[
         {label:'Rf',value:v.rf,color:COLORS.faint},
         {label:'Market',value:c1,color:COLORS.amber},
@@ -1641,7 +1641,7 @@ addF([
     return {
       big:fmtNum(er,2),bigUnit:'%',bigLabel:'Expected Return 5-Faktor',
       subs:[{l:'Kontribusi RMW',v:fmtNum(c4,2)+'%'},{l:'Kontribusi CMA',v:fmtNum(c5,2)+'%'}],
-      note:{type:'info',text:'RMW positif=perusahaan profitable lebih menguntungkan; CMA negatif=perusahaan agresif berinvestasi cenderung mengalami underperformance.'},
+      note:{type:'info', text: c4>0&&c5<0?('Kombinasi paling menguntungkan: profitabilitas tinggi (RMW kontribusi +'+fmtNum(c4,2)+'%) DAN investasi konservatif (CMA kontribusi '+fmtNum(c5,2)+'%) — pola ini historis dikaitkan dengan saham berkualitas yang efisien secara modal.'):c4<0?('Kontribusi RMW negatif ('+fmtNum(c4,2)+'%): eksposur ke perusahaan dengan profitabilitas lemah cenderung menyeret return turun.'):('Kontribusi CMA positif ('+fmtNum(c5,2)+'%): eksposur ke perusahaan yang agresif berinvestasi, historis dikaitkan underperformance relatif terhadap yang konservatif.')},
       chart:{mode:'bars',decimals:2,unit:'%',bars:[
         {label:'Rf',value:v.rf,color:COLORS.faint},{label:'Market',value:c1,color:COLORS.amber},
         {label:'SMB',value:c2,color:COLORS.cyan},{label:'HML',value:c3,color:COLORS.green},
@@ -1668,7 +1668,7 @@ addF([
     return {
       big:fmtNum(total,2),bigUnit:'%',bigLabel:'Expected Return FX Portfolio',
       subs:[{l:'Premi Value',v:fmtNum(c1,2)+'%'},{l:'Premi Momentum',v:fmtNum(c2,2)+'%'},{l:'Premi Carry',v:fmtNum(c3,2)+'%'},{l:'Premi Defensive',v:fmtNum(c4,2)+'%'}],
-      note:{type:'info',text:'Keempat faktor FX historis saling berkorelasi rendah — kombinasinya menghasilkan Sharpe Ratio lebih stabil dibanding satu faktor tunggal.'},
+      note:{type:'info', text: total>=0?('Total return positif ('+fmtNum(total,2)+'%) — kontribusi terbesar dari '+(Math.abs(c3)>=Math.abs(c1)&&Math.abs(c3)>=Math.abs(c2)&&Math.abs(c3)>=Math.abs(c4)?('Carry (β_C='+v.bCarry+'×4%)'):Math.abs(c2)>=Math.abs(c1)&&Math.abs(c2)>=Math.abs(c4)?('Momentum (β_M='+v.bMom+'×5%)'):Math.abs(c1)>=Math.abs(c4)?('Value (β_V='+v.bVal+'×3%)'):('Defensive (β_D='+v.bDef+'×2%)'))+'.'):('Total return negatif ('+fmtNum(total,2)+'%) — kombinasi eksposur saat ini lebih banyak melawan arah faktor berpremi positif; coba balik tanda salah satu eksposur untuk melihat efeknya.')},
       chart:{mode:'bars',decimals:2,unit:'%',bars:[
         {label:'Value',value:c1,color:COLORS.amber},{label:'Momentum',value:c2,color:COLORS.cyan},
         {label:'Carry',value:c3,color:COLORS.green},{label:'Defensive',value:c4,color:COLORS.violet},
@@ -1778,7 +1778,7 @@ addF([
     return {
       big:fmtNum(sig2xy,4),bigUnit:'',bigLabel:'Signature s¹²₂ (Cross-Term)',
       subs:[{l:'Fitur Level 1 (∫dX)',v:fmtNum(sig1x,4)},{l:'Fitur Level 1 (∫dY)',v:fmtNum(sig1y,4)}],
-      note:{type:'info',text:'Iterated integral s¹² menangkap area bertanda antara komponen waktu dan harga — non-trivial bahkan untuk path dengan return akhir yang sama.'},
+      note:{type:'info', text: Math.abs(sig2xy)>Math.abs(sig1x*sig1y)*0.3?('Signature s¹²='+fmtNum(sig2xy,4)+' cukup besar relatif fitur level-1 — lintasan harga banyak berosilasi naik-turun sepanjang waktu, bukan bergerak monoton searah, sehingga area bertanda antara waktu dan harga terakumulasi banyak.'):('Signature s¹²='+fmtNum(sig2xy,4)+' relatif kecil — lintasan harga cenderung bergerak lebih monoton (searah) tanpa banyak osilasi, sehingga area bertanda antara komponen waktu dan harga minim.')},
       chart:{xMin:0,xMax:v.T,yMin:Math.min(...pts.map(p=>p.y))*0.9,yMax:Math.max(...pts.map(p=>p.y))*1.1,series:[{label:'Lintasan Harga (Path)',color:COLORS.violet,pts}]}
     };
   }
@@ -1811,7 +1811,7 @@ addF([
     const pts=sweep(1,5,40,t=>v.S*Math.pow(1+expectedChange,t));
     return {big:fmtNum(Efwd,0),bigUnit:'',bigLabel:'E(Spot) UIP di T='+v.T+'th',
       subs:[{l:'Selisih Suku Bunga',v:fmtNum(v.id-v.if_,2)+'%'},{l:'% Perubahan Ekspektasi',v:fmtNum((Efwd/v.S-1)*100,2)+'%'}],
-      note:{type:'info',text:'UIP sering gagal dalam jangka pendek — negara dengan suku bunga tinggi justru sering menguat (forward premium puzzle / carry trade anomaly).'},
+      note:{type:'info', text: v.id>v.if_?('Suku bunga domestik ('+v.id+'%) lebih tinggi dari asing ('+v.if_+'%): UIP murni memprediksi mata uang domestik melemah '+fmtNum((v.id-v.if_),2)+'% untuk menyamakan return — namun di praktik ini sering gagal (forward premium puzzle), mata uang berbunga tinggi justru kerap menguat.'):('Suku bunga domestik ('+v.id+'%) lebih rendah dari asing ('+v.if_+'%): UIP memprediksi mata uang domestik menguat untuk menyamakan return — kebalikan dari skenario carry trade biasa.')},
       chart:{xMin:1,xMax:5,yMin:Math.min(...pts.map(p=>p.y))*0.95,yMax:Math.max(...pts.map(p=>p.y))*1.05,series:[{label:'E(Spot) UIP',color:COLORS.amber,pts}]}}
   }
 },
@@ -1829,7 +1829,7 @@ addF([
     }
     return {big:fmtNum(overshoot,2),bigUnit:'%',bigLabel:'Overshooting Jangka Pendek',
       subs:[{l:'Kelebihan Suku Bunga',v:fmtNum((v.iDom-v.iFor),2)+'%'}],
-      note:{type:'info',text:'Kurs "melampaui" level keseimbangannya pada awalnya, lalu meluruh perlahan kembali — menjelaskan volatilitas FX tinggi saat bank sentral mengubah kebijakan.'},
+      note:{type: Math.abs(overshoot)>5?'warn':'info', text: v.lambda<0.5?('Kecepatan penyesuaian λ='+v.lambda+' rendah (pasar barang lambat menyesuaikan): overshooting jangka pendek jadi besar ('+fmtNum(Math.abs(overshoot),2)+'%) karena pasar keuangan sendirian mengkompensasi kekakuan harga barang.'):('Kecepatan penyesuaian λ='+v.lambda+' cukup tinggi: overshooting lebih moderat ('+fmtNum(Math.abs(overshoot),2)+'%) karena harga barang ikut menyesuaikan lebih cepat, mengurangi beban pada kurs.')},
       chart:{xMin:0,xMax:periods,yMin:Math.min(...pts.map(p=>p.y))*1.2,yMax:Math.max(...pts.map(p=>p.y))*1.2+0.5,hlines:[{y:0,color:COLORS.faint,dash:true}],series:[{label:'Depresiasi Kurs Meluruh',color:COLORS.amber,pts}]}}
   }
 },
@@ -1856,7 +1856,7 @@ addF([
     const pts=sweep(0,HL*4,60,t=>v.currentDev*Math.pow(1+v.meanRevSpeed,t));
     return {big:fmtNum(HL,1),bigUnit:' bln',bigLabel:'Half-Life Konvergensi',
       subs:[{l:'Deviasi Saat Ini',v:fmtNum(v.currentDev,2)+'%'},{l:'Deviasi Setelah 1 HL',v:fmtNum(v.currentDev/2,2)+'%'}],
-      note:{type:'info',text:'Half-life PPP empiris untuk FX utama biasanya 3–5 tahun — kurs bergerak perlahan menuju keseimbangan jangka panjangnya.'},
+      note:{type:'info', text: Math.abs(v.meanRevSpeed)>0.15?('Kecepatan reversi β='+v.meanRevSpeed+' relatif besar: deviasi kurs dari ekuilibrium meluruh cepat, half-life hanya '+fmtNum(HL,1)+' bulan.'):('Kecepatan reversi β='+v.meanRevSpeed+' kecil (mendekati nol): deviasi kurs sangat persisten, butuh '+fmtNum(HL,1)+' bulan untuk meluruh separuhnya — makin dekat ke 0, makin lama half-life-nya.')},
       chart:{xMin:0,xMax:HL*4,yMin:0,yMax:Math.abs(v.currentDev)*1.15,vline:HL,hlines:[{y:0,color:COLORS.faint,dash:true}],series:[{label:'Deviasi Meluruh (%)',color:COLORS.cyan,pts}]}}
   }
 },
@@ -1869,7 +1869,7 @@ addF([
     const bars=[{label:'Terms of Trade',value:0.15*v.tot,color:COLORS.amber},{label:'Net Foreign Assets',value:0.03*v.nfa,color:COLORS.cyan},{label:'Produktivitas',value:0.5*v.prod,color:COLORS.green},{label:'REER Equilibrium q*',value:qStar,color:COLORS.violet}];
     return {big:fmtNum(qStar,2),bigUnit:'%',bigLabel:'BEER Ekuilibrium (q*)',
       subs:[{l:'Kontribusi ToT',v:fmtNum(0.15*v.tot,2)+'%'},{l:'Kontribusi NFA',v:fmtNum(0.03*v.nfa,2)+'%'}],
-      note:{type:'info',text:'q*>0 berarti nilai tukar riil diperkirakan menguat (apresiasi); q*<0 berarti tertekan menuju depresiasi secara fundamental.'},
+      note:{type: qStar>0?'good':'warn', text: qStar>0?('q*='+fmtNum(qStar,2)+'% positif: kombinasi Terms of Trade ('+v.tot+'), Net Foreign Assets ('+v.nfa+'% GDP), dan diferensial produktivitas ('+v.prod+'%) secara fundamental mendukung apresiasi nilai tukar riil.'):('q*='+fmtNum(qStar,2)+'% negatif: fundamental saat ini — terutama '+(v.nfa<-30?('NFA sangat negatif, '+v.nfa+'% GDP, menandakan utang luar negeri besar'):v.tot<0?('Terms of Trade memburuk, '+v.tot):'kombinasi faktor')+' — menekan nilai tukar riil menuju depresiasi.')},
       chart:{mode:'bars',decimals:2,unit:'%',bars}}
   }
 },
@@ -1883,7 +1883,7 @@ addF([
     const pts=sweep(40,60,50,gv=>0.3*(gv-50)**2-1.5*(gv-50)+2*u);
     return {big:fmtNum(dxy,2),bigUnit:' idx',bigLabel:'Tekanan DXY (relatif)',
       subs:[{l:'Fase Smile Saat Ini',v:v.globalGrowth<47?'Risk-Off (USD kuat)':v.globalGrowth>53?'US Outperform (USD kuat)':'Middle (USD lemah)'}],
-      note:{type:'info',text:'DXY membentuk kurva "U" (senyum) terhadap pertumbuhan global — titik terkuat DXY di ekstrem bawah (krisis) dan atas (AS dominan).'},
+      note:{type:'info', text: v.globalGrowth<47?('Pertumbuhan global lemah (PMI='+v.globalGrowth+', di bawah 47): pasar masuk mode risk-off, dana mengalir ke USD sebagai safe-haven — sisi kiri "senyum" dollar.'):v.globalGrowth>53?('Pertumbuhan global kuat (PMI='+v.globalGrowth+', di atas 53) namun AS tetap outperform: USD menguat karena keunggulan relatif ekonomi AS — sisi kanan "senyum" dollar.'):('Pertumbuhan global moderat (PMI='+v.globalGrowth+', dekat 50): tak ada insentif risk-off maupun keunggulan AS kuat — inilah titik terlemah USD, dasar "senyum".')},
       chart:{xMin:40,xMax:60,yMin:Math.min(...pts.map(p=>p.y))-1,yMax:Math.max(...pts.map(p=>p.y))+1,vline:v.globalGrowth,hlines:[{y:0,color:COLORS.faint,dash:true}],series:[{label:'Tekanan DXY vs Pertumbuhan Global PMI',color:COLORS.amber,pts}]}}
   }
 },
@@ -1896,7 +1896,7 @@ addF([
     const pts=sweep(-30,30,60,dp=>v.beta*dp);
     return {big:fmtNum(fxChg,2),bigUnit:'%',bigLabel:'Prediksi Perubahan FX',
       subs:[{l:'Elastisitas β',v:fmtNum(v.beta,2)},{l:'Jika komoditas ±1%',v:'FX ≈ ±'+fmtNum(v.beta,2)+'%'}],
-      note:{type:'info',text:'Negara eksportir komoditas: β AUD/gold≈0.3, CAD/oil≈0.25, NOK/oil≈0.35 — korelasinya historis sangat kuat namun dapat berubah di krisis.'},
+      note:{type: v.commChange>0?'good':'warn', text:'Perubahan harga komoditas '+(v.commChange>0?'naik':'turun')+' '+Math.abs(v.commChange)+'% dikalikan elastisitas β='+v.beta+' menghasilkan prediksi FX '+(fxChg>=0?'menguat':'melemah')+' '+fmtNum(Math.abs(fxChg),2)+'% — makin tinggi β (makin bergantung negara pada ekspor komoditas ini), makin besar sensitivitas kursnya.'},
       chart:{xMin:-30,xMax:30,yMin:Math.min(...pts.map(p=>p.y))*1.1,yMax:Math.max(...pts.map(p=>p.y))*1.1,vline:v.commChange,hlines:[{y:0,color:COLORS.faint,dash:true}],series:[{label:'Perubahan FX vs Komoditas',color:COLORS.cyan,pts}]}}
   }
 },
@@ -2009,7 +2009,7 @@ addF([
     const pts=sweep(1,200,60,sf2=>v.a*Math.pow(sf2,v.b));
     return {big:fmtCompact(price),bigUnit:'$',bigLabel:'S2F Target Harga',
       subs:[{l:'Stock-to-Flow Ratio',v:fmtNum(sf,1)+'×'}],
-      note:{type:'info',text:'Model S2F bersifat sangat kontroversial secara akademis — historis cocok namun belum terbukti prediktif ke depan secara konsisten.'},
+      note:{type:'info', text:'S2F ratio '+fmtNum(sf,1)+'× (stock '+v.stock+' jt ÷ flow '+v.flow+' jt/tahun) dipangkatkan eksponen b='+v.b+' menghasilkan target harga yang sangat sensitif — karena ini fungsi pangkat, menaikkan sedikit eksponen b melipatgandakan target harga secara dramatis (geser slider b untuk merasakannya).'},
       chart:{xMin:1,xMax:200,yMin:0,yMax:Math.min(Math.max(...pts.map(p=>p.y)),500000),vline:sf,series:[{label:'S2F Price Model vs SF Ratio',color:COLORS.amber,pts}]}}
   }
 },
@@ -2086,7 +2086,7 @@ addF([
     const pts=sweep(500,6000,60,d=>Math.exp(v.a+v.b*Math.log(d)));
     return {big:fmtCompact(fairP),bigUnit:'$',bigLabel:'Harga Tren Log Regression',
       subs:[{l:'ln(P) Tren',v:fmtNum(logP,3)}],
-      note:{type:'info',text:'Rainbow Chart menambahkan beberapa band standar deviasi di atas/bawah garis tren — zona merah (atas) = euforia; zona biru (bawah) = oversold historis.'},
+      note:{type:'info', text:'Pada hari ke-'+v.days+' sejak genesis, ln(hari) dikalikan slope b='+v.b+' ditambah intercept a='+v.a+' menghasilkan ln(P)='+fmtNum(logP,2)+' — karena hubungan ini logaritmik, harga tren tumbuh makin lambat (secara persentase) seiring waktu, mencerminkan asumsi adopsi jaringan yang melambat.'},
       chart:{xMin:500,xMax:6000,yMin:0,yMax:Math.min(Math.max(...pts.map(p=>p.y)),500000),vline:v.days,series:[{label:'Log Regression Price',color:COLORS.amber,pts}]}}
   }
 },
@@ -2241,7 +2241,7 @@ addF([
     const pts=sweep(0.25,2,40,t=>v.S*Math.pow((1+v.rd/100)/(1+v.rf/100),t));
     return {big:fmtNum(F,2),bigUnit:'',bigLabel:'Harga Forward CIRP',
       subs:[{l:'Forward Points',v:fmtNum(fwdPts,0)+' bps'},{l:'Imbal Carry',v:fmtNum(v.rd-v.rf,2)+'%'}],
-      note:{type:'info',text:'Setiap penyimpangan dari CIRP menghadirkan arbitrase risk-free yang langsung dieksploitasi trader — salah satu paritas paling ketat di pasar keuangan.'},
+      note:{type:'info', text: v.rd>v.rf?('Suku bunga domestik ('+v.rd+'%) lebih tinggi dari asing ('+v.rf+'%): forward harus mendiskon mata uang domestik agar tak ada arbitrase — forward ('+fmtNum(F,2)+') di atas spot ('+v.S+'), forward points +'+fmtNum(fwdPts,0)+' bps.'):('Suku bunga domestik ('+v.rd+'%) lebih rendah dari asing ('+v.rf+'%): forward harus mempremi mata uang domestik — forward ('+fmtNum(F,2)+') di bawah spot ('+v.S+'), forward points '+fmtNum(fwdPts,0)+' bps.')},
       chart:{xMin:0.25,xMax:2,yMin:Math.min(...pts.map(p=>p.y))*0.99,yMax:Math.max(...pts.map(p=>p.y))*1.01,vline:v.T,series:[{label:'Harga Forward vs Tenor',color:COLORS.violet,pts}]}}
   }
 },
@@ -2254,7 +2254,7 @@ addF([
     const pts=sweep(-500,500,60,q=>v.lambda*q);
     return {big:fmtNum(impact,2),bigUnit:' bps',bigLabel:'Dampak Harga dari Order Flow',
       subs:[{l:'Arah',v: v.orderFlow>0?'Net Buyer (Up Pressure)':'Net Seller (Down Pressure)'}],
-      note:{type:'info',text:'Penelitian Lyons menunjukkan ~90% pergerakan kurs intraday bisa dijelaskan oleh order flow, bukan oleh berita fundamental langsung.'},
+      note:{type: v.orderFlow>0?'good':v.orderFlow<0?'warn':'info', text:'Order flow bersih '+fmtNum(v.orderFlow,0)+' M$ dikalikan dampak harga λ='+v.lambda+' bps/M$ menghasilkan pergerakan '+fmtNum(Math.abs(impact),2)+' bps ke arah '+(v.orderFlow>0?'naik (tekanan beli dominan)':v.orderFlow<0?'turun (tekanan jual dominan)':'netral')+' — sesuai temuan Lyons, order flow sendiri (bukan berita) menggerakkan sebagian besar harga FX intraday.'},
       chart:{xMin:-500,xMax:500,yMin:Math.min(...pts.map(p=>p.y))-2,yMax:Math.max(...pts.map(p=>p.y))+2,vline:v.orderFlow,hlines:[{y:0,color:COLORS.faint,dash:true}],series:[{label:'Dampak Harga (bps) vs Order Flow',color:COLORS.violet,pts}]}}
   }
 },
@@ -2301,7 +2301,7 @@ addF([
     const pts=sweep(0,v.supply*2,60,s=>v.k*Math.pow(s,v.m));
     return {big:fmtNum(P,4),bigUnit:'',bigLabel:'Harga Token Saat Ini P(s)',
       subs:[{l:'Biaya Beli '+v.dS+' Token',v:fmtNum(cost,4)},{l:'Harga Rata-rata Pembelian',v:fmtNum(avgPrice,4)}],
-      note:{type:'info',text:'Setiap pembelian menaikan harga secara deterministik — tidak ada spread/slippage tersembunyi. Penjual menerima token baru, pembeli menyetor cadangan ke kontrak.'},
+      note:{type:'info', text: v.m>1?('Eksponen kurva m='+v.m+' (>1, convex): harga naik makin cepat seiring supply bertambah — membeli '+v.dS+' token sekarang menggerakkan harga rata-rata ke '+fmtNum(avgPrice,4)+', lebih mahal dari harga saat ini ('+fmtNum(P,4)+') karena kelengkungan kurva.'):v.m<1?('Eksponen kurva m='+v.m+' (<1, concave): harga naik melambat seiring supply bertambah — slippage pembelian relatif kecil, harga rata-rata ('+fmtNum(avgPrice,4)+') mendekati harga saat ini ('+fmtNum(P,4)+').'):('Eksponen kurva m=1 (linear): harga naik proporsional langsung dengan supply — harga rata-rata pembelian ('+fmtNum(avgPrice,4)+') persis di tengah antara harga sebelum dan sesudah beli.')},
       chart:{xMin:0,xMax:v.supply*2,yMin:0,yMax:Math.max(...pts.map(p=>p.y))*1.1,vline:v.supply,series:[{label:'Kurva Harga P(s)',color:COLORS.violet,pts}]}}
   }
 },
@@ -2390,7 +2390,7 @@ addF([
   vars:[{k:'P',label:'Harga Saat Ini',min:1000,max:10000,step:50,def:3500,unit:' USDC'},{k:'Plo',label:'Batas Bawah Range (P_low)',min:500,max:9000,step:50,def:3000,unit:' USDC'},{k:'Phi',label:'Batas Atas Range (P_high)',min:2000,max:15000,step:50,def:4000,unit:' USDC'},{k:'L',label:'Likuiditas Disediakan (L)',min:100,max:100000,step:100,def:10000,unit:''}],
   calc(v){
     if(v.Plo>=v.Phi||v.P<v.Plo||v.P>v.Phi){
-      const note={type:'warn',text:'Harga saat ini di luar range — LP tidak aktif dan tidak menghasilkan fee.'};
+      const note={type:'warn',text:'Harga saat ini ('+v.P+') berada di luar range ['+v.Plo+', '+v.Phi+'] — LP tidak aktif: seluruh modal terkonversi 100% menjadi '+(v.P<v.Plo?'token Y/USDC':'token X')+' dan TIDAK menghasilkan fee trading sampai harga kembali masuk range.'};
       return {big:'INACTIVE',bigUnit:'',bigLabel:'Status LP',subs:[],note,chart:{mode:'bars',bars:[{label:'P_low',value:v.Plo,color:COLORS.faint},{label:'P_current',value:v.P,color:COLORS.red},{label:'P_high',value:v.Phi,color:COLORS.faint}]}};
     }
     const x=v.L*(Math.sqrt(v.Phi)-Math.sqrt(v.P))/(Math.sqrt(v.P)*Math.sqrt(v.Phi));
@@ -2399,7 +2399,7 @@ addF([
     const capitalEff=1/fullRangeEff;
     return {big:fmtNum(capitalEff,1),bigUnit:'×',bigLabel:'Efisiensi Modal vs v2',
       subs:[{l:'Token X dalam Range',v:fmtNum(x,4)},{l:'Token Y (USDC) dalam Range',v:fmtNum(y,2)}],
-      note:{type:'good',text:'Range lebih sempit = efisiensi modal lebih tinggi, tapi risiko keluar range juga meningkat. LP aktif hanya saat P berada dalam [P_low, P_high].'},
+      note:{type:'good',text:'Range ['+v.Plo+', '+v.Phi+'] sebesar '+fmtNum((v.Phi/v.Plo-1)*100,0)+'% dari harga bawah menghasilkan efisiensi modal '+fmtNum(capitalEff,1)+'× dibanding full-range v2 — range lebih sempit dari ini akan makin efisien, namun makin berisiko keluar range saat harga bergerak.'},
       chart:{mode:'bars',bars:[{label:'P_low',value:v.Plo,color:COLORS.faint},{label:'P_current',value:v.P,color:COLORS.amber},{label:'P_high',value:v.Phi,color:COLORS.faint}]}}
   }
 },
@@ -2414,7 +2414,7 @@ addF([
     const pts=sweep(0.25,4,40,t=>v.amount*(t/maxYears)/v.totalVe*100);
     return {big:fmtNum(vePow,0),bigUnit:' veTkn',bigLabel:'Voting Power',
       subs:[{l:'Porsi Voting',v:fmtNum(votingShare,4)+'%'},{l:'Boost APY Max',v:fmtNum(Math.min(votingShare*5,2.5),2)+'×'}],
-      note:{type:'info',text:'ve-Tokenomics "mengunci" modal dan insentif pemegang besar untuk tidak dump — terbukti menstabilkan protokol lewat Curve Wars.'},
+      note:{type:'info', text: v.lockYears>=3?('Durasi kunci '+v.lockYears+' tahun (mendekati maksimum 4 tahun) memberi voting power hampir penuh — vePower='+fmtNum(vePow,0)+' veTkn, porsi suara '+fmtNum(votingShare,3)+'% dari total protokol.'):('Durasi kunci '+v.lockYears+' tahun (dari maksimum 4 tahun) hanya memberi '+fmtNum(v.lockYears/4*100,0)+'% dari voting power maksimum yang bisa didapat jumlah token sama — kunci lebih lama untuk meningkatkan vePower secara linear.')},
       chart:{xMin:0.25,xMax:4,yMin:0,yMax:Math.max(...pts.map(p=>p.y))*1.15,vline:v.lockYears,series:[{label:'Voting Share (%) vs Durasi Kunci',color:COLORS.violet,pts}]}}
   }
 },
@@ -2477,7 +2477,7 @@ addF([
     const uniOut=v.x1*v.x2/(v.x1+v.trade)-v.x2+v.x2*v.trade/(v.x1+v.trade);
     return {big:fmtNum(out,4),bigUnit:' USDT',bigLabel:'USDT Diterima',
       subs:[{l:'Slippage',v:fmtNum(Math.abs(slip),4)+'%'},{l:'vs AMM biasa (Uniswap v2)',v:fmtNum(out/Math.max(v.x1*v.x2/(v.x1+v.trade),0.001),3)+'× lebih efisien'}],
-      note:{type:'good',text:'Curve StableSwap hampir zero slippage saat pool seimbang karena berperilaku seperti constant sum (x+y=D) saat mendekati rasio 1:1.'},
+      note:{type: Math.abs(slip)<0.1?'good':'info', text: v.A>100?('Amplification A='+v.A+' tinggi membuat kurva sangat datar di sekitar rasio 1:1 — slip hanya '+fmtNum(Math.abs(slip),4)+'%, jauh lebih efisien dari constant-product AMM biasa untuk aset pegged.'):('Amplification A='+v.A+' lebih rendah membuat kurva lebih melengkung seperti constant-product biasa — slip '+fmtNum(Math.abs(slip),4)+'% sedikit lebih besar dari pool dengan A tinggi.')},
       chart:{mode:'bars',decimals:2,unit:'',bars:[{label:'USDC Reserve',value:newX1,color:COLORS.cyan},{label:'USDT Reserve',value:newX2,color:COLORS.green},{label:'USDT Keluar',value:out,color:COLORS.amber}]}}
   }
 },
@@ -2493,7 +2493,7 @@ addF([
     const deviation=Math.abs(twap-v.spotPrice)/v.spotPrice*100;
     return {big:fmtNum(twap,2),bigUnit:'',bigLabel:'Harga TWAP '+v.window+' menit',
       subs:[{l:'Dampak Manipulasi ke TWAP',v:fmtNum(deviation,4)+'%'},{l:'Harga Spot',v:fmtNum(v.spotPrice,2)}],
-      note:{type:'good',text:'Bahkan manipulasi harga ekstrem dalam 1 blok hanya menggeser TWAP sebesar '+fmtNum(deviation,4)+'% — menjadikannya oracle sangat mahal untuk diserang.'},
+      note:{type:'good', text:'Manipulasi mendorong harga ke '+fmtNum(v.manipAttempt,0)+' (dari spot '+fmtNum(v.spotPrice,0)+') hanya berlangsung 2 dari '+(v.window*5)+' blok dalam window '+v.window+' menit — itu sebabnya TWAP cuma bergeser '+fmtNum(deviation,4)+'%; makin panjang window, makin kecil pengaruh manipulasi 1-blok ini.'},
       chart:{mode:'bars',decimals:2,bars:[{label:'Harga Spot',value:v.spotPrice,color:COLORS.amber},{label:'Harga Manipulasi',value:v.manipAttempt,color:COLORS.red},{label:'Harga TWAP',value:twap,color:COLORS.green}]}}
   }
 },
@@ -2523,7 +2523,7 @@ addF([
     const pts=sweep(0,100,60,votes=>v.totalEmission*(votes/v.totalVotes));
     return {big:fmtCompact(myEmission),bigUnit:' CRV/minggu',bigLabel:'Emisi CRV ke Gauge Saya',
       subs:[{l:'Share Emisi',v:fmtNum(share*100,2)+'%'},{l:'Nilai USD/minggu',v:fmtCompact(usdValue)+'$'}],
-      note:{type:'info',text:'Setiap protokol (Convex, Yearn, dll.) bersaing membeli veCRV untuk mengarahkan emisi ke pool mereka — itulah inti "Curve Wars".'},
+      note:{type:'info', text:'Share emisi '+fmtNum(share*100,2)+'% = votes Anda ('+v.myVotes+' M veCRV) ÷ total votes seluruh gauge ('+v.totalVotes+' M veCRV) — '+(share>0.1?'porsi ini cukup besar, mengindikasikan kontrol signifikan atas arah emisi pool ini.':'porsi ini relatif kecil; untuk menambah emisi ke gauge Anda perlu mengakumulasi lebih banyak veCRV atau menarik votes pemegang lain (inilah mekanisme "bribe" di Curve Wars).')},
       chart:{xMin:0,xMax:100,yMin:0,yMax:Math.max(...pts.map(p=>p.y))*1.1,vline:v.myVotes,series:[{label:'Emisi CRV vs Votes (M veCRV)',color:COLORS.violet,pts}]}}
   }
 },
@@ -2551,7 +2551,7 @@ addF([
     const pts=sweep(-887272,887272,80,t=>Math.log10(Math.pow(1.0001,t)));
     return {big:fmtCompact(price),bigUnit:'',bigLabel:'Harga di Tick '+v.tick,
       subs:[{l:'Tick per $1 perubahan',v:fmtCompact(tickPerDollar)},{l:'Perubahan per Tick',v:fmtNum(0.01,2)+'%'}],
-      note:{type:'info',text:'Desain tick memungkinkan representasi harga dari sangat kecil (negatif) hingga sangat besar (positif) dengan presisi konstan 0.01% per langkah.'},
+      note:{type:'info', text: v.tick>0?('Tick positif ('+v.tick+') berarti harga di atas 1.0 — tiap kenaikan 1 tick menaikkan harga 0.01%, sehingga 1.0001^'+v.tick+' menghasilkan harga '+fmtCompact(price)+'.'):v.tick<0?('Tick negatif ('+v.tick+') berarti harga di bawah 1.0 — desain logaritmik ini memastikan presisi 0.01% tetap konstan bahkan saat harga sangat kecil ('+fmtCompact(price)+').'):('Tick=0 adalah titik referensi harga=1.0 tepat — basis dari seluruh sistem penomoran tick CLMM.')},
       chart:{xMin:-887272,xMax:887272,yMin:Math.min(...pts.map(p=>p.y)),yMax:Math.max(...pts.map(p=>p.y)),vline:v.tick,series:[{label:'log₁₀(Harga) vs Tick',color:COLORS.green,pts}]}}
   }
 },
@@ -2566,7 +2566,7 @@ addF([
     const pts=sweep(0,5,60,t=>v.ethPrice*Math.pow(1+v.stakingYield/100,t));
     return {big:fmtNum(lstValue,0),bigUnit:'$',bigLabel:'Nilai LST per Token',
       subs:[{l:'Exchange Rate Akumulasi',v:fmtNum(exchangeRate,4)+'×'},{l:'Total APY (Staking+DeFi)',v:fmtNum(totalAPY,1)+'%'}],
-      note:{type:'good',text:'LST memungkinkan pemegang menikmati yield staking (ETH PoS) sekaligus mempertahankan likuiditas — digunakan sebagai agunan di Aave, Curve, Pendle, dll.'},
+      note:{type:'good', text: v.yearsStaked>0?('Setelah '+v.yearsStaked+' tahun staking pada yield '+v.stakingYield+'%/tahun, exchange rate terakumulasi jadi '+fmtNum(exchangeRate,4)+'× — nilai LST ('+fmtNum(lstValue,0)+'$) melebihi harga ETH murni ('+fmtNum(v.ethPrice,0)+'$) sebesar akumulasi yield ini, TANPA pernah kehilangan likuiditas.'):('Pada titik awal (durasi 0 tahun), nilai LST sama persis dengan harga ETH — exchange rate baru mulai terakumulasi seiring waktu berjalan, geser slider Durasi Staking untuk melihat efeknya.')},
       chart:{xMin:0,xMax:5,yMin:v.ethPrice*0.9,yMax:Math.max(...pts.map(p=>p.y))*1.1,vline:v.yearsStaked,series:[{label:'Nilai LST ($) vs Waktu Staking',color:COLORS.cyan,pts}]}}
   }
 },
@@ -2622,7 +2622,7 @@ addF([
     const impliedYield=-Math.log(ptValue/v.underlying)/v.T*100;
     return {big:fmtNum(ptValue,2),bigUnit:'$',bigLabel:'Harga PT (Principal Token)',
       subs:[{l:'Harga YT (Yield Token)',v:fmtNum(ytValue,2)+'$'},{l:'Implied APY dari PT',v:fmtNum(impliedYield,2)+'%'}],
-      note:{type:'info',text:'PT cocok untuk investor yang ingin "fix yield" — membeli PT di bawah par dan menahan hingga jatuh tempo menjamin yield pasti (mirip zero-coupon bond).'},
+      note:{type:'info', text:'PT bernilai '+fmtNum(ptValue,2)+'$ (diskon dari underlying '+v.underlying+'$) karena YT menyerap ekspektasi yield '+v.yieldRate+'%/tahun selama '+v.T+' tahun ke depan — makin tinggi yield rate atau makin lama waktu ke jatuh tempo, makin besar porsi nilai yang dipotong ke YT, membuat PT makin diskon (implied APY dari membeli PT: '+fmtNum(impliedYield,2)+'%).'},
       chart:{mode:'bars',decimals:2,unit:'$',bars:[{label:'PT (Pokok)',value:ptValue,color:COLORS.amber},{label:'YT (Yield Future)',value:ytValue,color:COLORS.cyan},{label:'Underlying Total',value:v.underlying,color:COLORS.faint}]}}
   }
 },
