@@ -1,0 +1,2897 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no">
+<title>Quant Codex · 106 Rumus Quant Finance Interaktif</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css">
+<style>
+:root{
+  --bg:#0b1220;
+  --bg2:#0e1626;
+  --panel:#101a30;
+  --panel2:#0d1626;
+  --border:#23304a;
+  --border-soft:#1a2440;
+  --text:#e8ecf4;
+  --dim:#8a93a8;
+  --faint:#5b6478;
+  --amber:#ffb020;
+  --amber-soft:rgba(255,176,32,.12);
+  --cyan:#5ec8d8;
+  --cyan-soft:rgba(94,200,216,.12);
+  --green:#34d399;
+  --red:#ef5d5d;
+  --violet:#a78bfa;
+  --mono:'IBM Plex Mono',ui-monospace,'SF Mono',Menlo,Consolas,monospace;
+  --sans:'Inter',-apple-system,'Segoe UI',Roboto,sans-serif;
+  --radius:10px;
+}
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;height:100%;background:var(--bg);color:var(--text);font-family:var(--sans);}
+body{overflow:hidden;}
+::selection{background:var(--amber-soft);color:var(--amber);}
+#app{display:flex;flex-direction:column;height:100vh;}
+
+/* ---- topbar ---- */
+#topbar{display:flex;align-items:center;gap:16px;padding:10px 16px;border-bottom:1px solid var(--border);background:linear-gradient(180deg,var(--bg2),var(--bg));flex-shrink:0;}
+.brand{font-family:var(--mono);font-weight:700;font-size:15px;letter-spacing:.5px;color:var(--text);white-space:nowrap;display:flex;align-items:baseline;gap:2px;}
+.brand .dot{color:var(--amber);}
+.brand span.sub{color:var(--amber);font-weight:700;}
+#hamburger{display:none;background:none;border:1px solid var(--border);color:var(--text);border-radius:8px;width:34px;height:34px;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;font-size:16px;}
+.searchwrap{flex:1;max-width:420px;position:relative;}
+.searchwrap input{width:100%;background:var(--panel2);border:1px solid var(--border);color:var(--text);padding:8px 12px 8px 30px;border-radius:8px;font-family:var(--sans);font-size:13px;outline:none;transition:border-color .15s;}
+.searchwrap input:focus{border-color:var(--amber);}
+.searchwrap::before{content:"⌕";position:absolute;left:10px;top:50%;transform:translateY(-50%);color:var(--faint);font-size:14px;pointer-events:none;}
+.stat{font-family:var(--mono);font-size:11px;color:var(--dim);white-space:nowrap;margin-left:auto;letter-spacing:.3px;}
+.stat b{color:var(--amber);}
+
+/* ---- ticker ---- */
+#ticker{height:30px;border-bottom:1px solid var(--border-soft);background:var(--panel2);overflow:hidden;position:relative;flex-shrink:0;}
+#ticker::before,#ticker::after{content:"";position:absolute;top:0;bottom:0;width:40px;z-index:2;pointer-events:none;}
+#ticker::before{left:0;background:linear-gradient(90deg,var(--panel2),transparent);}
+#ticker::after{right:0;background:linear-gradient(-90deg,var(--panel2),transparent);}
+#tickerTrack{display:flex;align-items:center;height:100%;white-space:nowrap;width:max-content;animation:tickerScroll 90s linear infinite;}
+#ticker:hover #tickerTrack{animation-play-state:paused;}
+@keyframes tickerScroll{from{transform:translateX(0);}to{transform:translateX(-50%);}}
+.tick-item{font-family:var(--mono);font-size:11px;color:var(--faint);padding:0 18px;cursor:pointer;border-right:1px solid var(--border-soft);transition:color .15s;}
+.tick-item:hover{color:var(--amber);}
+.tick-item b{color:var(--dim);font-weight:600;}
+.tick-item:hover b{color:var(--amber);}
+
+/* ---- body layout ---- */
+#body{flex:1;display:flex;overflow:hidden;min-height:0;position:relative;}
+#sidebar{width:300px;flex-shrink:0;border-right:1px solid var(--border);overflow-y:auto;background:var(--bg2);}
+#sidebar::-webkit-scrollbar{width:6px;}
+#sidebar::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px;}
+.chapter-group{border-bottom:1px solid var(--border-soft);}
+.chapter-head{display:flex;align-items:center;justify-content:space-between;padding:11px 14px;cursor:pointer;user-select:none;}
+.chapter-head:hover{background:var(--panel);}
+.chapter-head .ch-title{font-size:12px;font-weight:700;color:var(--text);letter-spacing:.3px;}
+.chapter-head .ch-sub{font-size:10.5px;color:var(--faint);margin-top:2px;}
+.chapter-head .ch-count{font-family:var(--mono);font-size:10.5px;color:var(--amber);background:var(--amber-soft);padding:2px 7px;border-radius:20px;flex-shrink:0;margin-left:8px;}
+.chapter-head .chev{color:var(--faint);font-size:11px;margin-left:8px;transition:transform .15s;flex-shrink:0;}
+.chapter-group.collapsed .chev{transform:rotate(-90deg);}
+.chapter-body{overflow:hidden;}
+.chapter-group.collapsed .chapter-body{display:none;}
+.formula-row{display:flex;align-items:baseline;gap:8px;padding:7px 14px 7px 20px;cursor:pointer;border-left:2px solid transparent;transition:background .12s,border-color .12s;}
+.formula-row:hover{background:var(--panel);}
+.formula-row.active{background:var(--panel);border-left-color:var(--amber);}
+.formula-row .yr{font-family:var(--mono);font-size:10.5px;color:var(--faint);flex-shrink:0;width:34px;}
+.formula-row.active .yr{color:var(--amber);}
+.formula-row .nm{font-size:12px;color:var(--dim);line-height:1.3;}
+.formula-row.active .nm{color:var(--text);}
+.formula-row.hidden{display:none;}
+
+#main{flex:1;overflow-y:auto;padding:26px 32px 60px;min-width:0;}
+#main::-webkit-scrollbar{width:8px;}
+#main::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px;}
+
+.f-meta{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:6px;}
+.pill{font-family:var(--mono);font-size:10.5px;padding:3px 9px;border-radius:20px;border:1px solid var(--border);color:var(--dim);}
+.pill.ch{color:var(--amber);border-color:var(--amber-soft);background:var(--amber-soft);}
+.f-title{font-size:24px;font-weight:700;letter-spacing:-.2px;margin:0 0 4px;}
+.f-who{font-family:var(--mono);font-size:12px;color:var(--faint);margin-bottom:16px;}
+.f-desc{font-size:13.5px;color:var(--dim);line-height:1.65;max-width:780px;margin-bottom:18px;}
+
+.f-formula-box{background:var(--panel2);border:1px solid var(--border);border-radius:var(--radius);padding:20px 18px;margin-bottom:20px;overflow-x:auto;}
+.f-formula-box .katex{font-size:1.05em;color:var(--text);}
+.f-formula-box .katex .mord,.f-formula-box .katex .mbin,.f-formula-box .katex .mrel{color:var(--text);}
+
+.f-grid{display:grid;grid-template-columns:1.15fr 1fr;gap:18px;margin-bottom:18px;align-items:start;}
+.card{background:var(--panel);border:1px solid var(--border);border-radius:var(--radius);padding:16px 18px;}
+.card h4{margin:0 0 12px;font-size:11px;text-transform:uppercase;letter-spacing:.6px;color:var(--faint);font-weight:600;}
+
+.ctrl{margin-bottom:14px;}
+.ctrl:last-child{margin-bottom:0;}
+.ctrl-label{display:flex;justify-content:space-between;font-size:12px;color:var(--dim);margin-bottom:6px;}
+.ctrl-label .val{font-family:var(--mono);color:var(--amber);font-weight:600;}
+input[type=range]{width:100%;height:4px;border-radius:2px;background:var(--border);outline:none;-webkit-appearance:none;accent-color:var(--amber);}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;height:14px;border-radius:50%;background:var(--amber);cursor:pointer;box-shadow:0 0 0 3px rgba(255,176,32,.18);}
+input[type=range]::-moz-range-thumb{width:14px;height:14px;border-radius:50%;background:var(--amber);border:none;cursor:pointer;box-shadow:0 0 0 3px rgba(255,176,32,.18);}
+.toggle-wrap{display:flex;background:var(--panel2);border:1px solid var(--border);border-radius:8px;overflow:hidden;}
+.toggle-wrap button{flex:1;background:none;border:none;color:var(--dim);font-size:12px;padding:7px;cursor:pointer;font-family:var(--sans);transition:.15s;}
+.toggle-wrap button.on{background:var(--amber-soft);color:var(--amber);font-weight:600;}
+
+.readout-big{margin-bottom:14px;}
+.readout-big .lbl{font-size:11px;color:var(--faint);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px;}
+.readout-big .num{font-family:var(--mono);font-size:34px;font-weight:700;color:var(--amber);text-shadow:0 0 18px rgba(255,176,32,.35);line-height:1.1;letter-spacing:-.5px;}
+.readout-big .num small{font-size:16px;font-weight:600;margin-left:3px;color:var(--amber);opacity:.8;}
+.sub-stats{display:flex;flex-direction:column;gap:7px;margin-top:14px;border-top:1px solid var(--border-soft);padding-top:12px;}
+.sub-stat{display:flex;justify-content:space-between;font-size:12px;}
+.sub-stat .l{color:var(--faint);}
+.sub-stat .v{font-family:var(--mono);color:var(--text);font-weight:600;}
+.note-badge{margin-top:14px;font-size:11.5px;padding:9px 12px;border-radius:8px;line-height:1.5;}
+.note-badge.info{background:var(--cyan-soft);color:var(--cyan);}
+.note-badge.warn{background:rgba(255,176,32,.12);color:var(--amber);}
+.note-badge.danger{background:rgba(239,93,93,.12);color:var(--red);}
+.note-badge.good{background:rgba(52,211,153,.12);color:var(--green);}
+
+.f-chartwrap{background:var(--panel);border:1px solid var(--border);border-radius:var(--radius);padding:16px 18px 10px;}
+.chart-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;flex-wrap:wrap;gap:8px;}
+.chart-head h4{margin:0;font-size:11px;text-transform:uppercase;letter-spacing:.6px;color:var(--faint);font-weight:600;}
+#chartCanvas{display:block;width:100%;}
+.legend{display:flex;gap:14px;flex-wrap:wrap;margin-top:8px;padding-top:8px;border-top:1px solid var(--border-soft);}
+.legend-item{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--dim);font-family:var(--mono);}
+.legend-sw{width:10px;height:10px;border-radius:2px;flex-shrink:0;}
+.legend-sw.dash{background:none;border-top:2px dashed var(--dim);height:0;width:14px;}
+.randbtn{background:var(--panel2);border:1px solid var(--border);color:var(--amber);font-family:var(--mono);font-size:11px;padding:6px 12px;border-radius:7px;cursor:pointer;transition:.15s;white-space:nowrap;}
+.randbtn:hover{background:var(--amber-soft);border-color:var(--amber);}
+.randbtn:active{transform:scale(.96);}
+
+.intro-card{background:linear-gradient(135deg,var(--panel),var(--panel2));border:1px solid var(--border);border-radius:var(--radius);padding:18px 20px;margin-bottom:20px;font-size:12.5px;color:var(--dim);line-height:1.6;}
+.intro-card b{color:var(--amber);}
+
+@media (max-width:880px){
+  #hamburger{display:flex;}
+  .stat{display:none;}
+  #sidebar{position:absolute;left:0;top:0;bottom:0;z-index:10;transform:translateX(-100%);transition:transform .2s;box-shadow:8px 0 24px rgba(0,0,0,.4);}
+  #sidebar.open{transform:translateX(0);}
+  #body.sb-open::after{content:"";position:absolute;inset:0;background:rgba(0,0,0,.4);z-index:5;}
+  #main{padding:18px 16px 50px;}
+  .f-grid{grid-template-columns:1fr;}
+  .f-title{font-size:20px;}
+  .readout-big .num{font-size:28px;}
+}
+</style>
+</head>
+<body>
+<div id="app">
+  <header id="topbar">
+    <button id="hamburger" aria-label="menu">☰</button>
+    <div class="brand">QUANT<span class="dot">·</span><span class="sub">CODEX</span></div>
+    <div class="searchwrap"><input id="searchInput" placeholder="cari rumus, tahun, atau penulis…" /></div>
+    <div class="stat"><b id="statCount">106</b> rumus · <b>5</b> bab · 1900–2024</div>
+  </header>
+  <div id="ticker"><div id="tickerTrack"></div></div>
+  <div id="body">
+    <nav id="sidebar"></nav>
+    <main id="main"></main>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.js"></script>
+<script>
+/* =========================================================
+   QUANT CODEX — engine inti
+   ========================================================= */
+
+/* ---------- math helpers ---------- */
+function clampNum(v,a,b){return Math.max(a,Math.min(b,v));}
+function lerp(a,b,t){return a+(b-a)*t;}
+function easeInOutCubic(t){return t<0.5?4*t*t*t:1-Math.pow(-2*t+2,3)/2;}
+
+function erf(x){
+  const s=x<0?-1:1; x=Math.abs(x);
+  const a1=0.254829592,a2=-0.284496736,a3=1.421413741,a4=-1.453152027,a5=1.061405429,p=0.3275911;
+  const t=1/(1+p*x);
+  const y=1-(((((a5*t+a4)*t)+a3)*t+a2)*t+a1)*t*Math.exp(-x*x);
+  return s*y;
+}
+function ncdf(x){return 0.5*(1+erf(x/Math.SQRT2));}
+function npdf(x){return Math.exp(-x*x/2)/Math.sqrt(2*Math.PI);}
+function invNcdf(p){
+  if(p<=0)return -8; if(p>=1)return 8;
+  const a=[-3.969683028665376e+01,2.209460984245205e+02,-2.759285104469687e+02,1.383577518672690e+02,-3.066479806614716e+01,2.506628277459239e+00];
+  const b=[-5.447609879822406e+01,1.615858368580409e+02,-1.556989798598866e+02,6.680131188771972e+01,-1.328068155288572e+01];
+  const c=[-7.784894002430293e-03,-3.223964580411365e-01,-2.400758277161838e+00,-2.549732539343734e+00,4.374664141464968e+00,2.938163982698783e+00];
+  const d=[7.784695709041462e-03,3.224671290700398e-01,2.445134137142996e+00,3.754408661907416e+00];
+  const plow=0.02425, phigh=1-plow; let q,r;
+  if(p<plow){q=Math.sqrt(-2*Math.log(p));return (((((c[0]*q+c[1])*q+c[2])*q+c[3])*q+c[4])*q+c[5])/((((d[0]*q+d[1])*q+d[2])*q+d[3])*q+1);}
+  if(p<=phigh){q=p-0.5;r=q*q;return (((((a[0]*r+a[1])*r+a[2])*r+a[3])*r+a[4])*r+a[5])*q/(((((b[0]*r+b[1])*r+b[2])*r+b[3])*r+b[4])*r+1);}
+  q=Math.sqrt(-2*Math.log(1-p));
+  return -(((((c[0]*q+c[1])*q+c[2])*q+c[3])*q+c[4])*q+c[5])/((((d[0]*q+d[1])*q+d[2])*q+d[3])*q+1);
+}
+function bsPrice(S,K,r,sigma,T,isCall){
+  if(isCall===undefined)isCall=true;
+  if(T<=0||sigma<=0)return Math.max(isCall?S-K:K-S,0);
+  const d1=(Math.log(S/K)+(r+sigma*sigma/2)*T)/(sigma*Math.sqrt(T));
+  const d2=d1-sigma*Math.sqrt(T);
+  return isCall? S*ncdf(d1)-K*Math.exp(-r*T)*ncdf(d2) : K*Math.exp(-r*T)*ncdf(-d2)-S*ncdf(-d1);
+}
+function bsGreeks(S,K,r,sigma,T){
+  const sqrtT=Math.sqrt(Math.max(T,1e-6));
+  const d1=(Math.log(S/K)+(r+sigma*sigma/2)*T)/(sigma*sqrtT);
+  const d2=d1-sigma*sqrtT;
+  return {
+    delta:ncdf(d1),
+    gamma:npdf(d1)/(S*sigma*sqrtT),
+    vega:S*npdf(d1)*sqrtT/100,
+    theta:(-S*npdf(d1)*sigma/(2*sqrtT)-r*K*Math.exp(-r*T)*ncdf(d2))/365,
+    rho:K*T*Math.exp(-r*T)*ncdf(d2)/100,
+    call:S*ncdf(d1)-K*Math.exp(-r*T)*ncdf(d2)
+  };
+}
+function crrBinomial(S,K,r,sigma,T,n,isCall){
+  if(isCall===undefined)isCall=true;
+  n=isFinite(n)?Math.max(2,Math.round(n)):15;
+  const dt=T/n,u=Math.exp(sigma*Math.sqrt(dt)),d=1/u;
+  const p=clampNum((Math.exp(r*dt)-d)/(u-d),0.001,0.999);
+  let pr=new Array(n+1);
+  for(let i=0;i<=n;i++){const ST=S*Math.pow(u,n-i)*Math.pow(d,i); pr[i]=isCall?Math.max(ST-K,0):Math.max(K-ST,0);}
+  const disc=Math.exp(-r*dt);
+  for(let step=n-1;step>=0;step--){for(let i=0;i<=step;i++){pr[i]=disc*(p*pr[i]+(1-p)*pr[i+1]);}}
+  return pr[0];
+}
+function bivNormCdf(x,y,rho){
+  const n=60,xlo=-8,ylo=-8;
+  const dx=(x-xlo)/n,dy=(y-ylo)/n;
+  const denom=2*Math.PI*Math.sqrt(Math.max(1-rho*rho,1e-6));
+  let sum=0;
+  for(let i=0;i<n;i++){
+    const xi=xlo+dx*(i+0.5);
+    for(let j=0;j<n;j++){
+      const yj=ylo+dy*(j+0.5);
+      const q=(xi*xi-2*rho*xi*yj+yj*yj)/(2*Math.max(1-rho*rho,1e-6));
+      sum+=Math.exp(-q)/denom*dx*dy;
+    }
+  }
+  return clampNum(sum,0,1);
+}
+function mulberry32(seed){
+  let t=seed>>>0;
+  return function(){
+    t+=0x6D2B79F5; let r=t;
+    r=Math.imul(r^(r>>>15),r|1);
+    r^=r+Math.imul(r^(r>>>7),r|61);
+    return ((r^(r>>>14))>>>0)/4294967296;
+  };
+}
+function gaussRNG(rng){let u=0,v=0;while(u===0)u=rng();while(v===0)v=rng();return Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v);}
+function sweep(xmin,xmax,n,fn){const pts=[];for(let i=0;i<=n;i++){const x=xmin+(xmax-xmin)*i/n;pts.push({x,y:fn(x)});}return pts;}
+
+/* ---------- formatting ---------- */
+function fmtNum(v,dec){
+  if(v===undefined||v===null||isNaN(v))return '–';
+  dec=dec===undefined?2:dec;
+  const neg=v<0; v=Math.abs(v);
+  let s=v.toFixed(dec);
+  let [int,frac]=s.split('.');
+  int=int.replace(/\B(?=(\d{3})+(?!\d))/g,',');
+  return (neg?'-':'')+int+(frac?'.'+frac:'');
+}
+function fmtAxis(v){
+  const av=Math.abs(v);
+  if(av>=1e9)return (v/1e9).toFixed(1)+'B';
+  if(av>=1e6)return (v/1e6).toFixed(1)+'M';
+  if(av>=1e3)return (v/1e3).toFixed(1)+'k';
+  if(av>=1)return v.toFixed(av>=100?0:1);
+  if(av===0)return '0';
+  return v.toFixed(3);
+}
+function fmtCompact(v){
+  if(v===undefined||v===null||isNaN(v))return '–';
+  const neg=v<0; v=Math.abs(v);
+  let s;
+  if(v>=1e12)s=(v/1e12).toFixed(2)+'T';
+  else if(v>=1e9)s=(v/1e9).toFixed(2)+'B';
+  else if(v>=1e6)s=(v/1e6).toFixed(2)+'M';
+  else if(v>=1e3)s=(v/1e3).toFixed(2)+'K';
+  else s=fmtNum(v,2);
+  return (neg?'-':'')+s;
+}
+
+/* ---------- colors ---------- */
+const COLORS={bg:'#0b1220',panel:'#101a30',border:'#23304a',borderSoft:'#1a2440',text:'#e8ecf4',dim:'#8a93a8',faint:'#5b6478',
+  amber:'#ffb020',cyan:'#5ec8d8',green:'#34d399',red:'#ef5d5d',violet:'#a78bfa'};
+
+/* ---------- canvas drawing primitives ---------- */
+function roundRectPath(ctx,x,y,w,h,r){
+  ctx.beginPath();
+  ctx.moveTo(x+r,y);
+  ctx.arcTo(x+w,y,x+w,y+h,r);
+  ctx.arcTo(x+w,y+h,x,y+h,r);
+  ctx.arcTo(x,y+h,x,y,r);
+  ctx.arcTo(x,y,x+w,y,r);
+  ctx.closePath();
+}
+function interpY(pts,x){
+  if(!pts||!pts.length)return null;
+  if(x<=pts[0].x)return pts[0].y;
+  if(x>=pts[pts.length-1].x)return pts[pts.length-1].y;
+  for(let i=0;i<pts.length-1;i++){
+    if(x>=pts[i].x&&x<=pts[i+1].x){
+      const t=(x-pts[i].x)/((pts[i+1].x-pts[i].x)||1);
+      return lerp(pts[i].y,pts[i+1].y,t);
+    }
+  }
+  return pts[pts.length-1].y;
+}
+const MONOFONT="11px ui-monospace, 'IBM Plex Mono', Menlo, Consolas, monospace";
+
+function drawLine(ctx,w,h,spec){
+  const m={l:48,r:18,t:16,b:30};
+  const pw=Math.max(10,w-m.l-m.r), ph=Math.max(10,h-m.t-m.b);
+  const xMin=spec.xMin,xMax=spec.xMax,yMin=spec.yMin,yMax=spec.yMax;
+  const sx=x=>m.l+(x-xMin)/((xMax-xMin)||1)*pw;
+  const sy=y=>m.t+(1-(y-yMin)/((yMax-yMin)||1))*ph;
+  ctx.clearRect(0,0,w,h);
+  ctx.strokeStyle=COLORS.borderSoft; ctx.lineWidth=1; ctx.font=MONOFONT; ctx.fillStyle=COLORS.faint;
+  for(let i=0;i<=4;i++){
+    const yv=yMin+(yMax-yMin)*i/4, yy=sy(yv);
+    ctx.beginPath();ctx.moveTo(m.l,yy);ctx.lineTo(w-m.r,yy);ctx.stroke();
+    ctx.fillText(fmtAxis(yv),3,yy+3);
+  }
+  for(let i=0;i<=5;i++){
+    const xv=xMin+(xMax-xMin)*i/5, xx=sx(xv);
+    ctx.fillText(fmtAxis(xv),Math.min(Math.max(xx-12,m.l),w-m.r-22),h-m.b+16);
+  }
+  (spec.hlines||[]).forEach(hl=>{
+    ctx.save();
+    ctx.strokeStyle=hl.color||COLORS.dim; ctx.setLineDash(hl.dash===false?[]:[4,4]); ctx.lineWidth=1.2;
+    const yy=sy(clampNum(hl.y,yMin,yMax));
+    ctx.beginPath();ctx.moveTo(m.l,yy);ctx.lineTo(w-m.r,yy);ctx.stroke();
+    ctx.restore();
+  });
+  (spec.series||[]).forEach(s=>{
+    if(s.fillRange){
+      const pts=s.pts.filter(p=>p.x>=s.fillRange[0]&&p.x<=s.fillRange[1]);
+      if(pts.length>1){
+        ctx.save();ctx.beginPath();
+        ctx.moveTo(sx(pts[0].x),sy(yMin));
+        pts.forEach(p=>ctx.lineTo(sx(p.x),sy(clampNum(p.y,yMin,yMax))));
+        ctx.lineTo(sx(pts[pts.length-1].x),sy(yMin));
+        ctx.closePath(); ctx.fillStyle=(s.color||COLORS.cyan)+'33'; ctx.fill(); ctx.restore();
+      }
+    }
+    if(s.fill){
+      ctx.save();ctx.beginPath();
+      ctx.moveTo(sx(s.pts[0].x),sy(yMin));
+      s.pts.forEach(p=>ctx.lineTo(sx(p.x),sy(clampNum(p.y,yMin,yMax))));
+      ctx.lineTo(sx(s.pts[s.pts.length-1].x),sy(yMin));
+      ctx.closePath(); ctx.fillStyle=(s.color||COLORS.cyan)+'1f'; ctx.fill(); ctx.restore();
+    }
+  });
+  (spec.series||[]).forEach(s=>{
+    ctx.save();
+    ctx.strokeStyle=s.color||COLORS.cyan; ctx.lineWidth=2.2; ctx.lineJoin='round';
+    if(s.dash)ctx.setLineDash([6,4]); else ctx.setLineDash([]);
+    ctx.beginPath();
+    s.pts.forEach((p,i)=>{const X=sx(p.x),Y=sy(clampNum(p.y,yMin,yMax));if(i===0)ctx.moveTo(X,Y);else ctx.lineTo(X,Y);});
+    ctx.stroke(); ctx.restore();
+  });
+  if(spec.vline!=null){
+    const xx=sx(clampNum(spec.vline,xMin,xMax));
+    ctx.save();ctx.strokeStyle=COLORS.amber;ctx.setLineDash([3,3]);ctx.lineWidth=1.2;
+    ctx.beginPath();ctx.moveTo(xx,m.t);ctx.lineTo(xx,h-m.b);ctx.stroke();ctx.restore();
+    const s0=(spec.series||[])[0];
+    if(s0){
+      const yv=interpY(s0.pts,clampNum(spec.vline,xMin,xMax));
+      if(yv!=null){
+        const Y=sy(clampNum(yv,yMin,yMax));
+        ctx.save();ctx.fillStyle=COLORS.amber;ctx.shadowColor=COLORS.amber;ctx.shadowBlur=9;
+        ctx.beginPath();ctx.arc(xx,Y,4.5,0,Math.PI*2);ctx.fill();ctx.restore();
+      }
+    }
+  }
+  ctx.strokeStyle=COLORS.border;ctx.lineWidth=1;ctx.strokeRect(m.l,m.t,pw,ph);
+}
+function drawGauge(ctx,w,h,spec){
+  ctx.clearRect(0,0,w,h);
+  const barY=h/2-4, barH=20;
+  const x0=20,x1=w-20;
+  const sx=v=>x0+(clampNum(v,spec.min,spec.max)-spec.min)/((spec.max-spec.min)||1)*(x1-x0);
+  (spec.zones||[]).forEach(z=>{
+    const xa=sx(z.from),xb=sx(z.to);
+    ctx.fillStyle=z.color; roundRectPath(ctx,xa,barY,Math.max(1,xb-xa),barH,4); ctx.fill();
+  });
+  ctx.strokeStyle=COLORS.border;ctx.lineWidth=1;roundRectPath(ctx,x0,barY,x1-x0,barH,6);ctx.stroke();
+  ctx.font=MONOFONT;ctx.fillStyle=COLORS.dim;ctx.textAlign='center';
+  (spec.zones||[]).forEach(z=>{
+    const xc=(sx(z.from)+sx(z.to))/2;
+    ctx.fillText(z.label,clampNum(xc,x0+30,x1-30),barY+barH+18);
+  });
+  const xv=sx(spec.value);
+  ctx.save();ctx.strokeStyle=COLORS.text;ctx.lineWidth=2;
+  ctx.beginPath();ctx.moveTo(xv,barY-8);ctx.lineTo(xv,barY+barH+8);ctx.stroke();
+  ctx.fillStyle=COLORS.amber;ctx.shadowColor=COLORS.amber;ctx.shadowBlur=10;
+  ctx.beginPath();ctx.moveTo(xv,barY-8);ctx.lineTo(xv-6,barY-18);ctx.lineTo(xv+6,barY-18);ctx.closePath();ctx.fill();
+  ctx.restore();
+  ctx.textAlign='center';ctx.font="bold 13px ui-monospace, 'IBM Plex Mono', Menlo, Consolas, monospace";ctx.fillStyle=COLORS.text;
+  ctx.fillText(fmtNum(spec.value,spec.decimals===undefined?2:spec.decimals)+(spec.unit||''),clampNum(xv,x0+30,x1-30),barY-26);
+  ctx.textAlign='left';
+}
+function drawBars(ctx,w,h,spec){
+  ctx.clearRect(0,0,w,h);
+  const m={l:48,r:18,t:24,b:34};
+  const pw=Math.max(10,w-m.l-m.r), ph=Math.max(10,h-m.t-m.b);
+  const vals=spec.bars.map(b=>b.value);
+  let yMin=Math.min(0,...vals), yMax=Math.max(0,...vals);
+  if(yMin===yMax)yMax=yMin+1;
+  const pad=(yMax-yMin)*0.18||1; yMin-=pad; yMax+=pad;
+  const sy=v=>m.t+(1-(v-yMin)/((yMax-yMin)||1))*ph;
+  const zeroY=sy(0);
+  ctx.strokeStyle=COLORS.borderSoft;ctx.lineWidth=1;
+  ctx.beginPath();ctx.moveTo(m.l,zeroY);ctx.lineTo(w-m.r,zeroY);ctx.stroke();
+  const n=spec.bars.length, gap=pw/n, bw=Math.min(gap*0.55,70);
+  ctx.font=MONOFONT;ctx.textAlign='center';
+  spec.bars.forEach((b,i)=>{
+    const xc=m.l+gap*i+gap/2;
+    const y0=zeroY,y1=sy(b.value);
+    const top=Math.min(y0,y1), hgt=Math.max(2,Math.abs(y1-y0));
+    ctx.fillStyle=b.color||COLORS.cyan;
+    roundRectPath(ctx,xc-bw/2,top,bw,hgt,3);ctx.fill();
+    ctx.fillStyle=COLORS.text;
+    ctx.fillText(fmtNum(b.value,spec.decimals===undefined?1:spec.decimals)+(spec.unit||''),xc,(b.value>=0?top-7:top+hgt+15));
+    ctx.fillStyle=COLORS.dim;
+    ctx.fillText(b.label,xc,h-m.b+16);
+  });
+  ctx.strokeStyle=COLORS.border;ctx.strokeRect(m.l,m.t,pw,ph);
+}
+
+function lerpSpec(from,to,e){
+  if(!from||from.mode!==to.mode)from=null;
+  if(to.mode==='gauge'){
+    const fv=from?from.value:to.min;
+    return Object.assign({},to,{value:lerp(fv,to.value,e)});
+  }
+  if(to.mode==='bars'){
+    return Object.assign({},to,{bars:to.bars.map((b,i)=>{
+      const fv=(from&&from.bars&&from.bars[i])?from.bars[i].value:0;
+      return Object.assign({},b,{value:lerp(fv,b.value,e)});
+    })});
+  }
+  return Object.assign({},to,{
+    vline: to.vline==null?to.vline:lerp((from&&from.vline!=null)?from.vline:to.vline,to.vline,e),
+    series: to.series.map((s,si)=>Object.assign({},s,{pts:s.pts.map((p,pi)=>{
+      const fp=(from&&from.series&&from.series[si]&&from.series[si].pts[pi])?from.series[si].pts[pi]:null;
+      return {x:p.x,y: fp? lerp(fp.y,p.y,e) : lerp(to.yMin,p.y,e)};
+    })})),
+    hlines: (to.hlines||[]).map((hl,i)=>{
+      const fh=(from&&from.hlines&&from.hlines[i])?from.hlines[i]:null;
+      return Object.assign({},hl,{y: fh? lerp(fh.y,hl.y,e): hl.y});
+    })
+  });
+}
+
+class QChart{
+  constructor(canvas){
+    this.canvas=canvas; this.ctx=canvas.getContext('2d');
+    this.cur=null; this.raf=null;
+    this._resize();
+    this._ro=new ResizeObserver(()=>this._resize());
+    this._ro.observe(canvas.parentElement);
+  }
+  _resize(){
+    const dpr=window.devicePixelRatio||1;
+    const rect=this.canvas.parentElement.getBoundingClientRect();
+    const hpx= window.innerWidth<=880?220:264;
+    this.w=Math.max(260,rect.width-2); this.h=hpx;
+    this.canvas.width=this.w*dpr; this.canvas.height=this.h*dpr;
+    this.canvas.style.width=this.w+'px'; this.canvas.style.height=this.h+'px';
+    this.ctx.setTransform(dpr,0,0,dpr,0,0);
+    if(this.cur)this._draw(this.cur);
+  }
+  destroy(){ if(this._ro)this._ro.disconnect(); cancelAnimationFrame(this.raf); }
+  _draw(spec){
+    if(spec.mode==='gauge')drawGauge(this.ctx,this.w,this.h,spec);
+    else if(spec.mode==='bars')drawBars(this.ctx,this.w,this.h,spec);
+    else drawLine(this.ctx,this.w,this.h,spec);
+  }
+  set(spec){
+    cancelAnimationFrame(this.raf);
+    const from=this.cur, to=spec;
+    const start=performance.now(); const dur= from?380:680;
+    const step=(now)=>{
+      const k=Math.min(1,(now-start)/dur); const e=easeInOutCubic(k);
+      this._draw(lerpSpec(from,to,e));
+      if(k<1){this.raf=requestAnimationFrame(step);} else {this.cur=to;}
+    };
+    this.raf=requestAnimationFrame(step);
+  }
+}
+
+/* ---------- chapter meta ---------- */
+const CHAPTER_META=[
+  {id:1,title:'Valuation & Pricing',sub:'Pricing Aset Obligasi, Ekuitas & Derivatif'},
+  {id:2,title:'Risk & Volatility Dynamics',sub:'Manajemen Risiko Institusional'},
+  {id:3,title:'Portfolio Optimization & Quant Factors',sub:'Alokasi Modal & Ekstraksi Alpha'},
+  {id:4,title:'Macro Fundamentals & On-Chain Cycles',sub:'Siklus Makro & Metrik Absolut Jaringan'},
+  {id:5,title:'Market Structure, Arbitrage & DeFi Mechanics',sub:'Infrastruktur, DEX & Protokol'}
+];
+
+/* ---------- formula registry ---------- */
+const FORMULAS=[];
+function addF(arr){FORMULAS.push.apply(FORMULAS,arr);}
+
+/* ===================== BAB 1: VALUATION & PRICING (19) ===================== */
+addF([
+{
+  id:'bachelier',ch:1,year:1900,who:'Louis Bachelier',name:'Bachelier Model',
+  desc:'Model opsi pertama dalam sejarah yang menggunakan gerak Brown (Brownian motion) untuk memodelkan harga aset secara acak — fondasi matematis seluruh quant finance modern.',
+  tex:'C=(S-K)\\Phi(d)+\\sigma\\sqrt{T}\\,\\varphi(d),\\quad d=\\frac{S-K}{\\sigma\\sqrt{T}}',
+  vars:[
+    {k:'S',label:'Harga Saham Saat Ini (S)',min:50,max:200,step:1,def:100,unit:''},
+    {k:'K',label:'Harga Strike (K)',min:50,max:200,step:1,def:100,unit:''},
+    {k:'sigma',label:'Volatilitas Absolut (σ)',min:2,max:50,step:1,def:20,unit:''},
+    {k:'T',label:'Waktu Jatuh Tempo (T)',min:0.05,max:3,step:0.05,def:1,unit:' th'}
+  ],
+  calc(v){
+    const d=(v.S-v.K)/(v.sigma*Math.sqrt(v.T));
+    const call=(v.S-v.K)*ncdf(d)+v.sigma*Math.sqrt(v.T)*npdf(d);
+    const pts=sweep(50,200,60,S=>{ const dd=(S-v.K)/(v.sigma*Math.sqrt(v.T)); return (S-v.K)*ncdf(dd)+v.sigma*Math.sqrt(v.T)*npdf(dd); });
+    return {
+      big:fmtNum(call,2),bigUnit:'',bigLabel:'Harga Opsi Call (C)',
+      subs:[{l:'d (jarak standar)',v:fmtNum(d,3)},{l:'Φ(d)',v:fmtNum(ncdf(d),3)}],
+      note:{type:'info',text:'Model Bachelier mengasumsikan harga bergerak aditif (normal), bukan multiplikatif seperti Black-Scholes — secara teoritis bisa menghasilkan harga aset negatif.'},
+      chart:{xMin:50,xMax:200,yMin:0,yMax:Math.max(...pts.map(p=>p.y),1)*1.15,vline:v.S,series:[{label:'Harga Call vs Harga Saham',color:COLORS.amber,pts}]}
+    };
+  }
+},
+{
+  id:'duration',ch:1,year:1938,who:'Frederick Macaulay',name:'Macaulay Duration',
+  desc:'Mengukur rata-rata tertimbang waktu jatuh tempo arus kas obligasi — sensitivitas harga terhadap perubahan suku bunga.',
+  tex:'D=\\frac{\\sum_t t\\cdot \\frac{CF_t}{(1+y)^t}}{P},\\quad D_{mod}=\\frac{D}{1+y}',
+  vars:[
+    {k:'coupon',label:'Kupon Tahunan',min:0,max:15,step:0.25,def:5,unit:'%'},
+    {k:'yield',label:'Yield to Maturity (y)',min:0.5,max:20,step:0.25,def:5,unit:'%'},
+    {k:'maturity',label:'Jatuh Tempo',min:1,max:30,step:1,def:10,unit:' th'}
+  ],
+  calc(v){
+    function bondCalc(y,coupon,n){
+      let price=0,wsum=0;
+      for(let t=1;t<=n;t++){ const cf=t===n? coupon+100 : coupon; const pv=cf/Math.pow(1+y/100,t); price+=pv; wsum+=t*pv; }
+      const D=wsum/price; const modD=D/(1+y/100);
+      return {price,D,modD};
+    }
+    const n=Math.round(v.maturity);
+    const r=bondCalc(v.yield,v.coupon,n);
+    const pts=sweep(0.5,20,60,y=>bondCalc(y,v.coupon,n).modD);
+    return {
+      big:fmtNum(r.modD,2),bigUnit:' th',bigLabel:'Modified Duration',
+      subs:[{l:'Harga Obligasi',v:fmtNum(r.price,2)},{l:'Macaulay Duration',v:fmtNum(r.D,2)+' th'}],
+      note:{type:'info',text:'Semakin tinggi yield, semakin rendah durasi — obligasi menjadi kurang sensitif terhadap perubahan suku bunga lebih lanjut.'},
+      chart:{xMin:0.5,xMax:20,yMin:0,yMax:Math.max(...pts.map(p=>p.y))*1.15,vline:v.yield,series:[{label:'Modified Duration vs Yield',color:COLORS.cyan,pts}]}
+    };
+  }
+},
+{
+  id:'capm',ch:1,year:1964,who:'Sharpe, Lintner, Mossin',name:'CAPM',
+  desc:'Mengkuantifikasi ekspektasi imbal hasil aset berdasarkan risiko sistematis (Beta) relatif terhadap pasar — fondasi Security Market Line.',
+  tex:'E(R_i)=R_f+\\beta_i\\,[E(R_m)-R_f]',
+  vars:[
+    {k:'rf',label:'Risk-Free Rate (Rf)',min:0,max:10,step:0.25,def:4,unit:'%'},
+    {k:'beta',label:'Beta (β)',min:-1,max:3,step:0.05,def:1.2,unit:''},
+    {k:'rm',label:'Expected Market Return (Rm)',min:0,max:20,step:0.25,def:9,unit:'%'}
+  ],
+  calc(v){
+    const er=v.rf+v.beta*(v.rm-v.rf);
+    const pts=sweep(-1,3,50,b=>v.rf+b*(v.rm-v.rf));
+    return {
+      big:fmtNum(er,2),bigUnit:'%',bigLabel:'Expected Return E(Rᵢ)',
+      subs:[{l:'Premi Risiko Pasar',v:fmtNum(v.rm-v.rf,2)+'%'},{l:'Premi Risiko Aset',v:fmtNum(er-v.rf,2)+'%'}],
+      note:{type: v.beta>1?'warn':'good', text: v.beta>1? 'Beta>1: aset lebih volatil dari pasar (risiko sistematis tinggi).':'Beta≤1: aset relatif defensif terhadap gerakan pasar.'},
+      chart:{xMin:-1,xMax:3,yMin:Math.min(...pts.map(p=>p.y))-2,yMax:Math.max(...pts.map(p=>p.y))+2,vline:v.beta,series:[{label:'Security Market Line',color:COLORS.amber,pts}],hlines:[{y:v.rf,color:COLORS.faint,dash:true}]}
+    };
+  }
+},
+{
+  id:'convexity',ch:1,year:1967,who:'Macaulay Extension',name:'Bond Convexity',
+  desc:'Turunan kedua harga obligasi terhadap yield — koreksi non-linear yang menutupi kelemahan estimasi Duration saja, terutama untuk pergerakan yield besar.',
+  tex:'\\frac{\\Delta P}{P}\\approx -D_{mod}\\,\\Delta y+\\tfrac12\\,C\\,(\\Delta y)^2',
+  vars:[
+    {k:'coupon',label:'Kupon Tahunan',min:0,max:15,step:0.25,def:5,unit:'%'},
+    {k:'yield',label:'Yield Awal (y)',min:0.5,max:20,step:0.25,def:5,unit:'%'},
+    {k:'maturity',label:'Jatuh Tempo',min:1,max:30,step:1,def:15,unit:' th'}
+  ],
+  calc(v){
+    function bondCalc(y,coupon,n){
+      let price=0,wsum=0,wsum2=0;
+      for(let t=1;t<=n;t++){ const cf=t===n? coupon+100:coupon; const pv=cf/Math.pow(1+y/100,t); price+=pv; wsum+=t*pv; wsum2+=t*(t+1)*cf/Math.pow(1+y/100,t+2); }
+      const D=wsum/price, modD=D/(1+y/100); const C=wsum2/price;
+      return {price,modD,C};
+    }
+    const n=Math.round(v.maturity);
+    const base=bondCalc(v.yield,v.coupon,n);
+    const dys=[]; for(let dy=-3;dy<=3;dy+=0.15)dys.push(dy);
+    const exact=dys.map(dy=>({x:dy,y:(bondCalc(v.yield+dy,v.coupon,n).price/base.price-1)*100}));
+    const durOnly=dys.map(dy=>({x:dy,y:-base.modD*dy}));
+    const durConv=dys.map(dy=>({x:dy,y:-base.modD*dy+0.5*base.C*dy*dy/100}));
+    const allY=[...durOnly,...durConv,...exact].map(p=>p.y);
+    return {
+      big:fmtNum(base.C,1),bigUnit:'',bigLabel:'Convexity (C)',
+      subs:[{l:'Modified Duration',v:fmtNum(base.modD,2)},{l:'Harga Saat Ini',v:fmtNum(base.price,2)}],
+      note:{type:'info',text:'Garis "Duration saja" menyimpang dari "Harga Eksak" saat Δy besar — Convexity mengoreksi penyimpangan kuadratik ini.'},
+      chart:{xMin:-3,xMax:3,yMin:Math.min(...allY)-2,yMax:Math.max(...allY)+2,vline:0,series:[
+        {label:'Harga Eksak',color:COLORS.amber,pts:exact},
+        {label:'Estimasi Duration saja',color:COLORS.red,pts:durOnly,dash:true},
+        {label:'Duration + Convexity',color:COLORS.cyan,pts:durConv,dash:true}
+      ]}
+    };
+  }
+},
+{
+  id:'blackscholes',ch:1,year:1973,who:'Black, Scholes, Merton',name:'Black-Scholes Model',
+  desc:'Persamaan diferensial parsial yang menjadi standar industri untuk menentukan harga wajar opsi gaya Eropa.',
+  tex:'C=S\\,\\Phi(d_1)-Ke^{-rT}\\Phi(d_2),\\quad d_1=\\frac{\\ln(S/K)+(r+\\sigma^2/2)T}{\\sigma\\sqrt T}',
+  vars:[
+    {k:'S',label:'Harga Saham (S)',min:50,max:200,step:1,def:100,unit:''},
+    {k:'K',label:'Harga Strike (K)',min:50,max:200,step:1,def:100,unit:''},
+    {k:'r',label:'Suku Bunga Bebas Risiko (r)',min:0,max:10,step:0.25,def:5,unit:'%'},
+    {k:'sigma',label:'Volatilitas (σ)',min:5,max:100,step:1,def:20,unit:'%'},
+    {k:'T',label:'Waktu Jatuh Tempo (T)',min:0.05,max:3,step:0.05,def:1,unit:' th'}
+  ],
+  calc(v){
+    const call=bsPrice(v.S,v.K,v.r/100,v.sigma/100,v.T,true);
+    const put=bsPrice(v.S,v.K,v.r/100,v.sigma/100,v.T,false);
+    const pts=sweep(50,200,60,S=>bsPrice(S,v.K,v.r/100,v.sigma/100,v.T,true));
+    return {
+      big:fmtNum(call,2),bigUnit:'',bigLabel:'Harga Call (C)',
+      subs:[{l:'Harga Put (P)',v:fmtNum(put,2)},{l:'Cek Put-Call Parity',v:fmtNum(call-put-(v.S-v.K*Math.exp(-v.r/100*v.T)),4)}],
+      note:{type:'info',text:'Model mengasumsikan volatilitas konstan & distribusi log-normal — penyederhanaan yang memicu lahirnya volatility smile/skew di pasar nyata.'},
+      chart:{xMin:50,xMax:200,yMin:0,yMax:Math.max(...pts.map(p=>p.y))*1.15,vline:v.S,series:[{label:'Harga Call vs S',color:COLORS.amber,pts}]}
+    };
+  }
+},
+{
+  id:'bsgreeks',ch:1,year:1973,who:'Black, Scholes, Merton',name:'Black-Scholes Greeks',
+  desc:'Mengukur sensitivitas harga opsi terhadap perubahan harga underlying (Delta, Gamma), volatilitas (Vega), waktu (Theta), dan suku bunga (Rho).',
+  tex:'\\Delta=\\Phi(d_1),\\ \\ \\Gamma=\\frac{\\varphi(d_1)}{S\\sigma\\sqrt T},\\ \\ \\nu=S\\varphi(d_1)\\sqrt T',
+  vars:[
+    {k:'S',label:'Harga Saham (S)',min:50,max:200,step:1,def:100,unit:''},
+    {k:'K',label:'Harga Strike (K)',min:50,max:200,step:1,def:100,unit:''},
+    {k:'r',label:'Suku Bunga (r)',min:0,max:10,step:0.25,def:5,unit:'%'},
+    {k:'sigma',label:'Volatilitas (σ)',min:5,max:100,step:1,def:20,unit:'%'},
+    {k:'T',label:'Waktu Jatuh Tempo (T)',min:0.05,max:3,step:0.05,def:1,unit:' th'}
+  ],
+  calc(v){
+    const g=bsGreeks(v.S,v.K,v.r/100,v.sigma/100,v.T);
+    const bars=[
+      {label:'Delta',value:g.delta,color:COLORS.amber},
+      {label:'Gamma×10',value:g.gamma*10,color:COLORS.cyan},
+      {label:'Vega',value:g.vega,color:COLORS.green},
+      {label:'Theta',value:g.theta,color:COLORS.red},
+      {label:'Rho',value:g.rho,color:COLORS.violet}
+    ];
+    return {
+      big:fmtNum(g.delta,3),bigUnit:'',bigLabel:'Delta (Δ)',
+      subs:[{l:'Gamma',v:fmtNum(g.gamma,4)},{l:'Vega (per 1% IV)',v:fmtNum(g.vega,3)},{l:'Theta (per hari)',v:fmtNum(g.theta,3)},{l:'Rho (per 1%)',v:fmtNum(g.rho,3)}],
+      note:{type:'info',text:'Gamma ditampilkan ×10 pada grafik agar skalanya sebanding secara visual — nilai asli tetap pada panel "Hasil".'},
+      chart:{mode:'bars',decimals:3,bars}
+    };
+  }
+},
+{
+  id:'black76',ch:1,year:1976,who:'Fischer Black',name:'Black Model (Black-76)',
+  desc:'Kerangka untuk menentukan harga opsi pada kontrak futures dan forward, menggantikan harga spot dengan harga futures.',
+  tex:'C=e^{-rT}[F\\Phi(d_1)-K\\Phi(d_2)],\\quad d_1=\\frac{\\ln(F/K)+\\sigma^2T/2}{\\sigma\\sqrt T}',
+  vars:[
+    {k:'F',label:'Harga Futures (F)',min:50,max:200,step:1,def:100,unit:''},
+    {k:'K',label:'Harga Strike (K)',min:50,max:200,step:1,def:100,unit:''},
+    {k:'r',label:'Suku Bunga (r)',min:0,max:10,step:0.25,def:3,unit:'%'},
+    {k:'sigma',label:'Volatilitas (σ)',min:5,max:100,step:1,def:25,unit:'%'},
+    {k:'T',label:'Waktu Jatuh Tempo (T)',min:0.05,max:2,step:0.05,def:0.5,unit:' th'}
+  ],
+  calc(v){
+    function price(F){
+      const sig=v.sigma/100; const d1=(Math.log(F/v.K)+sig*sig*v.T/2)/(sig*Math.sqrt(v.T));
+      const d2=d1-sig*Math.sqrt(v.T);
+      return Math.exp(-v.r/100*v.T)*(F*ncdf(d1)-v.K*ncdf(d2));
+    }
+    const call=price(v.F);
+    const pts=sweep(50,200,60,price);
+    return {
+      big:fmtNum(call,2),bigUnit:'',bigLabel:'Harga Call Futures',
+      subs:[{l:'Faktor Diskonto e^-rT',v:fmtNum(Math.exp(-v.r/100*v.T),4)}],
+      note:{type:'info',text:'Karena posisi futures bersifat self-financing, drift risk-neutral menjadi nol — hanya faktor diskonto yang membedakannya dari Black-Scholes.'},
+      chart:{xMin:50,xMax:200,yMin:0,yMax:Math.max(...pts.map(p=>p.y))*1.15,vline:v.F,series:[{label:'Harga Call vs Futures',color:COLORS.amber,pts}]}
+    };
+  }
+},
+{
+  id:'merton-jd',ch:1,year:1976,who:'Robert Merton',name:'Merton Jump-Diffusion',
+  desc:'Memperluas Black-Scholes dengan menambahkan elemen lonjakan harga mendadak (jump) di atas gerak Brown kontinu — menangkap risiko crash.',
+  tex:'C=\\sum_{n=0}^{\\infty} e^{-\\lambda T}\\frac{(\\lambda T)^n}{n!}\\,C_{BS}(\\sigma_n,r_n)',
+  vars:[
+    {k:'S0',label:'Harga Awal (S₀)',min:50,max:200,step:1,def:100,unit:''},
+    {k:'K',label:'Harga Strike (K)',min:50,max:200,step:1,def:100,unit:''},
+    {k:'sigma',label:'Volatilitas Difusi (σ)',min:5,max:60,step:1,def:20,unit:'%'},
+    {k:'lambda',label:'Intensitas Lompatan (λ per th)',min:0,max:5,step:0.1,def:1,unit:''},
+    {k:'delta',label:'Volatilitas Ukuran Lompatan (δ)',min:0,max:50,step:1,def:15,unit:'%'},
+    {k:'T',label:'Waktu Jatuh Tempo (T)',min:0.1,max:2,step:0.05,def:1,unit:' th'}
+  ],
+  stochastic:true,
+  calc(v,rng){
+    function factorial(n){let f=1;for(let i=2;i<=n;i++)f*=i;return f;}
+    const rf=0.03,lam=v.lambda,sig=v.sigma/100,delt=v.delta/100;
+    const k=Math.exp(0.5*delt*delt)-1;
+    let price=0;
+    for(let n=0;n<=12;n++){
+      const sigN=Math.sqrt(sig*sig+n*delt*delt/v.T);
+      const rN=rf-lam*k+n*Math.log(1+k)/v.T;
+      const w=Math.exp(-lam*v.T)*Math.pow(lam*v.T,n)/factorial(n);
+      price+=w*bsPrice(v.S0,v.K,rN,sigN,v.T,true);
+    }
+    const steps=80; const dt=v.T/steps; const pts=[]; let S=v.S0;
+    for(let i=0;i<=steps;i++){
+      pts.push({x:i*dt,y:S});
+      const z=gaussRNG(rng);
+      S=S*Math.exp((rf-0.5*sig*sig)*dt+sig*Math.sqrt(dt)*z);
+      if(rng()<lam*dt){ const jz=gaussRNG(rng); S=S*Math.exp(delt*jz-0.5*delt*delt); }
+      S=Math.max(S,1);
+    }
+    const ys=pts.map(p=>p.y);
+    return {
+      big:fmtNum(price,2),bigUnit:'',bigLabel:'Harga Opsi Call',
+      subs:[{l:'Kompensasi Drift (λk)',v:fmtNum(lam*k*100,2)+'%'}],
+      note:{type:'warn',text:'Lintasan simulasi menunjukkan lompatan mendadak (jump) di atas pergerakan difusi normal — klik "Acak Ulang" untuk skenario baru.'},
+      chart:{xMin:0,xMax:v.T,yMin:Math.min(...ys)*0.9,yMax:Math.max(...ys)*1.1,series:[{label:'Lintasan Harga Tersimulasi',color:COLORS.violet,pts}]}
+    };
+  }
+},
+{
+  id:'vasicek',ch:1,year:1977,who:'Oldřich Vašíček',name:'Vasicek Model',
+  desc:'Model suku bunga jangka pendek pertama dengan sifat mean-reverting — suku bunga ditarik kembali ke rata-rata jangka panjang.',
+  tex:'dr=a(b-r)\\,dt+\\sigma\\,dW',
+  vars:[
+    {k:'a',label:'Kecepatan Reversi (a)',min:0.05,max:2,step:0.05,def:0.3,unit:''},
+    {k:'b',label:'Rata-rata Jangka Panjang (b)',min:0,max:10,step:0.1,def:4,unit:'%'},
+    {k:'sigma',label:'Volatilitas (σ)',min:0.1,max:5,step:0.1,def:1,unit:'%'},
+    {k:'r0',label:'Suku Bunga Awal (r₀)',min:0,max:10,step:0.1,def:3,unit:'%'},
+    {k:'T',label:'Jatuh Tempo Obligasi (T)',min:0.5,max:30,step:0.5,def:5,unit:' th'}
+  ],
+  stochastic:true,
+  calc(v,rng){
+    const a=v.a,b=v.b/100,sig=v.sigma/100,r0=v.r0/100,T=v.T;
+    const Bt=(1-Math.exp(-a*T))/a;
+    const At=Math.exp((Bt-T)*(b-sig*sig/(2*a*a))-sig*sig*Bt*Bt/(4*a));
+    const bondPrice=At*Math.exp(-Bt*r0)*100;
+    const steps=100,dt=T/steps; const pts=[]; let r=r0;
+    for(let i=0;i<=steps;i++){ pts.push({x:i*dt,y:r*100}); const z=gaussRNG(rng); r=r+a*(b-r)*dt+sig*Math.sqrt(dt)*z; }
+    const ys=pts.map(p=>p.y);
+    return {
+      big:fmtNum(bondPrice,2),bigUnit:'',bigLabel:'Harga Zero-Coupon Bond',
+      subs:[{l:'Half-life Reversi',v:fmtNum(Math.log(2)/a,2)+' th'}],
+      note:{type:'info',text:'Kelemahan model: suku bunga secara teoritis bisa menjadi negatif (terlihat bila lintasan menukik di bawah 0%).'},
+      chart:{xMin:0,xMax:T,yMin:Math.min(...ys,0)-1,yMax:Math.max(...ys)+1,hlines:[{y:b*100,color:COLORS.faint,dash:true}],series:[{label:'Lintasan Suku Bunga Simulasi',color:COLORS.cyan,pts}]}
+    };
+  }
+},
+{
+  id:'crr',ch:1,year:1979,who:'Cox, Ross, Rubinstein',name:'CRR Binomial Model',
+  desc:'Pendekatan diskrit (pohon binomial) untuk mem-pricing opsi secara numerik — konvergen ke Black-Scholes saat jumlah langkah bertambah.',
+  tex:'u=e^{\\sigma\\sqrt{\\Delta t}},\\ d=1/u,\\ p=\\frac{e^{r\\Delta t}-d}{u-d}',
+  vars:[
+    {k:'S',label:'Harga Saham (S)',min:50,max:200,step:1,def:100,unit:''},
+    {k:'K',label:'Harga Strike (K)',min:50,max:200,step:1,def:100,unit:''},
+    {k:'r',label:'Suku Bunga (r)',min:0,max:10,step:0.25,def:5,unit:'%'},
+    {k:'sigma',label:'Volatilitas (σ)',min:5,max:100,step:1,def:20,unit:'%'},
+    {k:'T',label:'Jatuh Tempo (T)',min:0.1,max:2,step:0.05,def:1,unit:' th'},
+    {k:'steps',label:'Jumlah Langkah Pohon (n)',min:2,max:100,step:1,def:15,unit:''}
+  ],
+  calc(v){
+    const price=crrBinomial(v.S,v.K,v.r/100,v.sigma/100,v.T,v.steps,true);
+    const bs=bsPrice(v.S,v.K,v.r/100,v.sigma/100,v.T,true);
+    const ptsB=sweep(50,200,40,S=>crrBinomial(S,v.K,v.r/100,v.sigma/100,v.T,v.steps,true));
+    const ptsBS=sweep(50,200,40,S=>bsPrice(S,v.K,v.r/100,v.sigma/100,v.T,true));
+    return {
+      big:fmtNum(price,3),bigUnit:'',bigLabel:'Harga Call (Binomial)',
+      subs:[{l:'Harga Black-Scholes',v:fmtNum(bs,3)},{l:'Selisih',v:fmtNum(price-bs,4)}],
+      note:{type: Math.abs(price-bs)<0.05?'good':'info', text: Math.abs(price-bs)<0.05? 'Pada n besar, harga binomial konvergen sangat dekat dengan Black-Scholes kontinu.':'Tambah jumlah langkah pohon untuk melihat konvergensi ke harga Black-Scholes.'},
+      chart:{xMin:50,xMax:200,yMin:0,yMax:Math.max(...ptsB.map(p=>p.y),...ptsBS.map(p=>p.y))*1.15,vline:v.S,series:[
+        {label:'Binomial',color:COLORS.amber,pts:ptsB},
+        {label:'Black-Scholes (limit)',color:COLORS.cyan,pts:ptsBS,dash:true}
+      ]}
+    };
+  }
+},
+{
+  id:'garman-kohlhagen',ch:1,year:1983,who:'Garman, Kohlhagen',name:'Garman-Kohlhagen Model',
+  desc:'Modifikasi Black-Scholes khusus untuk mem-pricing opsi valuta asing, memperhitungkan dua suku bunga (domestik & asing).',
+  tex:'C=Se^{-r_fT}\\Phi(d_1)-Ke^{-r_dT}\\Phi(d_2)',
+  vars:[
+    {k:'S',label:'Spot FX (S)',min:0.5,max:2,step:0.01,def:1,unit:''},
+    {k:'K',label:'Strike FX (K)',min:0.5,max:2,step:0.01,def:1,unit:''},
+    {k:'rd',label:'Suku Bunga Domestik (r_d)',min:0,max:10,step:0.25,def:5,unit:'%'},
+    {k:'rf',label:'Suku Bunga Asing (r_f)',min:0,max:10,step:0.25,def:2,unit:'%'},
+    {k:'sigma',label:'Volatilitas FX (σ)',min:3,max:40,step:1,def:12,unit:'%'},
+    {k:'T',label:'Jatuh Tempo (T)',min:0.05,max:2,step:0.05,def:0.5,unit:' th'}
+  ],
+  calc(v){
+    function price(S){
+      const sig=v.sigma/100,rd=v.rd/100,rf=v.rf/100;
+      const d1=(Math.log(S/v.K)+(rd-rf+sig*sig/2)*v.T)/(sig*Math.sqrt(v.T));
+      const d2=d1-sig*Math.sqrt(v.T);
+      return S*Math.exp(-rf*v.T)*ncdf(d1)-v.K*Math.exp(-rd*v.T)*ncdf(d2);
+    }
+    const call=price(v.S);
+    const pts=sweep(0.5,2,60,price);
+    return {
+      big:fmtNum(call,4),bigUnit:'',bigLabel:'Harga Call FX',
+      subs:[{l:'Forward Implisit',v:fmtNum(v.S*Math.exp((v.rd-v.rf)/100*v.T),4)}],
+      note:{type:'info',text:'Selisih suku bunga domestik-asing berperan seperti dividend yield dalam Black-Scholes klasik.'},
+      chart:{xMin:0.5,xMax:2,yMin:0,yMax:Math.max(...pts.map(p=>p.y))*1.15,vline:v.S,series:[{label:'Harga Call vs Spot FX',color:COLORS.amber,pts}]}
+    };
+  }
+},
+{
+  id:'cir',ch:1,year:1985,who:'Cox, Ingersoll, Ross',name:'CIR Model',
+  desc:'Model suku bunga yang secara matematis mencegah rates menjadi negatif, menggunakan akar suku bunga dalam term difusi.',
+  tex:'dr=a(b-r)\\,dt+\\sigma\\sqrt{r}\\,dW',
+  vars:[
+    {k:'a',label:'Kecepatan Reversi (a)',min:0.05,max:2,step:0.05,def:0.4,unit:''},
+    {k:'b',label:'Rata-rata Jangka Panjang (b)',min:0,max:10,step:0.1,def:4,unit:'%'},
+    {k:'sigma',label:'Volatilitas (σ)',min:0.1,max:5,step:0.1,def:1.5,unit:'%'},
+    {k:'r0',label:'Suku Bunga Awal (r₀)',min:0.1,max:10,step:0.1,def:3,unit:'%'},
+    {k:'T',label:'Horizon (T)',min:0.5,max:10,step:0.5,def:3,unit:' th'}
+  ],
+  stochastic:true,
+  calc(v,rng){
+    const a=v.a,b=v.b/100,sig=v.sigma/100,r0=v.r0/100,T=v.T;
+    const feller=2*a*b/(sig*sig);
+    const steps=100,dt=T/steps; const pts=[]; let r=r0,sum=0;
+    for(let i=0;i<=steps;i++){
+      pts.push({x:i*dt,y:Math.max(r,0)*100}); sum+=Math.max(r,0);
+      const z=gaussRNG(rng);
+      r=r+a*(b-r)*dt+sig*Math.sqrt(Math.max(r,0)*dt)*z;
+      r=Math.max(r,0);
+    }
+    const avgR=sum/(steps+1)*100;
+    return {
+      big:fmtNum(r*100,2),bigUnit:'%',bigLabel:'Suku Bunga Akhir Simulasi r(T)',
+      subs:[{l:'Rata-rata Lintasan',v:fmtNum(avgR,2)+'%'},{l:'Kondisi Feller (2ab/σ²)',v:fmtNum(feller,2)+(feller>1?' (>1, aman)':' (<1, berisiko)')}],
+      note:{type: feller>1?'good':'warn', text: feller>1? 'Kondisi Feller terpenuhi: suku bunga dijamin tidak pernah negatif maupun menyentuh nol.':'Kondisi Feller tidak terpenuhi: lintasan berisiko menyentuh nol.'},
+      chart:{xMin:0,xMax:T,yMin:0,yMax:Math.max(...pts.map(p=>p.y))*1.2+1,hlines:[{y:b*100,color:COLORS.faint,dash:true}],series:[{label:'Lintasan Suku Bunga CIR',color:COLORS.green,pts}]}
+    };
+  }
+},
+{
+  id:'holee',ch:1,year:1987,who:'Thomas Ho, Sang Bin Lee',name:'Ho-Lee Model',
+  desc:'Model term-structure suku bunga pertama yang dikalibrasi agar konsisten dengan kurva yield pasar saat ini, tanpa mean-reversion.',
+  tex:'dr=\\theta(t)\\,dt+\\sigma\\,dW',
+  vars:[
+    {k:'r0',label:'Suku Bunga Awal (r₀)',min:0,max:10,step:0.1,def:3,unit:'%'},
+    {k:'mu',label:'Drift Konstan (θ)',min:-2,max:2,step:0.05,def:0.3,unit:'%/th'},
+    {k:'sigma',label:'Volatilitas (σ)',min:0.1,max:3,step:0.05,def:1,unit:'%'},
+    {k:'T',label:'Horizon (T)',min:0.5,max:10,step:0.5,def:5,unit:' th'}
+  ],
+  stochastic:true,
+  calc(v,rng){
+    const r0=v.r0/100,mu=v.mu/100,sig=v.sigma/100,T=v.T;
+    const steps=100,dt=T/steps; const pts=[]; let r=r0;
+    for(let i=0;i<=steps;i++){ pts.push({x:i*dt,y:r*100}); const z=gaussRNG(rng); r=r+mu*dt+sig*Math.sqrt(dt)*z; }
+    return {
+      big:fmtNum(r*100,2),bigUnit:'%',bigLabel:'Suku Bunga Akhir r(T)',
+      subs:[{l:'Drift Kumulatif',v:fmtNum(mu*T*100,2)+'%'}],
+      note:{type:'info',text:'Tanpa mean-reversion, varian suku bunga terus bertambah seiring waktu — model ini cocok jangka pendek namun kurang realistis jangka panjang.'},
+      chart:{xMin:0,xMax:T,yMin:Math.min(...pts.map(p=>p.y),0)-1,yMax:Math.max(...pts.map(p=>p.y))+1,series:[{label:'Lintasan Suku Bunga Ho-Lee',color:COLORS.violet,pts}]}
+    };
+  }
+},
+{
+  id:'apt',ch:1,year:1987,who:'Stephen Ross',name:'Arbitrage Pricing Theory',
+  desc:'Valuasi aset multifaktor yang tidak bergantung pada portofolio pasar tunggal seperti CAPM — return dijelaskan oleh beberapa faktor makro independen.',
+  tex:'E(R_i)=R_f+\\beta_1F_1+\\beta_2F_2+\\beta_3F_3',
+  vars:[
+    {k:'rf',label:'Risk-Free Rate',min:0,max:10,step:0.25,def:4,unit:'%'},
+    {k:'b1',label:'Eksposur Faktor Growth (β₁)',min:-2,max:2,step:0.1,def:0.8,unit:''},
+    {k:'b2',label:'Eksposur Faktor Inflasi (β₂)',min:-2,max:2,step:0.1,def:-0.4,unit:''},
+    {k:'b3',label:'Eksposur Faktor Kredit (β₃)',min:-2,max:2,step:0.1,def:0.5,unit:''}
+  ],
+  calc(v){
+    const f1=3,f2=-1.5,f3=2;
+    const c1=v.b1*f1,c2=v.b2*f2,c3=v.b3*f3;
+    const er=v.rf+c1+c2+c3;
+    return {
+      big:fmtNum(er,2),bigUnit:'%',bigLabel:'Expected Return Total',
+      subs:[{l:'Premi Faktor Growth',v:f1+'%'},{l:'Premi Faktor Inflasi',v:f2+'%'},{l:'Premi Faktor Kredit',v:f3+'%'}],
+      note:{type:'info',text:'Premi tiap faktor (Growth, Inflasi, Kredit) bersifat tetap pada model edukatif ini; eksposur (β) yang menentukan kontribusi akhir.'},
+      chart:{mode:'bars',decimals:2,bars:[
+        {label:'Rf',value:v.rf,color:COLORS.faint},
+        {label:'Growth',value:c1,color:COLORS.amber},
+        {label:'Inflasi',value:c2,color:COLORS.red},
+        {label:'Kredit',value:c3,color:COLORS.cyan},
+        {label:'Total',value:er,color:COLORS.green}
+      ]}
+    };
+  }
+},
+{
+  id:'hullwhite',ch:1,year:1990,who:'Hull, White',name:'Hull-White Model',
+  desc:'Penyempurnaan Vasicek yang dikalibrasi tanpa-arbitrase terhadap kurva term-structure suku bunga pasar saat ini, dengan target mean yang berubah seiring waktu.',
+  tex:'dr=[\\theta(t)-ar]\\,dt+\\sigma\\,dW',
+  vars:[
+    {k:'a',label:'Kecepatan Reversi (a)',min:0.05,max:2,step:0.05,def:0.25,unit:''},
+    {k:'sigma',label:'Volatilitas (σ)',min:0.1,max:3,step:0.05,def:1,unit:'%'},
+    {k:'b0',label:'Target Awal (b₀)',min:0,max:8,step:0.1,def:3,unit:'%'},
+    {k:'b1',label:'Target Akhir (b₁)',min:0,max:8,step:0.1,def:5,unit:'%'},
+    {k:'r0',label:'Suku Bunga Awal (r₀)',min:0,max:10,step:0.1,def:3,unit:'%'},
+    {k:'T',label:'Horizon (T)',min:0.5,max:10,step:0.5,def:5,unit:' th'}
+  ],
+  stochastic:true,
+  calc(v,rng){
+    const a=v.a,sig=v.sigma/100,r0=v.r0/100,T=v.T;
+    const steps=100,dt=T/steps; const pts=[],target=[]; let r=r0;
+    for(let i=0;i<=steps;i++){
+      const t=i*dt; const bt=(v.b0+(v.b1-v.b0)*t/T)/100;
+      pts.push({x:t,y:r*100}); target.push({x:t,y:bt*100});
+      const z=gaussRNG(rng);
+      r=r+a*(bt-r)*dt+sig*Math.sqrt(dt)*z;
+    }
+    return {
+      big:fmtNum(r*100,2),bigUnit:'%',bigLabel:'Suku Bunga Akhir r(T)',
+      subs:[{l:'Target Akhir b(T)',v:fmtNum(v.b1,2)+'%'}],
+      note:{type:'info',text:'Garis putus-putus menunjukkan target kurva b(t) yang bergerak naik/turun seiring waktu — Hull-White menarik r(t) ke target dinamis ini.'},
+      chart:{xMin:0,xMax:T,yMin:Math.min(...pts.map(p=>p.y),...target.map(p=>p.y))-1,yMax:Math.max(...pts.map(p=>p.y),...target.map(p=>p.y))+1,series:[
+        {label:'Lintasan r(t)',color:COLORS.amber,pts},
+        {label:'Target b(t)',color:COLORS.faint,pts:target,dash:true}
+      ]}
+    };
+  }
+},
+{
+  id:'hjm',ch:1,year:1992,who:'Heath, Jarrow, Morton',name:'HJM Framework',
+  desc:'Kerangka komprehensif yang memodelkan evolusi seluruh kurva forward rate sekaligus, bukan hanya satu titik suku bunga pendek.',
+  tex:'df(t,T)=\\alpha(t,T)\\,dt+\\sigma(t,T)\\,dW',
+  vars:[
+    {k:'baseRate',label:'Suku Bunga Dasar',min:0,max:8,step:0.1,def:4,unit:'%'},
+    {k:'slope',label:'Kemiringan Kurva',min:0,max:3,step:0.1,def:1,unit:''},
+    {k:'sigma0',label:'Volatilitas Forward (σ₀)',min:0.1,max:3,step:0.1,def:1,unit:'%'},
+    {k:'kappa',label:'Peluruhan Volatilitas (κ)',min:0,max:1,step:0.05,def:0.3,unit:''},
+    {k:'shock',label:'Kejutan Pasar (z-score)',min:-3,max:3,step:0.1,def:0,unit:''}
+  ],
+  calc(v){
+    function f0(T){ return v.baseRate+v.slope*Math.sqrt(T); }
+    function f1(T){ return f0(T)+v.sigma0*Math.exp(-v.kappa*T)*v.shock; }
+    const pts0=sweep(0.25,30,60,f0), pts1=sweep(0.25,30,60,f1);
+    const shiftAt5=f1(5)-f0(5);
+    return {
+      big:fmtNum(f1(5),3),bigUnit:'%',bigLabel:'Forward Rate f(0,5th) Setelah Kejutan',
+      subs:[{l:'Forward Rate Awal f(0,5th)',v:fmtNum(f0(5),3)+'%'},{l:'Pergeseran',v:fmtNum(shiftAt5,3)+'%'}],
+      note:{type:'info',text:'Volatilitas kejutan meluruh secara eksponensial untuk maturitas yang lebih jauh — tenor pendek lebih terpengaruh kejutan pasar instan.'},
+      chart:{xMin:0.25,xMax:30,yMin:Math.min(...pts0.map(p=>p.y),...pts1.map(p=>p.y))-0.5,yMax:Math.max(...pts0.map(p=>p.y),...pts1.map(p=>p.y))+0.5,vline:5,series:[
+        {label:'Kurva Forward Awal',color:COLORS.faint,pts:pts0,dash:true},
+        {label:'Kurva Forward Setelah Kejutan',color:COLORS.amber,pts:pts1}
+      ]}
+    };
+  }
+},
+{
+  id:'lmm',ch:1,year:1997,who:'Brace, Gatarek, Musiela',name:'LIBOR Market Model (BGM)',
+  desc:'Model industri standar yang memperlakukan setiap forward rate sebagai proses lognormal — basis penentuan harga derivatif suku bunga kompleks (caps, swaptions).',
+  tex:'dL_i=\\mu_iL_i\\,dt+\\sigma_iL_i\\,dW_i',
+  vars:[
+    {k:'L0',label:'Forward Rate Awal (L₀)',min:0,max:10,step:0.1,def:4,unit:'%'},
+    {k:'mu',label:'Drift (μ)',min:-2,max:2,step:0.05,def:0,unit:'%'},
+    {k:'sigma',label:'Volatilitas Lognormal (σ)',min:5,max:60,step:1,def:25,unit:'%'},
+    {k:'T',label:'Horizon (T)',min:0.25,max:5,step:0.25,def:2,unit:' th'}
+  ],
+  stochastic:true,
+  calc(v,rng){
+    const L0=v.L0/100,mu=v.mu/100,sig=v.sigma/100,T=v.T;
+    const steps=80,dt=T/steps; const pts=[]; let L=L0,W=0;
+    for(let i=0;i<=steps;i++){
+      pts.push({x:i*dt,y:L*100});
+      const z=gaussRNG(rng); W+=Math.sqrt(dt)*z;
+      L=L0*Math.exp((mu-0.5*sig*sig)*(i+1)*dt+sig*W);
+    }
+    return {
+      big:fmtNum(L*100,2),bigUnit:'%',bigLabel:'Forward Rate Akhir L(T)',
+      subs:[{l:'Forward Rate Awal',v:fmtNum(v.L0,2)+'%'}],
+      note:{type:'info',text:'Karena lognormal, forward rate dijamin tetap positif — keunggulan dibanding model Gaussian seperti Vasicek/Ho-Lee.'},
+      chart:{xMin:0,xMax:T,yMin:0,yMax:Math.max(...pts.map(p=>p.y))*1.2+0.5,series:[{label:'Lintasan Forward Rate Lognormal',color:COLORS.green,pts}]}
+    };
+  }
+},
+{
+  id:'cds',ch:1,year:1997,who:'JPMorgan Quants',name:'CDS Pricing',
+  desc:'Matematika di balik asuransi gagal bayar (default) obligasi korporat atau negara — spread CDS mencerminkan probabilitas default tersirat pasar.',
+  tex:'\\text{Spread}\\approx (1-R)\\cdot \\lambda,\\quad S(t)=e^{-\\lambda t}',
+  vars:[
+    {k:'lambda',label:'Hazard Rate (λ)',min:0.1,max:20,step:0.1,def:2,unit:'%'},
+    {k:'recovery',label:'Recovery Rate (R)',min:0,max:90,step:1,def:40,unit:'%'},
+    {k:'maturity',label:'Maturitas CDS',min:1,max:10,step:1,def:5,unit:' th'}
+  ],
+  calc(v){
+    const lam=v.lambda/100,R=v.recovery/100;
+    const spreadBps=(1-R)*lam*10000;
+    const pts=sweep(0,v.maturity,50,t=>Math.exp(-lam*t)*100);
+    return {
+      big:fmtNum(spreadBps,0),bigUnit:' bps',bigLabel:'Par Spread CDS',
+      subs:[{l:'Probabilitas Default Tahunan',v:fmtNum(lam*100,2)+'%'},{l:'Survival Prob. di Maturitas',v:fmtNum(Math.exp(-lam*v.maturity)*100,1)+'%'}],
+      note:{type:'info',text:'Formula disederhanakan dengan asumsi hazard rate flat dan mengabaikan diskonto — versi institusional memperhitungkan kurva suku bunga penuh.'},
+      chart:{xMin:0,xMax:v.maturity,yMin:0,yMax:105,vline:v.maturity,series:[{label:'Survival Probability S(t) %',color:COLORS.cyan,pts}]}
+    };
+  }
+},
+{
+  id:'crypto-options',ch:1,year:2021,who:'Deribit / Lyra Quants',name:'Options Pricing Crypto',
+  desc:'Penyesuaian volatilitas asimetris (skew) khas pasar derivatif kripto on-chain di atas kerangka Black-Scholes standar.',
+  tex:'\\sigma(K)=\\sigma_{ATM}+\\text{skew}\\cdot\\frac{K-S}{S}',
+  vars:[
+    {k:'S',label:'Harga Spot BTC (S)',min:20000,max:100000,step:500,def:60000,unit:''},
+    {k:'K',label:'Strike (K)',min:20000,max:100000,step:500,def:65000,unit:''},
+    {k:'sigmaATM',label:'Volatilitas ATM',min:20,max:150,step:1,def:60,unit:'%'},
+    {k:'skew',label:'Kemiringan Skew',min:-100,max:100,step:1,def:-30,unit:''},
+    {k:'T',label:'Jatuh Tempo (T)',min:0.02,max:1,step:0.01,def:0.25,unit:' th'}
+  ],
+  calc(v){
+    function vol(K){ return Math.max(5,v.sigmaATM+v.skew*(K-v.S)/v.S); }
+    const sigK=vol(v.K)/100;
+    const call=bsPrice(v.S,v.K,0.0,sigK,v.T,true);
+    const pts=sweep(v.S*0.5,v.S*1.5,60,vol);
+    return {
+      big:fmtNum(call,0),bigUnit:'',bigLabel:'Harga Call (Skewed Vol)',
+      subs:[{l:'Implied Vol di Strike',v:fmtNum(vol(v.K),1)+'%'}],
+      note:{type:'info',text:'Skew negatif (umum di kripto) membuat OTM put lebih mahal — mencerminkan permintaan lindung risiko crash mendadak.'},
+      chart:{xMin:v.S*0.5,xMax:v.S*1.5,yMin:0,yMax:Math.max(...pts.map(p=>p.y))*1.15,vline:v.K,series:[{label:'Smile Implied Vol σ(K) %',color:COLORS.amber,pts}]}
+    };
+  }
+}
+]);
+
+/* ===================== BAB 2: RISK & VOLATILITY DYNAMICS (15) ===================== */
+addF([
+{
+  id:'em-fx-crisis',ch:2,year:1992,who:'Krugman, Obstfeld',name:'EM FX Crisis Model',
+  desc:'Model krisis mata uang generasi pertama — cadangan devisa terkikis bertahap saat pertumbuhan kredit domestik melebihi permintaan uang, hingga akhirnya kolaps mendadak.',
+  tex:'R(t)=R_0-(m-\\mu)R_0\\,t,\\quad t^*=\\frac{R_0-R^*}{(m-\\mu)R_0}',
+  vars:[
+    {k:'R0',label:'Cadangan Devisa Awal',min:10,max:200,step:5,def:80,unit:' M$'},
+    {k:'creditGrowth',label:'Pertumbuhan Kredit Domestik (m)',min:0,max:30,step:0.5,def:15,unit:'%'},
+    {k:'moneyDemand',label:'Pertumbuhan Permintaan Uang (μ)',min:0,max:10,step:0.5,def:3,unit:'%'},
+    {k:'critical',label:'Rasio Cadangan Kritis',min:5,max:30,step:1,def:10,unit:'%'}
+  ],
+  calc(v){
+    const lossRate=Math.max((v.creditGrowth-v.moneyDemand)/100,0.0001);
+    const tStar=(1-v.critical/100)/lossRate;
+    const pts=sweep(0,tStar*1.6,50,t=>v.R0*(1-lossRate*t));
+    return {
+      big:fmtNum(tStar,2),bigUnit:' th',bigLabel:'Estimasi Waktu Hingga Kolaps',
+      subs:[{l:'Laju Pengikisan Cadangan',v:fmtNum(lossRate*100,2)+'%/th'},{l:'Cadangan Kritis',v:fmtNum(v.R0*v.critical/100,1)+' M$'}],
+      note:{type:'warn',text:'Saat cadangan devisa menyentuh ambang kritis, serangan spekulatif mendadak biasanya memicu kolaps kurs sepenuhnya — bukan penurunan bertahap.'},
+      chart:{xMin:0,xMax:tStar*1.6,yMin:0,yMax:v.R0*1.1,vline:tStar,hlines:[{y:v.R0*v.critical/100,color:COLORS.red,dash:true}],series:[{label:'Cadangan Devisa R(t)',color:COLORS.amber,pts}]}
+    };
+  }
+},
+{
+  id:'heston',ch:2,year:1993,who:'Steven Heston',name:'Heston Stochastic Volatility',
+  desc:'Mengasumsikan volatilitas itu sendiri bergerak secara stokastik (mean-reverting), bukan konstan seperti pada Black-Scholes — menangkap volatility clustering & smile.',
+  tex:'dv=\\kappa(\\theta-v)\\,dt+\\xi\\sqrt{v}\\,dZ',
+  vars:[
+    {k:'kappa',label:'Kecepatan Reversi Varians (κ)',min:0.1,max:5,step:0.1,def:2,unit:''},
+    {k:'thetaVol',label:'Volatilitas Jangka Panjang',min:10,max:60,step:1,def:25,unit:'%'},
+    {k:'xi',label:'Volatilitas-dari-Volatilitas (ξ)',min:0.1,max:1,step:0.05,def:0.3,unit:''},
+    {k:'v0Vol',label:'Volatilitas Awal',min:5,max:80,step:1,def:20,unit:'%'},
+    {k:'T',label:'Horizon (T)',min:0.25,max:3,step:0.25,def:1,unit:' th'}
+  ],
+  stochastic:true,
+  calc(v,rng){
+    const kappa=v.kappa,theta=Math.pow(v.thetaVol/100,2),xi=v.xi,v0=Math.pow(v.v0Vol/100,2),T=v.T;
+    const steps=100,dt=T/steps; const pts=[]; let vv=v0;
+    for(let i=0;i<=steps;i++){
+      pts.push({x:i*dt,y:Math.sqrt(Math.max(vv,0))*100});
+      const z=gaussRNG(rng);
+      vv=vv+kappa*(theta-vv)*dt+xi*Math.sqrt(Math.max(vv,0)*dt)*z;
+      vv=Math.max(vv,0);
+    }
+    return {
+      big:fmtNum(Math.sqrt(vv)*100,2),bigUnit:'%',bigLabel:'Volatilitas Akhir Simulasi',
+      subs:[{l:'Volatilitas Jangka Panjang (target)',v:fmtNum(v.thetaVol,2)+'%'}],
+      note:{type:'info',text:'Volatilitas berfluktuasi acak namun selalu ditarik kembali ke level jangka panjang θ — pola "volatility clustering" khas pasar nyata.'},
+      chart:{xMin:0,xMax:T,yMin:0,yMax:Math.max(...pts.map(p=>p.y))*1.2+5,hlines:[{y:v.thetaVol,color:COLORS.faint,dash:true}],series:[{label:'Lintasan Volatilitas √v(t)',color:COLORS.red,pts}]}
+    };
+  }
+},
+{
+  id:'var',ch:2,year:1994,who:'JPMorgan (RiskMetrics)',name:'Value at Risk (VaR)',
+  desc:'Mengestimasi kerugian maksimum portofolio pada tingkat keyakinan dan horizon waktu tertentu — standar manajemen risiko institusional sejak RiskMetrics.',
+  tex:'VaR=z_\\alpha\\cdot\\sigma\\cdot\\sqrt{t}\\cdot V',
+  vars:[
+    {k:'value',label:'Nilai Portofolio',min:10,max:1000,step:10,def:100,unit:' M'},
+    {k:'vol',label:'Volatilitas Harian (σ)',min:0.5,max:10,step:0.1,def:2,unit:'%'},
+    {k:'conf',label:'Tingkat Keyakinan',min:90,max:99.9,step:0.1,def:95,unit:'%'},
+    {k:'horizon',label:'Horizon Waktu',min:1,max:30,step:1,def:10,unit:' hari'}
+  ],
+  calc(v){
+    const z=invNcdf(v.conf/100);
+    const sigT=v.vol/100*Math.sqrt(v.horizon)*100;
+    const VaR=z*sigT/100*v.value;
+    const pts=sweep(-4*sigT,4*sigT,80,r=>npdf(r/sigT)/sigT);
+    return {
+      big:fmtNum(VaR,2),bigUnit:' M',bigLabel:'VaR '+fmtNum(v.conf,1)+'% / '+Math.round(v.horizon)+' hari',
+      subs:[{l:'Z-score',v:fmtNum(z,3)},{l:'Volatilitas Horizon',v:fmtNum(sigT,2)+'%'}],
+      note:{type:'warn',text:'Dengan keyakinan '+fmtNum(v.conf,1)+'%, kerugian portofolio diestimasikan tidak melebihi nilai VaR ini dalam '+Math.round(v.horizon)+' hari ke depan.'},
+      chart:{xMin:-4*sigT,xMax:4*sigT,yMin:0,yMax:Math.max(...pts.map(p=>p.y))*1.15,vline:-VaR/v.value*100,series:[{label:'Distribusi Return Portofolio (%)',color:COLORS.cyan,pts,fillRange:[-4*sigT,-VaR/v.value*100]}]}
+    };
+  }
+},
+{
+  id:'fx-risk-reversal',ch:2,year:1994,who:'OTC Quant Desks',name:'FX Risk Reversal',
+  desc:'Mengukur volatility smile lewat selisih implied volatility antara call dan put OTM pada delta yang sama — sinyal sentimen hedging ekstrem pasar FX.',
+  tex:'RR(\\Delta)=\\sigma_{call}(\\Delta)-\\sigma_{put}(\\Delta)',
+  vars:[
+    {k:'atm',label:'Volatilitas ATM',min:5,max:30,step:0.5,def:10,unit:'%'},
+    {k:'skew',label:'Risk Reversal 25-Delta',min:-10,max:10,step:0.1,def:-2,unit:'%'},
+    {k:'fly',label:'Butterfly (Kurvatur Smile)',min:0,max:3,step:0.1,def:0.5,unit:'%'}
+  ],
+  calc(v){
+    const atm=v.atm;
+    const c25=atm-v.skew/2+v.fly, p25=atm+v.skew/2+v.fly;
+    const c10=atm-v.skew*0.8+v.fly*2.2, p10=atm+v.skew*0.8+v.fly*2.2;
+    return {
+      big:fmtNum(-v.skew,2),bigUnit:'%',bigLabel:'Risk Reversal 25Δ (Put−Call)',
+      subs:[{l:'Vol 25Δ Call',v:fmtNum(c25,2)+'%'},{l:'Vol 25Δ Put',v:fmtNum(p25,2)+'%'}],
+      note:{type: v.skew<0?'warn':'info', text: v.skew<0? 'RR negatif: put OTM lebih mahal dari call OTM — pasar membayar premi lebih untuk lindung risiko crash (umum di FX & ekuitas).':'RR positif: call OTM lebih mahal — pasar mengantisipasi potensi lonjakan tajam ke atas.'},
+      chart:{mode:'bars',decimals:2,unit:'%',bars:[
+        {label:'10Δ Put',value:p10,color:COLORS.red},
+        {label:'25Δ Put',value:p25,color:COLORS.red},
+        {label:'ATM',value:atm,color:COLORS.amber},
+        {label:'25Δ Call',value:c25,color:COLORS.cyan},
+        {label:'10Δ Call',value:c10,color:COLORS.cyan}
+      ]}
+    };
+  }
+},
+{
+  id:'sabr',ch:2,year:1995,who:'Hagan et al.',name:'SABR Model',
+  desc:'Memodelkan volatilitas silang (stochastic alpha, beta, rho) untuk derivatif suku bunga — pendekatan Hagan menjadi standar pasar kalibrasi smile.',
+  tex:'\\sigma_{impl}(K)\\approx\\frac{\\alpha}{F^{1-\\beta}}\\Big[1+\\big(\\cdots\\big)T\\Big]',
+  vars:[
+    {k:'F',label:'Forward Rate (F)',min:1,max:10,step:0.1,def:3,unit:'%'},
+    {k:'alpha',label:'Level Volatilitas (α)',min:0.05,max:0.6,step:0.01,def:0.2,unit:''},
+    {k:'beta',label:'Eksponen Skewness (β)',min:0,max:1,step:0.05,def:0.5,unit:''},
+    {k:'rho',label:'Korelasi (ρ)',min:-0.99,max:0.99,step:0.01,def:-0.3,unit:''},
+    {k:'nu',label:'Vol-of-Vol (ν)',min:0.1,max:1,step:0.05,def:0.4,unit:''},
+    {k:'T',label:'Maturitas (T)',min:0.25,max:5,step:0.25,def:1,unit:' th'}
+  ],
+  calc(v){
+    function sabrVol(Kpct){
+      const F=v.F/100,K=Kpct/100,b=v.beta,a=v.alpha,rho=v.rho,nu=v.nu,T=v.T;
+      const Fmid=Math.sqrt(F*K);
+      const term1=a/Math.pow(Fmid,1-b);
+      const corr=1+((Math.pow(1-b,2)*a*a/(24*Math.pow(Fmid,2-2*b)))+(rho*b*nu*a/(4*Math.pow(Fmid,1-b)))+((2-3*rho*rho)*nu*nu/24))*T;
+      return term1*corr*100;
+    }
+    const atmVol=sabrVol(v.F);
+    const pts=sweep(v.F*0.3,v.F*2,60,sabrVol);
+    return {
+      big:fmtNum(atmVol,2),bigUnit:'%',bigLabel:'Implied Vol ATM',
+      subs:[{l:'Forward Rate',v:fmtNum(v.F,2)+'%'}],
+      note:{type:'info',text:'Parameter ρ mengontrol kemiringan (skew) smile, sedangkan ν mengontrol kelengkungan (kurvatur) — keduanya hasil kalibrasi pasar harian.'},
+      chart:{xMin:v.F*0.3,xMax:v.F*2,yMin:0,yMax:Math.max(...pts.map(p=>p.y))*1.15,vline:v.F,series:[{label:'Smile Implied Vol σ(K) %',color:COLORS.amber,pts}]}
+    };
+  }
+},
+{
+  id:'es-cvar',ch:2,year:1997,who:'Artzner et al.',name:'Expected Shortfall (CVaR)',
+  desc:'Mengukur rata-rata kerugian pada ekor distribusi yang lebih tebal dari VaR — risk measure yang coherent dan lebih sensitif terhadap risiko ekstrem.',
+  tex:'ES_\\alpha=\\frac{\\sigma\\,\\varphi(z_\\alpha)}{1-\\alpha}\\cdot V',
+  vars:[
+    {k:'value',label:'Nilai Portofolio',min:10,max:1000,step:10,def:100,unit:' M'},
+    {k:'vol',label:'Volatilitas Harian (σ)',min:0.5,max:10,step:0.1,def:2,unit:'%'},
+    {k:'conf',label:'Tingkat Keyakinan',min:90,max:99.9,step:0.1,def:97.5,unit:'%'}
+  ],
+  calc(v){
+    const z=invNcdf(v.conf/100);
+    const VaR=z*v.vol/100*v.value;
+    const ES=(v.vol/100*npdf(z)/(1-v.conf/100))*v.value;
+    const sig=v.vol;
+    const pts=sweep(-4*sig,4*sig,80,r=>npdf(r/sig)/sig);
+    return {
+      big:fmtNum(ES,2),bigUnit:' M',bigLabel:'Expected Shortfall '+fmtNum(v.conf,1)+'%',
+      subs:[{l:'VaR (pembanding)',v:fmtNum(VaR,2)+' M'},{l:'Rasio ES / VaR',v:fmtNum(ES/VaR,2)+'×'}],
+      note:{type:'warn',text:'ES selalu ≥ VaR karena merata-ratakan seluruh kerugian di ekor distribusi, bukan hanya satu titik ambang — lebih konservatif untuk risiko ekor tebal.'},
+      chart:{xMin:-4*sig,xMax:4*sig,yMin:0,yMax:Math.max(...pts.map(p=>p.y))*1.15,vline:-VaR/v.value*100,series:[{label:'Distribusi Return (%)',color:COLORS.cyan,pts,fillRange:[-4*sig,-VaR/v.value*100]}]}
+    };
+  }
+},
+{
+  id:'gaussian-copula',ch:2,year:1999,who:'David X. Li',name:'Gaussian Copula Model',
+  desc:'Formula korelasi default lintas-aset yang memungkinkan pricing CDO secara masif — kesalahan kalibrasinya turut memicu kolaps subprime 2008.',
+  tex:'P(D_1\\cap D_2)=\\Phi_2\\big(\\Phi^{-1}(p_1),\\Phi^{-1}(p_2),\\rho\\big)',
+  vars:[
+    {k:'p1',label:'Probabilitas Default Aset 1',min:0.5,max:20,step:0.5,def:5,unit:'%'},
+    {k:'p2',label:'Probabilitas Default Aset 2',min:0.5,max:20,step:0.5,def:5,unit:'%'},
+    {k:'rho',label:'Korelasi Default (ρ)',min:0,max:0.95,step:0.01,def:0.3,unit:''}
+  ],
+  calc(v){
+    const z1=invNcdf(v.p1/100), z2=invNcdf(v.p2/100);
+    function jointAt(rho){ return bivNormCdf(z1,z2,rho)*100; }
+    const joint=jointAt(v.rho);
+    const indep=v.p1/100*v.p2/100*100;
+    const pts=sweep(0,0.95,40,jointAt);
+    return {
+      big:fmtNum(joint,3),bigUnit:'%',bigLabel:'Probabilitas Default Bersama',
+      subs:[{l:'Jika Independen',v:fmtNum(indep,3)+'%'},{l:'Rasio terhadap Independensi',v:fmtNum(joint/indep,2)+'×'}],
+      note:{type: v.rho>0.5?'warn':'info', text: v.rho>0.5? 'Korelasi tinggi membuat risiko default "menggumpal" — inilah yang membuat tranche senior CDO jauh lebih berisiko dari perkiraan model saat krisis 2008.':'Pada korelasi rendah, probabilitas default bersama mendekati skenario independen.'},
+      chart:{xMin:0,xMax:0.95,yMin:0,yMax:Math.max(...pts.map(p=>p.y))*1.2+0.1,vline:v.rho,hlines:[{y:indep,color:COLORS.faint,dash:true}],series:[{label:'P(Default Bersama) vs ρ',color:COLORS.red,pts}]}
+    };
+  }
+},
+{
+  id:'variance-gamma',ch:2,year:2000,who:'Madan, Carr, Chang',name:'Variance Gamma Model',
+  desc:'Proses Lévy murni-lompatan (pure jump) tanpa komponen difusi kontinu — menangkap ekor distribusi tebal (fat tails) aset secara lebih realistis.',
+  tex:'X(t)=\\theta\\,G(t)+\\sigma\\sqrt{G(t)}\\,Z,\\quad G(t)\\sim\\text{Gamma}(t/\\nu,\\nu)',
+  vars:[
+    {k:'theta',label:'Drift Asimetri (θ)',min:-0.3,max:0.3,step:0.01,def:-0.1,unit:''},
+    {k:'sigma',label:'Volatilitas (σ)',min:0.05,max:0.6,step:0.01,def:0.2,unit:''},
+    {k:'nu',label:'Variance Rate Waktu-Gamma (ν)',min:0.05,max:1,step:0.01,def:0.3,unit:''},
+    {k:'T',label:'Horizon (T)',min:0.1,max:2,step:0.05,def:1,unit:' th'}
+  ],
+  stochastic:true,
+  calc(v,rng){
+    function gammaSample(shape,scale){
+      if(shape<1){ const u=Math.max(rng(),1e-9); return gammaSample(shape+1,scale)*Math.pow(u,1/shape); }
+      const d=shape-1/3, c=1/Math.sqrt(9*d);
+      for(let it=0;it<50;it++){
+        let x,v3; do{ x=gaussRNG(rng); v3=1+c*x; }while(v3<=0);
+        v3=v3*v3*v3; const u=rng();
+        if(Math.log(u)<0.5*x*x+d-d*v3+d*Math.log(v3)) return d*v3*scale;
+      }
+      return d*scale;
+    }
+    const steps=70,dt=v.T/steps; const pts=[]; let X=0;
+    for(let i=0;i<=steps;i++){
+      pts.push({x:i*dt,y:X});
+      const dG=gammaSample(Math.max(dt/v.nu,0.02),v.nu);
+      const z=gaussRNG(rng);
+      X+=v.theta*dG+v.sigma*Math.sqrt(Math.max(dG,0))*z;
+    }
+    const ys=pts.map(p=>p.y);
+    return {
+      big:fmtNum(X*100,2),bigUnit:'%',bigLabel:'Return Kumulatif Tersimulasi',
+      subs:[{l:'Excess Kurtosis Teoritis',v:fmtNum(3*v.nu+3*v.theta*v.theta*v.nu/(v.sigma*v.sigma),2)}],
+      note:{type:'info',text:'Berbeda dari gerak Brown yang mulus, lintasan VG murni-lompatan menunjukkan perubahan tersentak-sentak — sumber "fat tails" pada return aset riil.'},
+      chart:{xMin:0,xMax:v.T,yMin:Math.min(...ys)-0.05,yMax:Math.max(...ys)+0.05,series:[{label:'Lintasan Proses Variance Gamma',color:COLORS.violet,pts}]}
+    };
+  }
+},
+{
+  id:'garch',ch:2,year:2002,who:'Engle, Bollerslev',name:'GARCH(1,1) Model',
+  desc:'Algoritma pemodelan varians yang berubah-ubah seiring waktu (time-varying volatility) — menangkap volatility clustering: gejolak besar memicu gejolak besar berikutnya.',
+  tex:'\\sigma_t^2=\\omega+\\alpha\\,\\varepsilon_{t-1}^2+\\beta\\,\\sigma_{t-1}^2',
+  vars:[
+    {k:'longRunVol',label:'Volatilitas Jangka Panjang',min:5,max:40,step:1,def:20,unit:'%'},
+    {k:'alpha',label:'Reaksi Kejutan (α)',min:0.01,max:0.3,step:0.01,def:0.08,unit:''},
+    {k:'beta',label:'Persistensi (β)',min:0.5,max:0.98,step:0.01,def:0.9,unit:''},
+    {k:'shockToday',label:'Kejutan Pasar Hari Ini (z-score)',min:-5,max:5,step:0.1,def:2,unit:''}
+  ],
+  calc(v){
+    const longVar=Math.pow(v.longRunVol/100,2);
+    const omega=longVar*(1-v.alpha-v.beta);
+    const eps0=v.shockToday*Math.sqrt(longVar);
+    let varT=omega+v.alpha*eps0*eps0+v.beta*longVar;
+    const days=60; const pts=[{x:0,y:v.longRunVol}];
+    for(let d=1;d<=days;d++){
+      pts.push({x:d,y:Math.sqrt(Math.max(varT,0))*100});
+      varT=omega+v.beta*varT;
+    }
+    const vol1=pts[1].y;
+    return {
+      big:fmtNum(vol1,2),bigUnit:'%',bigLabel:'Volatilitas Kondisional Hari Ini',
+      subs:[{l:'Volatilitas Jangka Panjang',v:fmtNum(v.longRunVol,2)+'%'},{l:'Persistensi Total (α+β)',v:fmtNum((v.alpha+v.beta)*100,1)+'%'}],
+      note:{type: Math.abs(v.shockToday)>2?'warn':'info', text: Math.abs(v.shockToday)>2? 'Kejutan besar hari ini memicu lonjakan volatilitas yang meluruh perlahan kembali ke level jangka panjang — pola "volatility clustering" klasik.':'Tanpa kejutan besar, volatilitas berosilasi mendekati level jangka panjangnya.'},
+      chart:{xMin:0,xMax:days,yMin:0,yMax:Math.max(...pts.map(p=>p.y))*1.2+1,hlines:[{y:v.longRunVol,color:COLORS.faint,dash:true}],series:[{label:'Volatilitas Kondisional σₜ (%)',color:COLORS.red,pts}]}
+    };
+  }
+},
+{
+  id:'local-vol',ch:2,year:2008,who:'Bruno Dupire',name:'Local Volatility Model',
+  desc:'Menghitung volatilitas sebagai fungsi deterministik dari harga aset dan waktu — diturunkan langsung dari permukaan implied volatility pasar.',
+  tex:'\\sigma_{loc}^2(K,T)=\\frac{\\partial_T C+rK\\partial_K C}{\\tfrac12K^2\\partial_{KK}C}',
+  vars:[
+    {k:'S',label:'Harga Spot (S)',min:50,max:200,step:1,def:100,unit:''},
+    {k:'atmVol',label:'Volatilitas ATM',min:10,max:60,step:1,def:25,unit:'%'},
+    {k:'skew',label:'Skew Smile',min:-0.5,max:0.5,step:0.01,def:-0.2,unit:''},
+    {k:'T',label:'Maturitas (T)',min:0.1,max:2,step:0.1,def:1,unit:' th'}
+  ],
+  calc(v){
+    function impliedVol(K){ return v.atmVol+v.skew*(K/v.S-1)*100; }
+    function localVol(K){
+      const h=v.S*0.01;
+      const cKp=impliedVol(K+h), cKm=impliedVol(K-h);
+      const slope=(cKp-cKm)/(2*h);
+      return Math.max(impliedVol(K)+slope*(K-v.S)*0.5,3);
+    }
+    const ptsImp=sweep(v.S*0.5,v.S*1.5,60,impliedVol);
+    const ptsLoc=sweep(v.S*0.5,v.S*1.5,60,localVol);
+    return {
+      big:fmtNum(localVol(v.S),2),bigUnit:'%',bigLabel:'Local Vol di Spot',
+      subs:[{l:'Implied Vol di Spot',v:fmtNum(impliedVol(v.S),2)+'%'}],
+      note:{type:'info',text:'Local volatility cenderung "melebih-lebihkan" kemiringan skew dibanding implied volatility — fenomena ini dikenal sebagai aturan 2x skew Dupire.'},
+      chart:{xMin:v.S*0.5,xMax:v.S*1.5,yMin:0,yMax:Math.max(...ptsImp.map(p=>p.y),...ptsLoc.map(p=>p.y))*1.15,vline:v.S,series:[
+        {label:'Implied Vol σ_impl(K)',color:COLORS.cyan,pts:ptsImp,dash:true},
+        {label:'Local Vol σ_loc(K)',color:COLORS.amber,pts:ptsLoc}
+      ]}
+    };
+  }
+},
+{
+  id:'xva',ch:2,year:2010,who:'Post-2008 Quants',name:'xVA Framework',
+  desc:'Kumpulan penyesuaian harga derivatif OTC untuk mengakomodasi risiko counterparty (CVA), biaya pendanaan (FVA), dan biaya modal regulasi (KVA).',
+  tex:'V_{adj}=V_{risk\\text{-}free}-CVA-FVA-KVA',
+  vars:[
+    {k:'ee',label:'Expected Exposure',min:10,max:1000,step:10,def:100,unit:' jt'},
+    {k:'pd',label:'Probabilitas Default Counterparty',min:0.1,max:10,step:0.1,def:2,unit:'%'},
+    {k:'recovery',label:'Recovery Rate',min:0,max:80,step:5,def:40,unit:'%'},
+    {k:'fundingSpread',label:'Funding Spread',min:0,max:3,step:0.05,def:0.8,unit:'%'},
+    {k:'capitalCost',label:'Biaya Modal',min:0,max:3,step:0.05,def:1,unit:'%'},
+    {k:'T',label:'Tenor',min:0.5,max:10,step:0.5,def:5,unit:' th'}
+  ],
+  calc(v){
+    const CVA=v.ee*(v.pd/100)*(1-v.recovery/100)*v.T;
+    const FVA=v.ee*(v.fundingSpread/100)*v.T;
+    const KVA=v.ee*(v.capitalCost/100)*v.T;
+    const total=CVA+FVA+KVA;
+    return {
+      big:fmtNum(total,2),bigUnit:' jt',bigLabel:'Total Penyesuaian xVA',
+      subs:[{l:'CVA',v:fmtNum(CVA,2)+' jt'},{l:'FVA',v:fmtNum(FVA,2)+' jt'},{l:'KVA',v:fmtNum(KVA,2)+' jt'}],
+      note:{type:'info',text:'xVA mengubah derivatif yang secara teori "bebas risiko" menjadi instrumen dengan biaya riil — komponen ini wajib diperhitungkan trading desk pasca krisis 2008.'},
+      chart:{mode:'bars',decimals:1,unit:' jt',bars:[
+        {label:'CVA',value:CVA,color:COLORS.red},
+        {label:'FVA',value:FVA,color:COLORS.amber},
+        {label:'KVA',value:KVA,color:COLORS.violet},
+        {label:'Total',value:total,color:COLORS.cyan}
+      ]}
+    };
+  }
+},
+{
+  id:'rough-vol',ch:2,year:2014,who:'Gatheral et al.',name:'Rough Volatility',
+  desc:'Menggunakan proses fraksional (Hurst<0.5) untuk memodelkan volatilitas berfrekuensi tinggi — lintasan lebih "kasar"/jagged dibanding gerak Brown standar.',
+  tex:'\\log v(t)=\\eta\\,W_t^H-\\tfrac12\\eta^2t^{2H},\\quad H<0.5',
+  vars:[
+    {k:'H',label:'Eksponen Hurst (H)',min:0.05,max:0.5,step:0.01,def:0.1,unit:''},
+    {k:'eta',label:'Skala Vol-of-Vol (η)',min:0.5,max:3,step:0.1,def:1.5,unit:''},
+    {k:'v0',label:'Volatilitas Awal',min:10,max:50,step:1,def:20,unit:'%'}
+  ],
+  stochastic:true,
+  calc(v,rng){
+    const steps=120,T=1,dt=T/steps;
+    const z=[]; for(let i=0;i<steps+40;i++)z.push(gaussRNG(rng));
+    const ys=[];
+    for(let i=0;i<=steps;i++){
+      let acc=0;
+      for(let k2=0;k2<=i+39;k2++){
+        const lag=i+40-k2; if(lag<=0)continue;
+        acc+=Math.pow(lag,v.H-1.5)*z[k2];
+      }
+      const fbm=acc*Math.sqrt(dt);
+      const tt=Math.max(i*dt,0.001);
+      const logv=Math.log(v.v0/100)+v.eta*fbm-0.5*v.eta*v.eta*Math.pow(tt,2*v.H);
+      ys.push(Math.exp(logv)*100);
+    }
+    let totalVariation=0; for(let i=1;i<ys.length;i++) totalVariation+=Math.abs(ys[i]-ys[i-1]);
+    const pts=ys.map((y,i)=>({x:i*dt,y}));
+    return {
+      big:fmtNum(totalVariation,1),bigUnit:'',bigLabel:'Total Variasi Lintasan (Kekasaran)',
+      subs:[{l:'Volatilitas Akhir',v:fmtNum(ys[ys.length-1],2)+'%'}],
+      note:{type:'info',text:'Semakin kecil H, lintasan semakin "kasar"/jagged (total variasi makin tinggi) — riset Gatheral menemukan H pasar riil sangat rendah, sekitar 0.1.'},
+      chart:{xMin:0,xMax:T,yMin:0,yMax:Math.max(...ys)*1.2+2,series:[{label:'Lintasan Volatilitas Kasar v(t)',color:COLORS.violet,pts}]}
+    };
+  }
+},
+{
+  id:'liquidation-engine',ch:2,year:2021,who:'BitMEX / Binance',name:'Liquidation Engine',
+  desc:'Mekanisme yang menghitung harga likuidasi otomatis pada posisi leverage — semakin tinggi leverage, semakin sempit jarak aman sebelum posisi terlikuidasi paksa.',
+  tex:'P_{liq}=P_{entry}\\Big(1-\\frac1L+mmr\\Big)\\ \\text{(long)}',
+  vars:[
+    {k:'side',label:'Arah Posisi',type:'toggle',def:true,onLabel:'Long',offLabel:'Short'},
+    {k:'entry',label:'Harga Entry',min:1000,max:100000,step:500,def:60000,unit:''},
+    {k:'leverage',label:'Leverage',min:2,max:125,step:1,def:10,unit:'×'},
+    {k:'mmr',label:'Maintenance Margin Rate',min:0.4,max:5,step:0.1,def:0.5,unit:'%'}
+  ],
+  calc(v){
+    const isLong=!!v.side;
+    function liqAt(lev){ return isLong? v.entry*(1-1/lev+v.mmr/100) : v.entry*(1+1/lev-v.mmr/100); }
+    const liq=liqAt(v.leverage);
+    const distPct=Math.abs(v.entry-liq)/v.entry*100;
+    const pts=sweep(2,125,60,lev=>Math.abs(v.entry-liqAt(lev))/v.entry*100);
+    return {
+      big:fmtNum(liq,0),bigUnit:'',bigLabel:'Harga Likuidasi',
+      subs:[{l:'Jarak Aman ke Likuidasi',v:fmtNum(distPct,2)+'%'}],
+      note:{type: v.leverage>30?'danger':v.leverage>10?'warn':'good', text: v.leverage>30? 'Leverage sangat tinggi: pergerakan harga kecil saja sudah cukup memicu likuidasi total.': v.leverage>10? 'Leverage moderat-tinggi: tetap waspadai volatilitas mendadak.':'Leverage rendah: buffer keamanan terhadap likuidasi relatif lebar.'},
+      chart:{xMin:2,xMax:125,yMin:0,yMax:Math.max(...pts.map(p=>p.y))*1.15,vline:v.leverage,series:[{label:'Jarak Aman ke Likuidasi (%) vs Leverage',color:COLORS.red,pts}]}
+    };
+  }
+},
+{
+  id:'depeg-risk',ch:2,year:2022,who:'DeFi Quants',name:'Depeg Risk Model',
+  desc:'Kalkulasi stres likuiditas saat stablecoin berisiko kehilangan peg algoritmiknya akibat tekanan penebusan (redemption) yang melebihi kapasitas likuiditas.',
+  tex:'P_{stress}=1-\\min\\Big(0.15,\\ \\frac{\\text{Tekanan}}{\\text{Buffer}}\\cdot\\frac{150-CR}{150}\\Big)',
+  vars:[
+    {k:'cr',label:'Rasio Kolateral (CR)',min:50,max:150,step:1,def:105,unit:'%'},
+    {k:'pressure',label:'Tekanan Penebusan',min:0,max:100,step:1,def:10,unit:'%'},
+    {k:'buffer',label:'Rasio Buffer Likuiditas',min:10,max:200,step:5,def:80,unit:'%'}
+  ],
+  calc(v){
+    function priceAt(pressure){
+      const stress=pressure/Math.max(v.buffer,1);
+      const depeg=clampNum(stress*(150-v.cr)/150,0,0.15);
+      return 1-depeg;
+    }
+    const price=priceAt(v.pressure);
+    const pts=sweep(0,100,60,priceAt);
+    return {
+      big:fmtNum(price,4),bigUnit:' $',bigLabel:'Estimasi Harga Saat Stress',
+      subs:[{l:'Deviasi dari Peg',v:fmtNum((1-price)*100,2)+'%'}],
+      note:{type: price<0.97?'danger':price<0.99?'warn':'good', text: price<0.97? 'Risiko depeg signifikan — rasio kolateral & buffer likuiditas tidak cukup menahan tekanan penebusan saat ini.': price<0.99? 'Tekanan mulai terasa namun masih dalam batas toleransi pasar.':'Peg relatif aman pada tingkat tekanan ini.'},
+      chart:{xMin:0,xMax:100,yMin:0.8,yMax:1.02,vline:v.pressure,hlines:[{y:1,color:COLORS.faint,dash:true}],series:[{label:'Harga Stablecoin vs Tekanan Penebusan',color:COLORS.cyan,pts}]}
+    };
+  }
+},
+{
+  id:'vol-surface-crypto',ch:2,year:2024,who:'Crypto-Native Quants',name:'Volatility Surface & Skew Crypto',
+  desc:'Permukaan volatilitas yang menggabungkan struktur skew dan term structure khusus ekosistem aset digital — skew biasanya jauh lebih tajam dari pasar TradFi.',
+  tex:'\\sigma(K,T)=\\sigma_{ATM}(T)+\\text{skew}(T)\\Big(\\frac{K}{S}-1\\Big)',
+  vars:[
+    {k:'S',label:'Harga Spot (S)',min:20000,max:100000,step:1000,def:60000,unit:''},
+    {k:'K',label:'Strike (K)',min:20000,max:100000,step:1000,def:65000,unit:''},
+    {k:'baseVol',label:'Volatilitas Dasar',min:20,max:150,step:1,def:70,unit:'%'},
+    {k:'termSlope',label:'Kemiringan Term Structure',min:-30,max:30,step:1,def:10,unit:''},
+    {k:'skew0',label:'Skew Dasar',min:-100,max:100,step:1,def:-40,unit:''},
+    {k:'decay',label:'Peluruhan Skew (κ)',min:0,max:2,step:0.05,def:0.5,unit:''},
+    {k:'T',label:'Maturitas (T)',min:0.05,max:2,step:0.05,def:0.25,unit:' th'}
+  ],
+  calc(v){
+    function atmVolT(T){ return v.baseVol+v.termSlope/100*Math.sqrt(T)*100; }
+    function skewT(T){ return v.skew0*Math.exp(-v.decay*T); }
+    function vol(K){ return Math.max(5,atmVolT(v.T)+skewT(v.T)*(K-v.S)/v.S); }
+    const pts=sweep(v.S*0.5,v.S*1.5,60,vol);
+    return {
+      big:fmtNum(vol(v.K),2),bigUnit:'%',bigLabel:'Implied Vol di Strike & Maturitas Terpilih',
+      subs:[{l:'Vol ATM pada T ini',v:fmtNum(atmVolT(v.T),2)+'%'},{l:'Skew Efektif pada T ini',v:fmtNum(skewT(v.T),1)}],
+      note:{type:'info',text:'Skew meluruh secara eksponensial untuk maturitas lebih panjang — opsi jangka pendek kripto biasanya menunjukkan kemiringan smile paling tajam.'},
+      chart:{xMin:v.S*0.5,xMax:v.S*1.5,yMin:0,yMax:Math.max(...pts.map(p=>p.y))*1.15,vline:v.K,series:[{label:'Smile Implied Vol σ(K) di T Terpilih',color:COLORS.amber,pts}]}
+    };
+  }
+}
+]);
+
+/* ===================== BAB 3: PORTFOLIO OPTIMIZATION & QUANT FACTORS (12) ===================== */
+addF([
+{
+  id:'mpt',ch:3,year:1952,who:'Harry Markowitz',name:'Modern Portfolio Theory',
+  desc:'Titik efisiensi maksimal antara imbal hasil dan varians — dasar Efficient Frontier: setiap portofolio di bawah kurva ini "suboptimal".',
+  tex:'\\sigma_p^2=w_1^2\\sigma_1^2+w_2^2\\sigma_2^2+2w_1w_2\\rho\\sigma_1\\sigma_2',
+  vars:[
+    {k:'r1',label:'Expected Return Aset 1',min:0,max:20,step:0.5,def:8,unit:'%'},
+    {k:'r2',label:'Expected Return Aset 2',min:0,max:20,step:0.5,def:12,unit:'%'},
+    {k:'s1',label:'Volatilitas Aset 1',min:1,max:40,step:0.5,def:10,unit:'%'},
+    {k:'s2',label:'Volatilitas Aset 2',min:1,max:40,step:0.5,def:20,unit:'%'},
+    {k:'rho',label:'Korelasi ρ',min:-0.99,max:0.99,step:0.01,def:0.2,unit:''},
+    {k:'w1',label:'Bobot Aset 1 (w₁)',min:0,max:100,step:1,def:50,unit:'%'}
+  ],
+  calc(v){
+    const w1=v.w1/100, w2=1-w1;
+    const rp=w1*v.r1+w2*v.r2;
+    const sp=Math.sqrt(w1*w1*v.s1*v.s1+w2*w2*v.s2*v.s2+2*w1*w2*v.rho*v.s1*v.s2);
+    const pts=[];
+    for(let ww=0;ww<=100;ww+=2){
+      const wa=ww/100, wb=1-wa;
+      const x=Math.sqrt(wa*wa*v.s1*v.s1+wb*wb*v.s2*v.s2+2*wa*wb*v.rho*v.s1*v.s2);
+      const y=wa*v.r1+wb*v.r2; pts.push({x,y});
+    }
+    const allX=pts.map(p=>p.x), allY=pts.map(p=>p.y);
+    return {
+      big:fmtNum(sp,2),bigUnit:'%',bigLabel:'Volatilitas Portofolio σₚ',
+      subs:[{l:'Expected Return Portofolio',v:fmtNum(rp,2)+'%'},{l:'Sharpe Ratio (Rf=3%)',v:fmtNum((rp-3)/sp,3)}],
+      note:{type:'info',text:'Titik merah pada grafik menunjukkan bobot yang dipilih (w₁='+v.w1+'%). Diversifikasi menurunkan risiko di bawah rata-rata tertimbang volatilitas dua aset.'},
+      chart:{xMin:Math.min(...allX)*0.9,xMax:Math.max(...allX)*1.1,yMin:Math.min(...allY)*0.9,yMax:Math.max(...allY)*1.1,vline:sp,series:[{label:'Efficient Frontier (Return % vs Risiko %)',color:COLORS.green,pts:pts.slice().sort((a,b)=>a.x-b.x)}]}
+    };
+  }
+},
+{
+  id:'mm',ch:3,year:1961,who:'Modigliani, Miller',name:'Modigliani-Miller Theorem',
+  desc:'Struktur modal (utang vs ekuitas) secara teoritis tidak memengaruhi total nilai perusahaan dalam pasar sempurna — tax shield utang menciptakan nilai saat ada pajak.',
+  tex:'V_L=V_U+T_c\\cdot D,\\quad \\text{WACC}=k_e\\frac{E}{V}+k_d(1-T_c)\\frac{D}{V}',
+  vars:[
+    {k:'vu',label:'Nilai Perusahaan Unlevered',min:100,max:10000,step:100,def:1000,unit:' M'},
+    {k:'D',label:'Total Utang (D)',min:0,max:5000,step:100,def:300,unit:' M'},
+    {k:'Tc',label:'Tarif Pajak Korporat',min:0,max:50,step:1,def:25,unit:'%'},
+    {k:'ke',label:'Biaya Ekuitas (kₑ)',min:5,max:25,step:0.5,def:12,unit:'%'},
+    {k:'kd',label:'Biaya Utang (kd)',min:1,max:15,step:0.25,def:5,unit:'%'}
+  ],
+  calc(v){
+    const Vl=v.vu+v.Tc/100*v.D;
+    const E=Vl-v.D;
+    const wacc=(v.ke/100*(E/Vl)+v.kd/100*(1-v.Tc/100)*(v.D/Vl))*100;
+    const pts=sweep(0,5000,60,D=>v.vu+v.Tc/100*D);
+    return {
+      big:fmtNum(Vl,0),bigUnit:' M',bigLabel:'Nilai Perusahaan Levered (Vₗ)',
+      subs:[{l:'Tax Shield Nilai',v:fmtNum(v.Tc/100*v.D,0)+' M'},{l:'WACC',v:fmtNum(wacc,2)+'%'}],
+      note:{type:'info',text:'Tanpa pajak MM menyatakan Vₗ=Vᵤ (struktur modal irrelevant). Pajak menciptakan insentif menggunakan utang lewat penghematan pajak bunga.'},
+      chart:{xMin:0,xMax:5000,yMin:v.vu*0.9,yMax:(v.vu+5000*v.Tc/100)*1.1,vline:v.D,series:[{label:'Nilai Perusahaan vs Utang',color:COLORS.green,pts}]}
+    };
+  }
+},
+{
+  id:'ff3f',ch:3,year:1990,who:'Fama, French',name:'Fama-French Three-Factor',
+  desc:'Memperluas CAPM dengan faktor ukuran perusahaan (SMB: Small Minus Big) dan valuasi (HML: High Minus Low B/M) untuk menjelaskan imbal hasil saham lebih baik.',
+  tex:'R-R_f=\\alpha+\\beta_{mkt}(R_m-R_f)+\\beta_{smb}\\cdot SMB+\\beta_{hml}\\cdot HML',
+  vars:[
+    {k:'rf',label:'Risk-Free Rate',min:0,max:10,step:0.25,def:4,unit:'%'},
+    {k:'bMkt',label:'Beta Pasar (βₘₖₜ)',min:-1,max:3,step:0.05,def:1.1,unit:''},
+    {k:'bSmb',label:'Beta Ukuran (βₛₘᵦ)',min:-1,max:2,step:0.05,def:0.4,unit:''},
+    {k:'bHml',label:'Beta Valuasi (βₕₘₗ)',min:-1,max:2,step:0.05,def:0.3,unit:''}
+  ],
+  calc(v){
+    const mktPrem=5, smb=2, hml=3.5;
+    const c1=v.bMkt*mktPrem, c2=v.bSmb*smb, c3=v.bHml*hml;
+    const er=v.rf+c1+c2+c3;
+    return {
+      big:fmtNum(er,2),bigUnit:'%',bigLabel:'Expected Return 3-Faktor',
+      subs:[{l:'Kontribusi Market',v:fmtNum(c1,2)+'%'},{l:'Kontribusi SMB',v:fmtNum(c2,2)+'%'},{l:'Kontribusi HML',v:fmtNum(c3,2)+'%'}],
+      note:{type:'info',text:'Premi SMB≈2%, HML≈3.5% adalah estimasi historis jangka panjang. Faktor Size & Value menjelaskan anomali imbal hasil yang tidak tertangkap CAPM.'},
+      chart:{mode:'bars',decimals:2,unit:'%',bars:[
+        {label:'Rf',value:v.rf,color:COLORS.faint},
+        {label:'Market Premium',value:c1,color:COLORS.amber},
+        {label:'SMB (Ukuran)',value:c2,color:COLORS.cyan},
+        {label:'HML (Valuasi)',value:c3,color:COLORS.green},
+        {label:'Total E(R)',value:er,color:COLORS.violet}
+      ]}
+    };
+  }
+},
+{
+  id:'cta-trend',ch:3,year:1990,who:'Macro Funds',name:'CTA Trend Following FX',
+  desc:'Strategi momentum kuantitatif berbasis sinyal tren absolut pada time-series harga — berupaya menangkap persistensi tren lintas aset FX.',
+  tex:'\\text{Signal}=\\text{sign}(MA_{fast}-MA_{slow}),\\quad \\text{Posisi}=\\text{Signal}\\times \\frac{\\sigma_{target}}{\\sigma_{asset}}',
+  vars:[
+    {k:'currentPrice',label:'Harga Saat Ini',min:0.5,max:2,step:0.01,def:1.1,unit:''},
+    {k:'ma20',label:'MA Cepat (20d)',min:0.5,max:2,step:0.01,def:1.08,unit:''},
+    {k:'ma200',label:'MA Lambat (200d)',min:0.5,max:2,step:0.01,def:1.05,unit:''},
+    {k:'sigmaTarget',label:'Target Volatilitas Portofolio',min:5,max:30,step:1,def:15,unit:'%'},
+    {k:'sigmaAsset',label:'Volatilitas Aset Tahunan',min:5,max:30,step:1,def:10,unit:'%'}
+  ],
+  calc(v){
+    const signal=v.ma20>v.ma200?1:-1;
+    const posSizing=signal*v.sigmaTarget/v.sigmaAsset;
+    const bars=[
+      {label:'MA Cepat 20d',value:v.ma20,color:COLORS.amber},
+      {label:'MA Lambat 200d',value:v.ma200,color:COLORS.cyan},
+      {label:'Harga Saat Ini',value:v.currentPrice,color:COLORS.green}
+    ];
+    return {
+      big:fmtNum(posSizing,2),bigUnit:'×',bigLabel: signal>0? 'LONG '+fmtNum(Math.abs(posSizing),2)+'×':'SHORT '+fmtNum(Math.abs(posSizing),2)+'×',
+      subs:[{l:'Sinyal Arah',v:signal>0?'BULLISH ▲':'BEARISH ▼'},{l:'Rasio Volatilitas',v:fmtNum(v.sigmaTarget/v.sigmaAsset,2)+'×'}],
+      note:{type: signal>0?'good':'warn', text: signal>0? 'MA cepat > MA lambat: tren naik teridentifikasi, portofolio CTA masuk posisi LONG.':'MA cepat < MA lambat: tren turun, sistem secara otomatis beralih ke posisi SHORT.'},
+      chart:{mode:'bars',unit:'',bars}
+    };
+  }
+},
+{
+  id:'fx-carry',ch:3,year:2000,who:'Quant Funds',name:'FX Carry-to-Risk',
+  desc:'Portofolio strategi selisih suku bunga antar mata uang (carry trade) yang disesuaikan dengan volatilitas FX aktual — mengukur efisiensi setiap unit risiko yang diambil.',
+  tex:'SR_{carry}=\\frac{(i_H-i_L)}{\\sigma_{\\Delta e}}',
+  vars:[
+    {k:'iHigh',label:'Suku Bunga Tinggi (i_H)',min:0,max:20,step:0.25,def:8,unit:'%'},
+    {k:'iLow',label:'Suku Bunga Rendah (i_L)',min:0,max:10,step:0.25,def:1,unit:'%'},
+    {k:'fxVol',label:'Volatilitas FX Tahunan (σ)',min:2,max:20,step:0.5,def:8,unit:'%'}
+  ],
+  calc(v){
+    const carry=v.iHigh-v.iLow;
+    const sharpe=carry/v.fxVol;
+    const pts=sweep(2,20,60,fv=>carry/fv);
+    return {
+      big:fmtNum(sharpe,3),bigUnit:'',bigLabel:'Carry-to-Risk (Sharpe)',
+      subs:[{l:'Gross Carry',v:fmtNum(carry,2)+'%'},{l:'Volatilitas FX',v:fmtNum(v.fxVol,2)+'%'}],
+      note:{type: sharpe>0.5?'good':sharpe>0.3?'info':'warn', text: sharpe>0.5? 'Carry-to-Risk tinggi — spread suku bunga menarik relatif terhadap risiko FX.':'Carry-to-Risk rendah — risk-reward kurang menarik pada tingkat volatilitas ini.'},
+      chart:{xMin:2,xMax:20,yMin:0,yMax:Math.max(...pts.map(p=>p.y))*1.15,vline:v.fxVol,hlines:[{y:0.5,color:COLORS.green,dash:true}],series:[{label:'Carry-to-Risk vs Volatilitas FX',color:COLORS.amber,pts}]}
+    };
+  }
+},
+{
+  id:'carhart4f',ch:3,year:2001,who:'Mark Carhart',name:'Carhart Four-Factor',
+  desc:'Menambahkan faktor momentum (WML: Winners Minus Losers) ke dalam model Fama-French — anomali momentum saham terbukti secara empiris persisten lintas pasar.',
+  tex:'R-R_f=\\alpha+\\beta_m(R_m-R_f)+\\beta_s\\cdot SMB+\\beta_h\\cdot HML+\\beta_{mom}\\cdot MOM',
+  vars:[
+    {k:'rf',label:'Risk-Free Rate',min:0,max:10,step:0.25,def:4,unit:'%'},
+    {k:'bMkt',label:'Beta Pasar',min:0,max:2,step:0.05,def:1,unit:''},
+    {k:'bSmb',label:'Beta SMB',min:-1,max:2,step:0.05,def:0.3,unit:''},
+    {k:'bHml',label:'Beta HML',min:-1,max:2,step:0.05,def:0.2,unit:''},
+    {k:'bMom',label:'Beta Momentum (WML)',min:-1,max:2,step:0.05,def:0.5,unit:''}
+  ],
+  calc(v){
+    const mkt=5,smb=2,hml=3.5,mom=8;
+    const c1=v.bMkt*mkt,c2=v.bSmb*smb,c3=v.bHml*hml,c4=v.bMom*mom;
+    const er=v.rf+c1+c2+c3+c4;
+    return {
+      big:fmtNum(er,2),bigUnit:'%',bigLabel:'Expected Return 4-Faktor',
+      subs:[{l:'Kontribusi Momentum',v:fmtNum(c4,2)+'%'},{l:'Alpha Residual (target)',v:'?'}],
+      note:{type:'info',text:'Premi momentum historis ≈8%/tahun — salah satu anomali terbesar di pasar ekuitas meski rentan "momentum crash" saat market reversal tiba-tiba.'},
+      chart:{mode:'bars',decimals:2,unit:'%',bars:[
+        {label:'Rf',value:v.rf,color:COLORS.faint},
+        {label:'Market',value:c1,color:COLORS.amber},
+        {label:'SMB',value:c2,color:COLORS.cyan},
+        {label:'HML',value:c3,color:COLORS.green},
+        {label:'WML',value:c4,color:COLORS.violet},
+        {label:'Total',value:er,color:COLORS.red}
+      ]}
+    };
+  }
+},
+{
+  id:'ff5f',ch:3,year:2004,who:'Fama, French',name:'Fama-French Five-Factor',
+  desc:'Menambahkan profitabilitas (RMW: Robust Minus Weak) dan investasi (CMA: Conservative Minus Aggressive) ke model 3-faktor sebagai prediktor imbal hasil portofolio.',
+  tex:'R-R_f=\\alpha+\\beta_m(R_m-R_f)+\\beta_s SMB+\\beta_h HML+\\beta_r RMW+\\beta_c CMA',
+  vars:[
+    {k:'rf',label:'Risk-Free Rate',min:0,max:10,step:0.25,def:4,unit:'%'},
+    {k:'bMkt',label:'Beta Pasar',min:0,max:2,step:0.05,def:1,unit:''},
+    {k:'bSmb',label:'Beta SMB',min:-1,max:2,step:0.05,def:0.3,unit:''},
+    {k:'bHml',label:'Beta HML',min:-1,max:2,step:0.05,def:0.2,unit:''},
+    {k:'bRmw',label:'Beta Profitabilitas (RMW)',min:-1,max:2,step:0.05,def:0.4,unit:''},
+    {k:'bCma',label:'Beta Investasi (CMA)',min:-1,max:2,step:0.05,def:-0.2,unit:''}
+  ],
+  calc(v){
+    const mkt=5,smb=2,hml=3.5,rmw=3.6,cma=3.4;
+    const c1=v.bMkt*mkt,c2=v.bSmb*smb,c3=v.bHml*hml,c4=v.bRmw*rmw,c5=v.bCma*cma;
+    const er=v.rf+c1+c2+c3+c4+c5;
+    return {
+      big:fmtNum(er,2),bigUnit:'%',bigLabel:'Expected Return 5-Faktor',
+      subs:[{l:'Kontribusi RMW',v:fmtNum(c4,2)+'%'},{l:'Kontribusi CMA',v:fmtNum(c5,2)+'%'}],
+      note:{type:'info',text:'RMW positif=perusahaan profitable lebih menguntungkan; CMA negatif=perusahaan agresif berinvestasi cenderung mengalami underperformance.'},
+      chart:{mode:'bars',decimals:2,unit:'%',bars:[
+        {label:'Rf',value:v.rf,color:COLORS.faint},{label:'Market',value:c1,color:COLORS.amber},
+        {label:'SMB',value:c2,color:COLORS.cyan},{label:'HML',value:c3,color:COLORS.green},
+        {label:'RMW',value:c4,color:COLORS.violet},{label:'CMA',value:c5,color:COLORS.red},
+        {label:'Total',value:er,color:COLORS.amber}
+      ]}
+    };
+  }
+},
+{
+  id:'fx-factor',ch:3,year:2010,who:'AQR / Quants',name:'FX Factor Model',
+  desc:'Mengisolasi empat pilar alpha valuta asing: Value (PPP-based), Momentum (trend), Carry (suku bunga), dan Defensive (low-beta).',
+  tex:'R_{FX}=\\beta_V F_V+\\beta_M F_M+\\beta_C F_C+\\beta_D F_D',
+  vars:[
+    {k:'bVal',label:'Eksposur Value (β_V)',min:-2,max:2,step:0.1,def:0.5,unit:''},
+    {k:'bMom',label:'Eksposur Momentum (β_M)',min:-2,max:2,step:0.1,def:0.8,unit:''},
+    {k:'bCarry',label:'Eksposur Carry (β_C)',min:-2,max:2,step:0.1,def:1,unit:''},
+    {k:'bDef',label:'Eksposur Defensive (β_D)',min:-2,max:2,step:0.1,def:-0.3,unit:''}
+  ],
+  calc(v){
+    const fV=3,fM=5,fC=4,fD=2;
+    const c1=v.bVal*fV,c2=v.bMom*fM,c3=v.bCarry*fC,c4=v.bDef*fD;
+    const total=c1+c2+c3+c4;
+    return {
+      big:fmtNum(total,2),bigUnit:'%',bigLabel:'Expected Return FX Portfolio',
+      subs:[{l:'Premi Value',v:fmtNum(c1,2)+'%'},{l:'Premi Momentum',v:fmtNum(c2,2)+'%'},{l:'Premi Carry',v:fmtNum(c3,2)+'%'},{l:'Premi Defensive',v:fmtNum(c4,2)+'%'}],
+      note:{type:'info',text:'Keempat faktor FX historis saling berkorelasi rendah — kombinasinya menghasilkan Sharpe Ratio lebih stabil dibanding satu faktor tunggal.'},
+      chart:{mode:'bars',decimals:2,unit:'%',bars:[
+        {label:'Value',value:c1,color:COLORS.amber},{label:'Momentum',value:c2,color:COLORS.cyan},
+        {label:'Carry',value:c3,color:COLORS.green},{label:'Defensive',value:c4,color:COLORS.violet},
+        {label:'Total',value:total,color:COLORS.red}
+      ]}
+    };
+  }
+},
+{
+  id:'fx-momentum',ch:3,year:2012,who:'Moskowitz et al.',name:'FX Momentum (Time-Series)',
+  desc:'Ekstraksi alpha berdasarkan kegigihan pergerakan nilai tukar historis — aset yang naik dalam 12 bulan terakhir cenderung terus naik dalam 1–3 bulan ke depan.',
+  tex:'R_{t+1}=\\alpha+\\beta\\cdot\\text{sign}(R_{t-12,t})+\\varepsilon',
+  vars:[
+    {k:'retPast',label:'Return 12 Bulan Lalu',min:-30,max:30,step:1,def:8,unit:'%'},
+    {k:'vol12m',label:'Volatilitas 12 Bulan',min:3,max:20,step:0.5,def:10,unit:'%'},
+    {k:'targetVol',label:'Target Volatilitas Portofolio',min:5,max:25,step:1,def:12,unit:'%'}
+  ],
+  calc(v){
+    const signal=Math.sign(v.retPast);
+    const sizing=signal*(v.targetVol/v.vol12m);
+    const expectedRet=signal*Math.abs(v.retPast)*0.2;
+    return {
+      big:fmtNum(sizing,3),bigUnit:'×',bigLabel: signal>0?'LONG '+fmtNum(Math.abs(sizing),3)+'×':'SHORT '+fmtNum(Math.abs(sizing),3)+'×',
+      subs:[{l:'Return Momentum Prediksi',v:fmtNum(expectedRet,2)+'%'},{l:'Faktor Skala Risiko',v:fmtNum(v.targetVol/v.vol12m,3)+'×'}],
+      note:{type: signal>0?'good':'warn', text: signal>0? 'Sinyal positif: trend naik 12 bulan — sistem FX momentum masuk LONG dengan sizing disesuaikan volatilitas.':'Sinyal negatif: trend turun — masuk SHORT, sizing proporsional terhadap targetVol/vol.'},
+      chart:{mode:'bars',decimals:2,unit:'%',bars:[
+        {label:'Return 12bln Lalu',value:v.retPast,color:COLORS.cyan},
+        {label:'Return Prediksi Momentum',value:expectedRet,color:COLORS.amber},
+        {label:'Sizing (×vol target)',value:sizing*3,color:COLORS.green}
+      ]}
+    };
+  }
+},
+{
+  id:'aqr-qmj',ch:3,year:2013,who:'Asness, Frazzini',name:'AQR Quality Minus Junk',
+  desc:'Strategi fundamental sistematis: long aset berkualitas (profitabilitas, pertumbuhan, keamanan tinggi) dan short aset "sampah" — faktor quality terbukti persisten lintas pasar.',
+  tex:'\\text{Quality Score}=\\frac{z(\\text{profit})+z(\\text{growth})+z(\\text{safety})}{3}',
+  vars:[
+    {k:'profitability',label:'Skor Profitabilitas (z-score)',min:-3,max:3,step:0.1,def:1.5,unit:''},
+    {k:'growth',label:'Skor Pertumbuhan (z-score)',min:-3,max:3,step:0.1,def:0.8,unit:''},
+    {k:'safety',label:'Skor Keamanan (z-score)',min:-3,max:3,step:0.1,def:1.2,unit:''}
+  ],
+  calc(v){
+    const qScore=(v.profitability+v.growth+v.safety)/3;
+    const expectedAlpha=qScore*2.5;
+    const bars=[
+      {label:'Profitabilitas',value:v.profitability,color:COLORS.green},
+      {label:'Pertumbuhan',value:v.growth,color:COLORS.cyan},
+      {label:'Keamanan',value:v.safety,color:COLORS.amber},
+      {label:'Quality Score',value:qScore,color:COLORS.violet}
+    ];
+    return {
+      big:fmtNum(qScore,3),bigUnit:'',bigLabel:'Quality Score Komposit',
+      subs:[{l:'Alpha Prediksi',v:fmtNum(expectedAlpha,2)+'%/th'},{l:'Kategori',v:qScore>1?'High Quality':qScore>0?'Average':qScore>-1?'Below Avg':'Junk'}],
+      note:{type: qScore>1?'good':qScore>0?'info':'warn', text: qScore>1? 'Skor kualitas tinggi — kandidat posisi LONG dalam strategi QMJ.':'Skor kualitas rendah — kandidat SHORT atau underweight dalam portofolio faktor.'},
+      chart:{mode:'bars',decimals:2,bars}
+    };
+  }
+},
+{
+  id:'deep-hedging',ch:3,year:2018,who:'Hans Bühler',name:'Deep Hedging / Neural SDE',
+  desc:'Menggunakan reinforcement learning (RL) untuk melindungi nilai derivatif secara otonom — mempertimbangkan biaya transaksi dan friksi pasar yang diabaikan model klasik.',
+  tex:'\\min_{\\delta_t} \\mathbb{E}\\Big[\\Big(V_T - \\sum_t \\delta_t \\Delta S_t + c(\\delta_t)\\Big)^2\\Big]',
+  vars:[
+    {k:'targetPnl',label:'P&L yang Ingin Dilindungi',min:-100,max:0,step:1,def:-20,unit:' rb'},
+    {k:'tradingCost',label:'Biaya Transaksi (per trade)',min:0,max:1,step:0.01,def:0.1,unit:'%'},
+    {k:'freq',label:'Frekuensi Rebalancing (kali/th)',min:1,max:252,step:1,def:52,unit:''},
+    {k:'epsilon',label:'Toleransi Risiko Residual (ε)',min:0.01,max:0.5,step:0.01,def:0.05,unit:''}
+  ],
+  calc(v){
+    const totalCostPerYear=v.freq*(v.tradingCost/100)*100;
+    const hedgeEff=Math.max(0,1-v.epsilon-totalCostPerYear/100);
+    const residualRisk=Math.abs(v.targetPnl)*(1-hedgeEff);
+    const pts=sweep(1,252,60,f=>Math.max(0,1-v.epsilon-(f*(v.tradingCost/100)*100)/100));
+    return {
+      big:fmtNum(hedgeEff*100,1),bigUnit:'%',bigLabel:'Efisiensi Lindung Nilai Estimasi',
+      subs:[{l:'Biaya Transaksi Total/th',v:fmtNum(totalCostPerYear,2)+'%'},{l:'Risiko Residual',v:fmtNum(residualRisk,1)+' rb'}],
+      note:{type: hedgeEff>0.9?'good':hedgeEff>0.7?'info':'warn', text: hedgeEff>0.9? 'Efisiensi tinggi — RL agent berhasil menyeimbangkan biaya rebalancing vs perlindungan risiko.':'Biaya transaksi terlalu tinggi atau frekuensi rebalancing terlalu sering — mengurangi efisiensi bersih.'},
+      chart:{xMin:1,xMax:252,yMin:0,yMax:1.05,vline:v.freq,series:[{label:'Efisiensi Hedge vs Frekuensi Rebalancing',color:COLORS.violet,pts}]}
+    };
+  }
+},
+{
+  id:'signature',ch:3,year:2020,who:'Terry Lyons',name:'Signature Methods',
+  desc:'Ekstraksi fitur topologis menggunakan iterated integral dari jalur harga — representasi kompak yang menangkap "bentuk" seluruh lintasan untuk machine learning keuangan.',
+  tex:'S(X)_{s,t}^I = \\int_{s<t_1<\\cdots<t_k<t} dX^{i_1}\\cdots dX^{i_k}',
+  vars:[
+    {k:'drift',label:'Drift Harga (%/th)',min:-20,max:20,step:1,def:8,unit:'%'},
+    {k:'vol',label:'Volatilitas',min:5,max:50,step:1,def:20,unit:'%'},
+    {k:'T',label:'Horizon (T)',min:0.1,max:2,step:0.1,def:1,unit:' th'}
+  ],
+  stochastic:true,
+  calc(v,rng){
+    const steps=80,dt=v.T/steps; const path=[[0,0]]; let lnS=0;
+    for(let i=0;i<steps;i++){
+      const z=gaussRNG(rng);
+      lnS+=(v.drift/100-0.5*(v.vol/100)**2)*dt+(v.vol/100)*Math.sqrt(dt)*z;
+      path.push([i*dt,lnS]);
+    }
+    let sig1x=0,sig1y=0,sig2xy=0;
+    for(let i=1;i<path.length;i++){
+      const dx=path[i][0]-path[i-1][0];
+      const dy=path[i][1]-path[i-1][1];
+      sig2xy+=sig1x*dy; sig1x+=dx; sig1y+=dy;
+    }
+    const pts=path.map(p=>({x:p[0],y:Math.exp(p[1])*100}));
+    return {
+      big:fmtNum(sig2xy,4),bigUnit:'',bigLabel:'Signature s¹²₂ (Cross-Term)',
+      subs:[{l:'Fitur Level 1 (∫dX)',v:fmtNum(sig1x,4)},{l:'Fitur Level 1 (∫dY)',v:fmtNum(sig1y,4)}],
+      note:{type:'info',text:'Iterated integral s¹² menangkap area bertanda antara komponen waktu dan harga — non-trivial bahkan untuk path dengan return akhir yang sama.'},
+      chart:{xMin:0,xMax:v.T,yMin:Math.min(...pts.map(p=>p.y))*0.9,yMax:Math.max(...pts.map(p=>p.y))*1.1,series:[{label:'Lintasan Harga (Path)',color:COLORS.violet,pts}]}
+    };
+  }
+}
+]);
+
+/* ===================== BAB 4: MACRO & ON-CHAIN CYCLES (32) ===================== */
+addF([
+{id:'ppp',ch:4,year:1918,who:'Gustav Cassel',name:'Purchasing Power Parity',
+  desc:'Nilai tukar keseimbangan jangka panjang berdasarkan komparasi daya beli antar negara — menyiratkan mata uang dengan inflasi tinggi cenderung melemah.',
+  tex:'\\frac{E_1}{E_0}=\\frac{P_{dom}}{P_{for}}=\\frac{(1+\\pi_d)}{(1+\\pi_f)}',
+  vars:[{k:'E0',label:'Kurs Saat Ini',min:0.5,max:20000,step:1,def:15900,unit:''},{k:'piD',label:'Inflasi Domestik (π_d)',min:0,max:30,step:0.1,def:3,unit:'%'},{k:'piF',label:'Inflasi Asing (π_f)',min:0,max:30,step:0.1,def:2,unit:'%'},{k:'T',label:'Horizon (th)',min:1,max:10,step:1,def:5,unit:''}],
+  calc(v){
+    const ratio=Math.pow((1+v.piD/100)/(1+v.piF/100),v.T);
+    const Eequil=v.E0*ratio;
+    const pts=sweep(1,10,50,t=>v.E0*Math.pow((1+v.piD/100)/(1+v.piF/100),t));
+    return {big:fmtNum(Eequil,0),bigUnit:'',bigLabel:'Kurs PPP Ekuilibrium di T='+v.T,
+      subs:[{l:'Kurs Saat Ini',v:fmtNum(v.E0,0)},{l:'Selisih Inflasi',v:fmtNum(v.piD-v.piF,1)+'%/th'}],
+      note:{type:Eequil>v.E0?'warn':'good',text:Eequil>v.E0?'Inflasi domestik lebih tinggi: mata uang domestik diprediksi melemah secara jangka panjang.':'Inflasi domestik lebih rendah: mata uang domestik diproyeksikan menguat.'},
+      chart:{xMin:1,xMax:10,yMin:Math.min(...pts.map(p=>p.y))*0.95,yMax:Math.max(...pts.map(p=>p.y))*1.05,vline:v.T,series:[{label:'Kurs PPP vs Waktu',color:COLORS.cyan,pts}]}}
+  }
+},
+{id:'uip',ch:4,year:1930,who:'Irving Fisher',name:'Uncovered Interest Rate Parity',
+  desc:'Proyeksi perubahan kurs berdasarkan selisih murni suku bunga nominal dua negara — dalam praktiknya sering gagal (forward premium puzzle).',
+  tex:'\\frac{E(S_{t+1})-S_t}{S_t}=i_d-i_f',
+  vars:[{k:'S',label:'Kurs Spot Saat Ini',min:0.5,max:20000,step:1,def:15900,unit:''},{k:'id',label:'Suku Bunga Domestik (i_d)',min:0,max:20,step:0.25,def:6,unit:'%'},{k:'if_',label:'Suku Bunga Asing (i_f)',min:0,max:20,step:0.25,def:5.5,unit:'%'},{k:'T',label:'Horizon (th)',min:1,max:5,step:0.5,def:1,unit:''}],
+  calc(v){
+    const expectedChange=(v.id-v.if_)/100;
+    const Efwd=v.S*Math.pow(1+expectedChange,v.T);
+    const pts=sweep(1,5,40,t=>v.S*Math.pow(1+expectedChange,t));
+    return {big:fmtNum(Efwd,0),bigUnit:'',bigLabel:'E(Spot) UIP di T='+v.T+'th',
+      subs:[{l:'Selisih Suku Bunga',v:fmtNum(v.id-v.if_,2)+'%'},{l:'% Perubahan Ekspektasi',v:fmtNum((Efwd/v.S-1)*100,2)+'%'}],
+      note:{type:'info',text:'UIP sering gagal dalam jangka pendek — negara dengan suku bunga tinggi justru sering menguat (forward premium puzzle / carry trade anomaly).'},
+      chart:{xMin:1,xMax:5,yMin:Math.min(...pts.map(p=>p.y))*0.95,yMax:Math.max(...pts.map(p=>p.y))*1.05,series:[{label:'E(Spot) UIP',color:COLORS.amber,pts}]}}
+  }
+},
+{id:'dornbusch',ch:4,year:1976,who:'Rudi Dornbusch',name:'Dornbusch Overshooting Model',
+  desc:'Menjelaskan mengapa kurs bereaksi berlebihan (overshooting) saat kebijakan moneter berubah — karena pasar keuangan lebih cepat bergerak dari pasar barang.',
+  tex:'\\Delta e = -(1/\\lambda)(i-i^*-\\bar{\\pi})',
+  vars:[{k:'iDom',label:'Suku Bunga Domestik',min:0,max:20,step:0.25,def:8,unit:'%'},{k:'iFor',label:'Suku Bunga Asing',min:0,max:20,step:0.25,def:5,unit:'%'},{k:'targetDep',label:'Depresiasi Jangka Panjang',min:-10,max:10,step:0.25,def:2,unit:'%'},{k:'lambda',label:'Kecepatan Penyesuaian (λ)',min:0.1,max:2,step:0.1,def:0.5,unit:''}],
+  calc(v){
+    const excessI=(v.iDom-v.iFor)/100-v.targetDep/100;
+    const overshoot=-(1/v.lambda)*excessI*100;
+    const periods=20; const pts=[];
+    for(let t=0;t<=periods;t++){
+      const adj=overshoot*Math.exp(-v.lambda*t/4);
+      pts.push({x:t,y:adj});
+    }
+    return {big:fmtNum(overshoot,2),bigUnit:'%',bigLabel:'Overshooting Jangka Pendek',
+      subs:[{l:'Kelebihan Suku Bunga',v:fmtNum((v.iDom-v.iFor),2)+'%'}],
+      note:{type:'info',text:'Kurs "melampaui" level keseimbangannya pada awalnya, lalu meluruh perlahan kembali — menjelaskan volatilitas FX tinggi saat bank sentral mengubah kebijakan.'},
+      chart:{xMin:0,xMax:periods,yMin:Math.min(...pts.map(p=>p.y))*1.2,yMax:Math.max(...pts.map(p=>p.y))*1.2+0.5,hlines:[{y:0,color:COLORS.faint,dash:true}],series:[{label:'Depresiasi Kurs Meluruh',color:COLORS.amber,pts}]}}
+  }
+},
+{id:'carry-trade',ch:4,year:1984,who:'Eugene Fama',name:'Carry Trade & Forward Premium',
+  desc:'Mengeksploitasi anomali bahwa suku bunga tinggi justru memperkuat kurs — bukan melemahkan seperti yang diprediksi UIP (forward premium puzzle Fama).',
+  tex:'E(R_{carry})=(i_H-i_L)-E(\\Delta e)',
+  vars:[{k:'iHigh',label:'Suku Bunga Tinggi',min:0,max:20,step:0.25,def:8,unit:'%'},{k:'iLow',label:'Suku Bunga Rendah',min:0,max:10,step:0.25,def:1,unit:'%'},{k:'actualDep',label:'Depresiasi Kurs Aktual',min:-10,max:10,step:0.5,def:1,unit:'%'}],
+  calc(v){
+    const gross=v.iHigh-v.iLow;
+    const net=gross-v.actualDep;
+    const pts=sweep(-10,10,60,dep=>gross-dep);
+    return {big:fmtNum(net,2),bigUnit:'%',bigLabel:'Return Carry Trade Bersih',
+      subs:[{l:'Carry Kotor',v:fmtNum(gross,2)+'%'},{l:'Depresiasi Aktual',v:fmtNum(v.actualDep,2)+'%'}],
+      note:{type: net>3?'good':net>0?'info':'warn',text: net>3?'Carry menarik: selisih suku bunga jauh melebihi depresiasi aktual.':net>0?'Return positif namun tipis — waspadai crash mendadak (unwind risk)':'Depresiasi melebihi carry — posisi carry trade merugi.'},
+      chart:{xMin:-10,xMax:10,yMin:Math.min(...pts.map(p=>p.y))-1,yMax:Math.max(...pts.map(p=>p.y))+1,vline:v.actualDep,hlines:[{y:0,color:COLORS.faint,dash:true}],series:[{label:'Return Carry vs Depresiasi Aktual',color:COLORS.amber,pts}]}}
+  }
+},
+{id:'fx-mean-rev',ch:4,year:1987,who:'Econometricians',name:'FX Mean Reversion',
+  desc:'Hitungan half-life: seberapa cepat nilai tukar menyimpang kembali ke level keseimbangannya setelah guncangan.',
+  tex:'\\Delta e_t=\\alpha+\\beta e_{t-1}+\\varepsilon_t,\\quad HL=-\\frac{\\ln 2}{\\ln(1+\\beta)}',
+  vars:[{k:'meanRevSpeed',label:'Kecepatan Mean Reversion (β)',min:-0.5,max:-0.01,step:0.01,def:-0.07,unit:''},{k:'currentDev',label:'Deviasi Saat Ini dari Ekuilibrium',min:-20,max:20,step:0.5,def:8,unit:'%'}],
+  calc(v){
+    const HL=-Math.log(2)/Math.log(1+v.meanRevSpeed);
+    const pts=sweep(0,HL*4,60,t=>v.currentDev*Math.pow(1+v.meanRevSpeed,t));
+    return {big:fmtNum(HL,1),bigUnit:' bln',bigLabel:'Half-Life Konvergensi',
+      subs:[{l:'Deviasi Saat Ini',v:fmtNum(v.currentDev,2)+'%'},{l:'Deviasi Setelah 1 HL',v:fmtNum(v.currentDev/2,2)+'%'}],
+      note:{type:'info',text:'Half-life PPP empiris untuk FX utama biasanya 3–5 tahun — kurs bergerak perlahan menuju keseimbangan jangka panjangnya.'},
+      chart:{xMin:0,xMax:HL*4,yMin:0,yMax:Math.abs(v.currentDev)*1.15,vline:HL,hlines:[{y:0,color:COLORS.faint,dash:true}],series:[{label:'Deviasi Meluruh (%)',color:COLORS.cyan,pts}]}}
+  }
+},
+{id:'beer',ch:4,year:1994,who:'Clark, MacDonald',name:'BEER FX Model',
+  desc:'Behavioral Equilibrium Exchange Rate — memprediksi kurs ekuilibrium langsung dari variabel fundamental makroekonomi (terms of trade, NFA, produktivitas).',
+  tex:'q^* = \\beta_1 TOT + \\beta_2 NFA + \\beta_3 PROD',
+  vars:[{k:'tot',label:'Terms of Trade (Δ%)',min:-20,max:20,step:0.5,def:5,unit:''},{k:'nfa',label:'Net Foreign Assets (% GDP)',min:-100,max:50,step:1,def:-20,unit:''},{k:'prod',label:'Diferensial Produktivitas',min:-5,max:10,step:0.5,def:2,unit:'%'}],
+  calc(v){
+    const qStar=0.15*v.tot+0.03*v.nfa+0.5*v.prod;
+    const bars=[{label:'Terms of Trade',value:0.15*v.tot,color:COLORS.amber},{label:'Net Foreign Assets',value:0.03*v.nfa,color:COLORS.cyan},{label:'Produktivitas',value:0.5*v.prod,color:COLORS.green},{label:'REER Equilibrium q*',value:qStar,color:COLORS.violet}];
+    return {big:fmtNum(qStar,2),bigUnit:'%',bigLabel:'BEER Ekuilibrium (q*)',
+      subs:[{l:'Kontribusi ToT',v:fmtNum(0.15*v.tot,2)+'%'},{l:'Kontribusi NFA',v:fmtNum(0.03*v.nfa,2)+'%'}],
+      note:{type:'info',text:'q*>0 berarti nilai tukar riil diperkirakan menguat (apresiasi); q*<0 berarti tertekan menuju depresiasi secara fundamental.'},
+      chart:{mode:'bars',decimals:2,unit:'%',bars}}
+  }
+},
+{id:'dollar-smile',ch:4,year:2001,who:'Stephen Jen',name:'Dollar Smile Theory',
+  desc:'Fenomena USD menguat di kedua ekstrem: saat krisis global (safe-haven) DAN saat ekonomi AS unggul — melemah hanya saat pertumbuhan global merata.',
+  tex:'\\text{DXY}(g)=a\\cdot g^2-b\\cdot g+c',
+  vars:[{k:'globalGrowth',label:'Pertumbuhan Global (G10 PMI)',min:40,max:60,step:0.5,def:50,unit:''},{k:'usOutperform',label:'Outperformance AS vs Global',min:-5,max:5,step:0.25,def:1,unit:'%'}],
+  calc(v){
+    const g=v.globalGrowth-50; const u=v.usOutperform;
+    const dxy=0.3*g*g-1.5*g+2*u;
+    const pts=sweep(40,60,50,gv=>0.3*(gv-50)**2-1.5*(gv-50)+2*u);
+    return {big:fmtNum(dxy,2),bigUnit:' idx',bigLabel:'Tekanan DXY (relatif)',
+      subs:[{l:'Fase Smile Saat Ini',v:v.globalGrowth<47?'Risk-Off (USD kuat)':v.globalGrowth>53?'US Outperform (USD kuat)':'Middle (USD lemah)'}],
+      note:{type:'info',text:'DXY membentuk kurva "U" (senyum) terhadap pertumbuhan global — titik terkuat DXY di ekstrem bawah (krisis) dan atas (AS dominan).'},
+      chart:{xMin:40,xMax:60,yMin:Math.min(...pts.map(p=>p.y))-1,yMax:Math.max(...pts.map(p=>p.y))+1,vline:v.globalGrowth,hlines:[{y:0,color:COLORS.faint,dash:true}],series:[{label:'Tekanan DXY vs Pertumbuhan Global PMI',color:COLORS.amber,pts}]}}
+  }
+},
+{id:'commodity-currency',ch:4,year:2002,who:'Chen, Rogoff',name:'Commodity Currency Model',
+  desc:'Valuasi mata uang negara eksportir komoditas primer (AUD, CAD, NOK, CLP) berdasarkan fluktuasi harga komoditas unggulan mereka.',
+  tex:'\\Delta e_t = \\alpha + \\beta\\,\\Delta P_{commodity,t} + \\varepsilon_t',
+  vars:[{k:'beta',label:'Elastisitas FX-Komoditas (β)',min:0,max:1,step:0.01,def:0.35,unit:''},{k:'commChange',label:'Perubahan Harga Komoditas',min:-30,max:30,step:1,def:10,unit:'%'}],
+  calc(v){
+    const fxChg=v.beta*v.commChange;
+    const pts=sweep(-30,30,60,dp=>v.beta*dp);
+    return {big:fmtNum(fxChg,2),bigUnit:'%',bigLabel:'Prediksi Perubahan FX',
+      subs:[{l:'Elastisitas β',v:fmtNum(v.beta,2)},{l:'Jika komoditas ±1%',v:'FX ≈ ±'+fmtNum(v.beta,2)+'%'}],
+      note:{type:'info',text:'Negara eksportir komoditas: β AUD/gold≈0.3, CAD/oil≈0.25, NOK/oil≈0.35 — korelasinya historis sangat kuat namun dapat berubah di krisis.'},
+      chart:{xMin:-30,xMax:30,yMin:Math.min(...pts.map(p=>p.y))*1.1,yMax:Math.max(...pts.map(p=>p.y))*1.1,vline:v.commChange,hlines:[{y:0,color:COLORS.faint,dash:true}],series:[{label:'Perubahan FX vs Komoditas',color:COLORS.cyan,pts}]}}
+  }
+},
+{id:'taylor-rule-fx',ch:4,year:2005,who:'Engel, West',name:'Taylor Rule FX Model',
+  desc:'Proyeksi nilai tukar berdasarkan sinyal dari aturan Taylor: selisih inflasi dan output gap antar dua negara mendorong pergerakan kurs.',
+  tex:'i_t=r^*+\\pi^*+1.5(\\pi_t-\\pi^*)+0.5(y_t-\\bar y)',
+  vars:[{k:'piD',label:'Inflasi Domestik',min:0,max:15,step:0.25,def:4,unit:'%'},{k:'piF',label:'Inflasi Asing',min:0,max:15,step:0.25,def:2,unit:'%'},{k:'gapD',label:'Output Gap Domestik',min:-5,max:5,step:0.25,def:-1,unit:'%'},{k:'gapF',label:'Output Gap Asing',min:-5,max:5,step:0.25,def:0,unit:'%'}],
+  calc(v){
+    const piStar=2,rStar=2;
+    const iD=rStar+piStar+1.5*(v.piD-piStar)+0.5*v.gapD;
+    const iF=rStar+piStar+1.5*(v.piF-piStar)+0.5*v.gapF;
+    const differential=iD-iF;
+    return {big:fmtNum(differential,2),bigUnit:'%',bigLabel:'Selisih Suku Bunga Taylor',
+      subs:[{l:'Suku Bunga Domestik Taylor',v:fmtNum(iD,2)+'%'},{l:'Suku Bunga Asing Taylor',v:fmtNum(iF,2)+'%'}],
+      note:{type: differential>0?'good':'warn',text: differential>0? 'Differensial positif: model Taylor memprediksi apresiasi mata uang domestik jangka menengah.':'Differensial negatif: tekanan depresiasi mata uang domestik menurut model Taylor.'},
+      chart:{mode:'bars',decimals:2,unit:'%',bars:[{label:'Suku Bunga Dom. (Taylor)',value:iD,color:COLORS.amber},{label:'Suku Bunga Asing (Taylor)',value:iF,color:COLORS.cyan},{label:'Differensial',value:differential,color:COLORS.green}]}}
+  }
+},
+{id:'cnh-cny',ch:4,year:2010,who:'PBOC / Market',name:'CNH/CNY Premium',
+  desc:'Spread arbitrase antara CNY onshore (pasar domestik terregulasi) dan CNH offshore (Hongkong bebas) — mencerminkan tekanan aliran modal keluar-masuk Tiongkok.',
+  tex:'\\text{Premium}=\\frac{CNH-CNY}{CNY}\\times 10{,}000\\text{ bps}',
+  vars:[{k:'cny',label:'Kurs CNY (Onshore)',min:6,max:8,step:0.001,def:7.24,unit:''},{k:'cnh',label:'Kurs CNH (Offshore)',min:6,max:8,step:0.001,def:7.27,unit:''}],
+  calc(v){
+    const premium=(v.cnh-v.cny)/v.cny*10000;
+    const pts=sweep(-300,300,60,p=>v.cny*(1+p/10000));
+    return {big:fmtNum(premium,0),bigUnit:' bps',bigLabel:'CNH−CNY Spread',
+      subs:[{l:'% Selisih',v:fmtNum((v.cnh-v.cny)/v.cny*100,3)+'%'}],
+      note:{type: Math.abs(premium)>100?'warn':'info',text: premium>100?'CNH lebih lemah dari CNY: tekanan capital outflow tinggi, pasar mengantisipasi depresiasi CNY lebih lanjut.':premium<-100?'CNH lebih kuat: sinyal capital inflow — ekspektasi apresiasi CNY di pasar bebas.':'Spread normal: kondisi aliran modal relatif seimbang.'},
+      chart:{mode:'bars',decimals:0,unit:' bps',bars:[{label:'CNH−CNY (bps)',value:premium,color: premium>50?COLORS.red:premium<-50?COLORS.green:COLORS.amber}]}}
+  }
+},
+{id:'cdd',ch:4,year:2011,who:'ByteCoin Devs',name:'Coin Days Destroyed (CDD)',
+  desc:'Detektor makro on-chain yang menyala ketika entitas whale kuno mulai memindahkan supply yang lama tidak bergerak — sinyal distribusi tersembunyi.',
+  tex:'CDD=\\sum_i\\text{value}_i\\times\\text{coin\\_age}_i',
+  vars:[{k:'vol',label:'Volume Transaksi Harian',min:100,max:100000,step:100,def:5000,unit:' BTC'},{k:'avgAge',label:'Rata-rata Usia Koin Bergerak',min:1,max:1000,step:10,def:120,unit:' hari'},{k:'ma30',label:'CDD MA-30 Baseline',min:10000,max:2000000,step:1000,def:300000,unit:''}],
+  calc(v){
+    const cdd=v.vol*v.avgAge;
+    const ratio=cdd/v.ma30;
+    const pts=sweep(1,1000,60,age=>v.vol*age/v.ma30);
+    return {big:fmtCompact(cdd),bigUnit:'',bigLabel:'CDD Harian',
+      subs:[{l:'Rasio vs MA30',v:fmtNum(ratio,2)+'×'}],
+      note:{type: ratio>2?'warn':ratio>1.2?'info':'good',text: ratio>2?'CDD jauh di atas rata-rata: whale lama aktif memindahkan koin — waspada potensi tekanan jual tersembunyi.':'CDD normal: tidak ada sinyal aktivitas whale kuno abnormal.'},
+      chart:{xMin:1,xMax:1000,yMin:0,yMax:3,vline:v.avgAge,hlines:[{y:1,color:COLORS.faint,dash:true},{y:2,color:COLORS.red,dash:true}],series:[{label:'Rasio CDD/MA30 vs Usia Koin',color:COLORS.amber,pts}]}}
+  }
+},
+{id:'metcalfe',ch:4,year:2012,who:'Robert Metcalfe',name:"Metcalfe's Law",
+  desc:'Nilai jaringan sebanding dengan kuadrat jumlah pengguna aktifnya — fondasi valuasi fundamental aset berbasis jaringan seperti Bitcoin.',
+  tex:'V=k\\cdot n^2',
+  vars:[{k:'users',label:'Pengguna Aktif (n)',min:100,max:100000,step:100,def:10000,unit:''},{k:'k',label:'Konstanta Nilai (k)',min:0.001,max:1,step:0.001,def:0.01,unit:''},{k:'currentMCap',label:'Kapitalisasi Pasar Saat Ini',min:1,max:100000,step:100,def:1000,unit:' jt'}],
+  calc(v){
+    const fairValue=v.k*v.users*v.users/1e6;
+    const premium=(v.currentMCap/fairValue-1)*100;
+    const pts=sweep(100,100000,60,n=>v.k*n*n/1e6);
+    return {big:fmtCompact(fairValue),bigUnit:' jt',bigLabel:'Nilai Wajar Metcalfe',
+      subs:[{l:'Kapitalisasi Pasar',v:fmtCompact(v.currentMCap)+' jt'},{l:'Premium/Diskon',v:fmtNum(premium,1)+'%'}],
+      note:{type: Math.abs(premium)>50?'warn':'info',text: premium>50?'Aset diperdagangkan dengan premium signifikan terhadap valuasi Metcalfe.':premium<-50?'Aset diperdagangkan dengan diskon besar vs valuasi jaringan.':'Valuasi pasar mendekati perkiraan Metcalfe.'},
+      chart:{xMin:100,xMax:100000,yMin:0,yMax:Math.max(...pts.map(p=>p.y))*1.1,vline:v.users,series:[{label:'Nilai Metcalfe = k·n² (jt)',color:COLORS.cyan,pts}]}}
+  }
+},
+{id:'nvt',ch:4,year:2017,who:'Willy Woo',name:'NVT Ratio',
+  desc:'Network Value to Transactions — rasio kapitalisasi pasar terhadap throughput on-chain, analogi Price-to-Earnings crypto. NVT tinggi = mahal; rendah = murah.',
+  tex:'NVT=\\frac{\\text{Market Cap}}{\\text{Daily On-chain Volume}}',
+  vars:[{k:'mcap',label:'Kapitalisasi Pasar',min:1,max:2000,step:1,def:1200,unit:' M$'},{k:'dailyVol',label:'Volume On-Chain Harian',min:0.1,max:100,step:0.1,def:8,unit:' M$'}],
+  calc(v){
+    const nvt=v.mcap/v.dailyVol;
+    const annualVol=v.dailyVol*365;
+    const pts=sweep(0.1,100,60,dv=>v.mcap/dv);
+    return {big:fmtNum(nvt,1),bigUnit:'',bigLabel:'NVT Ratio',
+      subs:[{l:'Volume Tahunan Annualized',v:fmtCompact(annualVol)+' M$'},{l:'P/E Analog',v:fmtNum(nvt/365,2)+'× harian'}],
+      note:{type: nvt>250?'warn':nvt<80?'good':'info',text: nvt>250?'NVT sangat tinggi: pasar dinilai jauh di atas throughput nyata jaringan — zona jenuh beli historis.':nvt<80?'NVT rendah: aktivitas on-chain relatif tinggi vs valuasi — berpotensi undervalued.':'NVT dalam kisaran normal historis.'},
+      chart:{xMin:0.1,xMax:100,yMin:0,yMax:Math.min(Math.max(...pts.map(p=>p.y)),2000),vline:v.dailyVol,hlines:[{y:250,color:COLORS.red,dash:true},{y:80,color:COLORS.green,dash:true}],series:[{label:'NVT vs Volume Harian',color:COLORS.amber,pts}]}}
+  }
+},
+{id:'realized-cap',ch:4,year:2018,who:'Coinmetrics',name:'Realized Capitalization',
+  desc:'Menilai kapitalisasi berdasarkan harga saat setiap koin terakhir berpindah — lebih mencerminkan "biaya dasar" pemegang agregat dibanding harga pasar.',
+  tex:'RC=\\sum_i\\text{supply}_i\\times P_{\\text{last\\_moved}}(i)',
+  vars:[{k:'floatPct',label:'Supply "Aktif" (<1th)',min:0,max:100,step:1,def:40,unit:'%'},{k:'currentPrice',label:'Harga Saat Ini',min:1000,max:100000,step:100,def:60000,unit:''},{k:'avgEntryOld',label:'Harga Rata-rata Holder Lama',min:1000,max:50000,step:100,def:20000,unit:''},{k:'totalSupply',label:'Total Supply Beredar',min:1,max:21,step:0.1,def:19.7,unit:' jt'}],
+  calc(v){
+    const floatSupply=v.totalSupply*v.floatPct/100;
+    const dormantSupply=v.totalSupply*(1-v.floatPct/100);
+    const rc=(floatSupply*v.currentPrice+dormantSupply*v.avgEntryOld)*1e6/1e9;
+    const mcap=v.totalSupply*v.currentPrice*1e6/1e9;
+    const mvrv=mcap/rc;
+    return {big:fmtNum(rc,1),bigUnit:' B$',bigLabel:'Realized Cap',
+      subs:[{l:'Market Cap',v:fmtNum(mcap,1)+' B$'},{l:'MVRV Ratio',v:fmtNum(mvrv,2)+'×'}],
+      note:{type: mvrv>3?'warn':mvrv<1?'good':'info',text: mvrv>3?'MVRV>3: harga jauh di atas basis biaya agregat — zona distribusi historis (top pasar).':mvrv<1?'MVRV<1: harga di bawah basis biaya pemegang — zona akumulasi (bottom historis).':'MVRV normal.'},
+      chart:{mode:'bars',decimals:1,unit:' B$',bars:[{label:'Realized Cap',value:rc,color:COLORS.cyan},{label:'Market Cap',value:mcap,color:COLORS.amber}]}}
+  }
+},
+{id:'mvrv-z',ch:4,year:2019,who:'Murad, Puell',name:'MVRV Z-Score',
+  desc:'Standarisasi deviasi Market Cap vs Realized Cap — mengukur seberapa jauh harga dari basis biaya rata-rata pemegang, sinyal top/bottom makro.',
+  tex:'Z=\\frac{MC-RC}{\\sigma(MC)}',
+  vars:[{k:'mc',label:'Market Cap (B$)',min:1,max:2000,step:1,def:1200,unit:' B$'},{k:'rc',label:'Realized Cap (B$)',min:1,max:1000,step:1,def:500,unit:' B$'},{k:'sigma',label:'Standar Deviasi MC Historis',min:10,max:500,step:5,def:200,unit:' B$'}],
+  calc(v){
+    const z=(v.mc-v.rc)/v.sigma;
+    const pts=sweep(1,2000,60,mc=>(mc-v.rc)/v.sigma);
+    return {big:fmtNum(z,2),bigUnit:'σ',bigLabel:'MVRV Z-Score',
+      subs:[{l:'MVRV Ratio',v:fmtNum(v.mc/v.rc,2)+'×'}],
+      note:{type: z>7?'warn':z<1?'good':'info',text: z>7?'Z>7: Zona merah historis — BTC berada di wilayah euforia, distribusi besar umumnya terjadi di zona ini.':z<1?'Z<1: Zona hijau — BTC berada di bawah realized cap, zona akumulasi bottom historis.':'Z dalam kisaran netral.'},
+      chart:{xMin:1,xMax:2000,yMin:-3,yMax:12,vline:v.mc,hlines:[{y:7,color:COLORS.red,dash:true},{y:1,color:COLORS.green,dash:true}],series:[{label:'MVRV Z-Score vs Market Cap',color:COLORS.amber,pts}]}}
+  }
+},
+{id:'s2f',ch:4,year:2019,who:'PlanB',name:'Stock-to-Flow (S2F) Model',
+  desc:'Memodelkan lonjakan kapitalisasi Bitcoin akibat guncangan pasokan (halving) — rasio stok vs aliran produksi baru menentukan kelangkaan dan valuasi.',
+  tex:'P=a\\cdot\\Big(\\frac{\\text{Stock}}{\\text{Flow}}\\Big)^b',
+  vars:[{k:'stock',label:'Total Supply (Stock)',min:1,max:21,step:0.1,def:19.7,unit:' jt BTC'},{k:'flow',label:'Produksi Baru per Tahun (Flow)',min:0.05,max:1,step:0.01,def:0.16,unit:' jt BTC'},{k:'a',label:'Konstanta a',min:0.1,max:10,step:0.1,def:0.4,unit:''},{k:'b',label:'Eksponen b',min:0.5,max:5,step:0.1,def:3,unit:''}],
+  calc(v){
+    const sf=v.stock/v.flow;
+    const price=v.a*Math.pow(sf,v.b);
+    const pts=sweep(1,200,60,sf2=>v.a*Math.pow(sf2,v.b));
+    return {big:fmtCompact(price),bigUnit:'$',bigLabel:'S2F Target Harga',
+      subs:[{l:'Stock-to-Flow Ratio',v:fmtNum(sf,1)+'×'}],
+      note:{type:'info',text:'Model S2F bersifat sangat kontroversial secara akademis — historis cocok namun belum terbukti prediktif ke depan secara konsisten.'},
+      chart:{xMin:1,xMax:200,yMin:0,yMax:Math.min(Math.max(...pts.map(p=>p.y)),500000),vline:sf,series:[{label:'S2F Price Model vs SF Ratio',color:COLORS.amber,pts}]}}
+  }
+},
+{id:'sopr',ch:4,year:2019,who:'Renato Shirakashi',name:'SOPR',
+  desc:'Spent Output Profit Ratio — perbandingan nilai saat dijual vs nilai saat dibeli secara agregat. SOPR<1 berarti pasar sedang menjual dalam kerugian.',
+  tex:'SOPR=\\frac{\\sum realized\\ value}{\\sum created\\ value}',
+  vars:[{k:'realizedVal',label:'Total Realized Value (M$)',min:100,max:100000,step:100,def:8000,unit:' M$'},{k:'createdVal',label:'Total Created Value (M$)',min:100,max:100000,step:100,def:7500,unit:' M$'}],
+  calc(v){
+    const sopr=v.realizedVal/v.createdVal;
+    return {big:fmtNum(sopr,3),bigUnit:'',bigLabel:'SOPR Harian',
+      subs:[{l:'P/L Agregat',v: sopr>1?'Profit (SOPR>1)':'Rugi (SOPR<1)'}],
+      note:{type: sopr>1.1?'info':sopr<0.98?'good':'info',text: sopr>1.05?'SOPR>1: mayoritas supply yang dipindahkan hari ini dijual dalam keuntungan.':sopr<0.98?'SOPR<1: pasar menjual dalam kerugian — sinyal panik sell / capitulation potensial.':'SOPR mendekati 1: pasar break-even.'},
+      chart:{mode:'bars',decimals:1,unit:' M$',bars:[{label:'Realized Value',value:v.realizedVal,color:COLORS.green},{label:'Created Value',value:v.createdVal,color:COLORS.amber},{label:'SOPR×5000',value:sopr*5000,color:COLORS.cyan}]}}
+  }
+},
+{id:'hash-ribbons',ch:4,year:2019,who:'Charles Edwards',name:'Hash Ribbons',
+  desc:'Indikasi pemulihan harga saat pita hash rate jangka pendek (MA30) memotong ke atas pita jangka panjang (MA60) setelah periode kapitulasi penambang.',
+  tex:'\\text{Signal}=\\text{sign}(MA_{30}^{HR}-MA_{60}^{HR})',
+  vars:[{k:'hr30',label:'Hash Rate MA-30 (EH/s)',min:100,max:1000,step:5,def:550,unit:' EH/s'},{k:'hr60',label:'Hash Rate MA-60 (EH/s)',min:100,max:1000,step:5,def:520,unit:' EH/s'}],
+  calc(v){
+    const signal=v.hr30>v.hr60?1:-1;
+    const ratio=v.hr30/v.hr60;
+    return {big: v.hr30>v.hr60?'BUY ▲':'WAIT ▼',bigUnit:'',bigLabel:'Sinyal Hash Ribbons',
+      subs:[{l:'HR MA30 / MA60',v:fmtNum(ratio,3)+'×'},{l:'Status',v: v.hr30>v.hr60?'Recovery':'Capitulation'}],
+      note:{type: signal>0?'good':'warn',text: signal>0?'MA30 > MA60: penambang telah pulih dari tekanan profitabilitas — secara historis sinyal beli jangka menengah yang kuat.':'MA30 < MA60: penambang masih dalam tekanan — belum ada sinyal pemulihan valid.'},
+      chart:{mode:'bars',decimals:0,unit:' EH/s',bars:[{label:'Hash Rate MA30',value:v.hr30,color: v.hr30>v.hr60?COLORS.green:COLORS.red},{label:'Hash Rate MA60',value:v.hr60,color:COLORS.faint}]}}
+  }
+},
+{id:'puell-multiple',ch:4,year:2019,who:'David Puell',name:'Puell Multiple',
+  desc:'Membandingkan pendapatan harian penambang BTC (USD) vs rata-rata setahun — siklus tinggi mencerminkan over-insentif penambang, menyiratkan potensi top pasar.',
+  tex:'PM=\\frac{\\text{Daily Miner Revenue}}{MA_{365}(\\text{Revenue})}',
+  vars:[{k:'dailyRev',label:'Pendapatan Penambang Hari Ini (M$)',min:1,max:100,step:0.5,def:25,unit:' M$'},{k:'ma365Rev',label:'MA365 Pendapatan (M$)',min:1,max:50,step:0.5,def:15,unit:' M$'}],
+  calc(v){
+    const pm=v.dailyRev/v.ma365Rev;
+    const pts=sweep(1,100,60,dr=>dr/v.ma365Rev);
+    return {big:fmtNum(pm,2),bigUnit:'×',bigLabel:'Puell Multiple',
+      subs:[{l:'Revenue Harian',v:fmtNum(v.dailyRev,1)+' M$'},{l:'Baseline MA365',v:fmtNum(v.ma365Rev,1)+' M$'}],
+      note:{type: pm>4?'warn':pm<0.5?'good':'info',text: pm>4?'Puell Multiple tinggi: penambang sangat profitable — zona distribusi historis top pasar.':pm<0.5?'Puell Multiple rendah: penambang tertekan — zona akumulasi historis bottom pasar.':'Zona netral.'},
+      chart:{xMin:1,xMax:100,yMin:0,yMax:8,vline:v.dailyRev,hlines:[{y:4,color:COLORS.red,dash:true},{y:0.5,color:COLORS.green,dash:true}],series:[{label:'Puell Multiple vs Revenue Harian',color:COLORS.amber,pts}]}}
+  }
+},
+{id:'pi-cycle',ch:4,year:2019,who:'Philip Swift',name:'Pi Cycle Top',
+  desc:'Persilangan MA111 melewati MA350×2 secara historis menandai zona take-profit sangat dekat dengan puncak siklus BTC, dengan akurasi ≤3 hari dari top.',
+  tex:'\\text{Signal}=MA_{111}>MA_{350}\\times 2',
+  vars:[{k:'ma111',label:'Moving Average 111 hari',min:10000,max:150000,step:500,def:62000,unit:''},{k:'ma350',label:'Moving Average 350 hari',min:5000,max:80000,step:500,def:35000,unit:''}],
+  calc(v){
+    const doubleMA=v.ma350*2;
+    const gap=((v.ma111-doubleMA)/doubleMA*100);
+    return {big:fmtNum(doubleMA,0),bigUnit:'$',bigLabel:'MA350 × 2 (Garis Sinyal)',
+      subs:[{l:'MA111 Saat Ini',v:fmtNum(v.ma111,0)},{l:'Jarak MA111 dari Sinyal',v:fmtNum(gap,2)+'%'}],
+      note:{type: gap>-3&&gap<3?'warn':gap<-10?'good':'info',text: gap>-3&&gap<3?'⚠️ SANGAT DEKAT dengan sinyal Pi Cycle Top — secara historis potensi top siklus sudah sangat dekat!':gap<-10?'MA111 jauh di bawah MA350×2 — belum ada sinyal top dari indikator Pi Cycle.':'MA111 mendekati MA350×2 — mulai waspadai sinyal.'},
+      chart:{mode:'bars',decimals:0,bars:[{label:'MA111',value:v.ma111,color:COLORS.amber},{label:'MA350 × 2',value:doubleMA,color:COLORS.red}]}}
+  }
+},
+{id:'exchange-net',ch:4,year:2019,who:'Glassnode',name:'Exchange Net Position',
+  desc:'Analisis delta inflow/outflow bersih pada pertukaran terpusat — outflow bersih berarti koin bergerak ke self-custody (bullish), inflow bersih berarti tekanan jual meningkat.',
+  tex:'NetFlow=Inflow-Outflow',
+  vars:[{k:'inflow',label:'Inflow Harian ke Exchange',min:100,max:50000,step:100,def:3000,unit:' BTC'},{k:'outflow',label:'Outflow Harian dari Exchange',min:100,max:50000,step:100,def:4500,unit:' BTC'}],
+  calc(v){
+    const net=v.outflow-v.inflow;
+    return {big:fmtNum(net,0),bigUnit:' BTC',bigLabel: net>0?'Net Outflow (Bullish)':'Net Inflow (Bearish)',
+      subs:[{l:'Inflow',v:fmtNum(v.inflow,0)+' BTC'},{l:'Outflow',v:fmtNum(v.outflow,0)+' BTC'}],
+      note:{type: net>500?'good':net<-500?'warn':'info',text: net>500?'Outflow bersih signifikan: koin bergerak keluar exchange menuju self-custody — sinyal akumulasi jangka panjang.':net<-500?'Inflow bersih tinggi: koin masuk exchange — potensi tekanan jual meningkat.':'Aliran seimbang — tidak ada sinyal kuat.'},
+      chart:{mode:'bars',decimals:0,unit:' BTC',bars:[{label:'Inflow',value:v.inflow,color:COLORS.red},{label:'Outflow',value:v.outflow,color:COLORS.green},{label:'Net',value:net,color: net>0?COLORS.green:COLORS.red}]}}
+  }
+},
+{id:'log-rainbow',ch:4,year:2019,who:'Azop',name:'Log Regression Rainbow',
+  desc:'Kurva regresi logaritmik Bitcoin harga vs hari sejak genesis — mengidentifikasi zona over/undervalued berdasarkan deviasi dari tren jangka panjang.',
+  tex:'\\ln(P)=a+b\\cdot\\ln(d)',
+  vars:[{k:'days',label:'Hari Sejak Genesis',min:500,max:6000,step:30,def:4500,unit:' hari'},{k:'a',label:'Intercept (a)',min:-10,max:10,step:0.1,def:-17.5,unit:''},{k:'b',label:'Slope (b)',min:1,max:10,step:0.1,def:5.8,unit:''}],
+  calc(v){
+    const logP=v.a+v.b*Math.log(v.days);
+    const fairP=Math.exp(logP);
+    const pts=sweep(500,6000,60,d=>Math.exp(v.a+v.b*Math.log(d)));
+    return {big:fmtCompact(fairP),bigUnit:'$',bigLabel:'Harga Tren Log Regression',
+      subs:[{l:'ln(P) Tren',v:fmtNum(logP,3)}],
+      note:{type:'info',text:'Rainbow Chart menambahkan beberapa band standar deviasi di atas/bawah garis tren — zona merah (atas) = euforia; zona biru (bawah) = oversold historis.'},
+      chart:{xMin:500,xMax:6000,yMin:0,yMax:Math.min(Math.max(...pts.map(p=>p.y)),500000),vline:v.days,series:[{label:'Log Regression Price',color:COLORS.amber,pts}]}}
+  }
+},
+{id:'reserve-risk',ch:4,year:2020,who:'Hans Hauge',name:'Reserve Risk',
+  desc:'Menyelaraskan harga pasar dengan "kepercayaan akumulatif" pemegang (HODL Bank) — nilai rendah menunjukkan keyakinan kuat vs harga, sinyal beli asimetris.',
+  tex:'RR=\\frac{P}{\\text{HODL Bank}}',
+  vars:[{k:'price',label:'Harga BTC Saat Ini',min:1000,max:150000,step:500,def:60000,unit:''},{k:'hodlBank',label:'HODL Bank (CDD Cumulative Est.)',min:100000,max:50000000,step:100000,def:10000000,unit:''}],
+  calc(v){
+    const rr=v.price/v.hodlBank;
+    const pts=sweep(1000,150000,60,p=>p/v.hodlBank);
+    return {big:fmtNum(rr*1e5,4),bigUnit:' (×10⁻⁵)',bigLabel:'Reserve Risk',
+      subs:[{l:'Interpretasi',v: rr<5e-6?'Zona Beli':rr<2e-5?'Netral':'Zona Jual'}],
+      note:{type: rr<5e-6?'good':rr>2e-5?'warn':'info',text: rr<5e-6?'Reserve Risk rendah: keyakinan pemegang sangat tinggi relatif harga — secara historis risk-reward sangat menarik.':rr>2e-5?'Reserve Risk tinggi: harga jauh melampaui "kepercayaan" pemegang kumulatif.':'Reserve Risk moderat.'},
+      chart:{xMin:1000,xMax:150000,yMin:0,yMax:Math.max(...pts.map(p=>p.y))*1.1,vline:v.price,hlines:[{y:2e-5,color:COLORS.red,dash:true},{y:5e-6,color:COLORS.green,dash:true}],series:[{label:'Reserve Risk vs Harga',color:COLORS.violet,pts}]}}
+  }
+},
+{id:'rhodl',ch:4,year:2020,who:'Philip Swift',name:'RHODL Ratio',
+  desc:'Rasio dominasi kekayaan antara koin bergerak 1 hari–1 minggu (uang panas) vs koin diam 1–2 tahun (kapital lama) — mengukur dominasi HODLer jangka panjang.',
+  tex:'RHODL=\\frac{RCW_{1d-1w}}{RCW_{1y-2y}}',
+  vars:[{k:'shortBand',label:'Realized Cap Band 1d-1w (M$)',min:1,max:10000,step:10,def:500,unit:' M$'},{k:'longBand',label:'Realized Cap Band 1y-2y (M$)',min:1,max:10000,step:10,def:200,unit:' M$'}],
+  calc(v){
+    const ratio=v.shortBand/v.longBand;
+    return {big:fmtNum(ratio,2),bigUnit:'×',bigLabel:'RHODL Ratio',
+      subs:[{l:'Dominasi Uang Panas',v: ratio>3?'Sangat Tinggi':ratio>1.5?'Tinggi':'Rendah (HODLer dominan)'}],
+      note:{type: ratio>3?'warn':ratio<1?'good':'info',text: ratio>3?'RHODL tinggi: uang spekulatif (short-term) mendominasi — zona distribusi/top historis.':ratio<1?'RHODL rendah: HODLer jangka panjang sangat dominan — kapitulasi uang panas selesai.':'RHODL moderat.'},
+      chart:{mode:'bars',decimals:0,unit:' M$',bars:[{label:'1d-1w Band (Uang Panas)',value:v.shortBand,color:COLORS.red},{label:'1y-2y Band (HODLer)',value:v.longBand,color:COLORS.green}]}}
+  }
+},
+{id:'liveliness',ch:4,year:2020,who:'Glassnode',name:'Liveliness & Vaultedness',
+  desc:'Liveliness mengukur apakah siklus didominasi pengeluaran (spending) atau penimbunan (vaulting) koin-hari. Vaultedness = 1 − Liveliness.',
+  tex:'L=\\frac{\\sum CDD}{\\sum CD\\ created},\\quad V=1-L',
+  vars:[{k:'totalCDD',label:'Total CDD Kumulatif',min:1e8,max:1e12,step:1e9,def:5e10,unit:''},{k:'totalCDCreated',label:'Total CD Created Kumulatif',min:1e9,max:1e13,step:1e10,def:2e11,unit:''}],
+  calc(v){
+    const L=Math.min(v.totalCDD/v.totalCDCreated,1);
+    const V=1-L;
+    return {big:fmtNum(L,4),bigUnit:'',bigLabel:'Liveliness',
+      subs:[{l:'Vaultedness',v:fmtNum(V,4)},{l:'Siklus Dominan',v: L>0.6?'Spending / Distribusi':'Vaulting / Akumulasi'}],
+      note:{type: L>0.6?'warn':L<0.4?'good':'info',text: L>0.6?'Liveliness tinggi: siklus distribusi dominan, pemegang lama aktif menjual.':'Liveliness rendah: akumulasi/penimbunan dominan, koin-hari terus bertambah.'},
+      chart:{mode:'bars',decimals:4,bars:[{label:'Liveliness (L)',value:L,color:COLORS.red},{label:'Vaultedness (V)',value:V,color:COLORS.green}]}}
+  }
+},
+{id:'lth-sth-sopr',ch:4,year:2020,who:'Glassnode',name:'LTH vs STH SOPR',
+  desc:'Membandingkan profit/loss realisasi antara pemegang jangka panjang (>155 hari) dan jangka pendek (<155 hari) — divergensi keduanya menandai perubahan fase pasar.',
+  tex:'SOPR_{LTH}=\\frac{RC^{LTH}_{realized}}{RC^{LTH}_{created}}',
+  vars:[{k:'lthSopr',label:'LTH-SOPR',min:0.5,max:5,step:0.01,def:2.1,unit:''},{k:'sthSopr',label:'STH-SOPR',min:0.7,max:1.5,step:0.01,def:0.97,unit:''}],
+  calc(v){
+    const divergence=v.lthSopr-v.sthSopr;
+    return {big:fmtNum(divergence,3),bigUnit:'',bigLabel:'Divergensi LTH−STH SOPR',
+      subs:[{l:'LTH-SOPR',v:fmtNum(v.lthSopr,3)+' ('+( v.lthSopr>1?'profit':'loss')+')'},{l:'STH-SOPR',v:fmtNum(v.sthSopr,3)+' ('+(v.sthSopr>1?'profit':'loss')+')'}],
+      note:{type: v.lthSopr>1.5&&v.sthSopr<1?'warn':v.lthSopr>1&&v.sthSopr>1?'good':'info',text: v.lthSopr>1.5&&v.sthSopr<1?'LTH profit besar sementara STH rugi — fase distribusi klasik: pemegang lama jual ke pemegang baru yang panik.':v.lthSopr>1&&v.sthSopr>1?'Kedua kelompok profit — fase bull market sehat.':'Analisis lebih lanjut diperlukan.'},
+      chart:{mode:'bars',decimals:3,bars:[{label:'LTH-SOPR',value:v.lthSopr,color:COLORS.amber},{label:'STH-SOPR',value:v.sthSopr,color:COLORS.cyan},{label:'Divergensi',value:divergence,color:COLORS.violet}]}}
+  }
+},
+{id:'ssr',ch:4,year:2020,who:'Glassnode',name:'SSR Ratio',
+  desc:'Stablecoin Supply Ratio — potensi buying power agregat berdasarkan rasio supply stablecoin terhadap kapitalisasi BTC. SSR rendah = lebih banyak amunisi beli.',
+  tex:'SSR=\\frac{\\text{BTC Market Cap}}{\\text{Stablecoin Supply}}',
+  vars:[{k:'btcMcap',label:'BTC Market Cap (B$)',min:10,max:2000,step:5,def:1200,unit:' B$'},{k:'stableSupply',label:'Total Stablecoin Supply (B$)',min:1,max:500,step:1,def:170,unit:' B$'}],
+  calc(v){
+    const ssr=v.btcMcap/v.stableSupply;
+    const pts=sweep(1,500,60,ss=>v.btcMcap/ss);
+    return {big:fmtNum(ssr,1),bigUnit:'×',bigLabel:'SSR Ratio',
+      subs:[{l:'Stablecoin Supply',v:fmtNum(v.stableSupply,0)+' B$'},{l:'Buying Power Relatif',v: ssr<5?'Sangat Tinggi':ssr<10?'Tinggi':ssr<20?'Moderat':'Rendah'}],
+      note:{type: ssr<5?'good':ssr>15?'warn':'info',text: ssr<5?'SSR sangat rendah: stablecoin berlimpah relatif BTC — potensi daya beli terpendam tinggi, kondisi bullish.':ssr>15?'SSR tinggi: daya beli stablecoin sudah terserap signifikan — amunisi beli mulai terbatas.':'SSR moderat.'},
+      chart:{xMin:1,xMax:500,yMin:0,yMax:Math.min(Math.max(...pts.map(p=>p.y)),50),vline:v.stableSupply,hlines:[{y:5,color:COLORS.green,dash:true},{y:15,color:COLORS.red,dash:true}],series:[{label:'SSR vs Stablecoin Supply',color:COLORS.cyan,pts}]}}
+  }
+},
+{id:'altcoin-season',ch:4,year:2021,who:'Blockchain Center',name:'Altcoin Season Index',
+  desc:'Peta navigasi aliran modal pasca penurunan Bitcoin Dominance — mengidentifikasi apakah pasar berada di fase "BTC Season" atau "Alt Season".',
+  tex:'ASI=\\frac{\\text{# Altcoins Outperform BTC (90d)}}{75}\\times 100',
+  vars:[{k:'outperformers',label:'Jumlah Altcoin Outperform BTC (dari 75)',min:0,max:75,step:1,def:40,unit:''},{k:'btcDom',label:'BTC Dominance',min:30,max:70,step:0.5,def:52,unit:'%'}],
+  calc(v){
+    const asi=v.outperformers/75*100;
+    return {big:fmtNum(asi,0),bigUnit:'/100',bigLabel:'Altcoin Season Index',
+      subs:[{l:'BTC Dominance',v:fmtNum(v.btcDom,1)+'%'},{l:'Fase Pasar',v: asi>75?'🔥 Altcoin Season':asi<25?'₿ Bitcoin Season':'Netral'}],
+      note:{type: asi>75?'good':asi<25?'warn':'info',text: asi>75?'Altcoin Season: >75% altcoin top-100 outperform BTC dalam 90 hari — momentum altcoin sangat kuat.':asi<25?'Bitcoin Season: BTC mendominasi, sebagian besar altcoin underperform — modal terkonsentrasi di BTC.':'Pasar netral: tidak ada dominasi jelas.'},
+      chart:{mode:'bars',decimals:0,bars:[{label:'Altcoin Outperform BTC',value:v.outperformers,color:COLORS.green},{label:'Altcoin Underperform',value:75-v.outperformers,color:COLORS.red}]}}
+  }
+},
+{id:'fx-intervention',ch:4,year:2022,who:'Central Banks / Quants',name:'FX Intervention Model',
+  desc:'Menghitung dampak sterilisasi cadangan devisa saat bank sentral mengintervensi pasar spot untuk menstabilkan volatilitas kurs.',
+  tex:'\\Delta R=-\\alpha\\cdot(e_t-e^*)\\cdot\\sigma_{FX}\\cdot V_{daily}',
+  vars:[{k:'dev',label:'Deviasi Kurs dari Target (%)',min:0,max:20,step:0.5,def:5,unit:'%'},{k:'alpha',label:'Intensitas Intervensi (α)',min:0.1,max:1,step:0.05,def:0.5,unit:''},{k:'sigma',label:'Volatilitas FX Harian',min:0.1,max:3,step:0.1,def:0.8,unit:'%'},{k:'volDaily',label:'Volume Pasar FX Harian',min:100,max:5000,step:50,def:1000,unit:' M$'}],
+  calc(v){
+    const dR=v.alpha*(v.dev/100)*v.sigma/100*v.volDaily;
+    const pts=sweep(0,20,60,d=>v.alpha*(d/100)*v.sigma/100*v.volDaily);
+    return {big:fmtNum(dR,0),bigUnit:' M$',bigLabel:'Pengeluaran Cadangan Devisa',
+      subs:[{l:'% dari Volume Harian',v:fmtNum(dR/v.volDaily*100,2)+'%'}],
+      note:{type: dR/v.volDaily>0.1?'warn':'info',text: dR/v.volDaily>0.1?'Intervensi besar: bank sentral perlu menyerap >10% volume harian — cadangan devisa terancam terkuras cepat.':'Intervensi moderat: dalam batas kapasitas normal bank sentral.'},
+      chart:{xMin:0,xMax:20,yMin:0,yMax:Math.max(...pts.map(p=>p.y))*1.15,vline:v.dev,series:[{label:'Pengeluaran Cadangan vs Deviasi Kurs',color:COLORS.cyan,pts}]}}
+  }
+},
+{id:'etf-flow',ch:4,year:2024,who:'TradFi Quants',name:'Spot ETF Flow Impact',
+  desc:'Model transmisi likuiditas T+1 yang mensimulasikan dampak injeksi aliran modal institusional via Spot Bitcoin ETF terhadap harga spot underlying.',
+  tex:'\\Delta P=\\frac{\\text{ETF Inflow}}{\\text{Daily BTC Volume}}\\cdot\\text{Price Elasticity}',
+  vars:[{k:'inflow',label:'ETF Daily Inflow',min:0,max:2000,step:10,def:300,unit:' M$'},{k:'btcVol',label:'Volume BTC Spot Harian',min:100,max:20000,step:100,def:5000,unit:' M$'},{k:'elasticity',label:'Elastisitas Harga',min:0.1,max:3,step:0.1,def:1.2,unit:''},{k:'btcPrice',label:'Harga BTC Saat Ini',min:20000,max:150000,step:1000,def:60000,unit:''}],
+  calc(v){
+    const ratio=v.inflow/v.btcVol;
+    const pctImpact=ratio*v.elasticity*100;
+    const newPrice=v.btcPrice*(1+pctImpact/100);
+    const pts=sweep(0,2000,60,inf=>inf/v.btcVol*v.elasticity*100);
+    return {big:fmtNum(pctImpact,2),bigUnit:'%',bigLabel:'Estimasi Dampak Harga T+1',
+      subs:[{l:'Harga Prediksi',v:fmtCompact(newPrice)+'$'},{l:'Rasio Inflow/Volume',v:fmtNum(ratio*100,2)+'%'}],
+      note:{type: pctImpact>3?'good':'info',text: pctImpact>3?'Inflow ETF signifikan: tekanan beli terstruktur dari institusi berpotensi mendorong harga spot naik >3% dalam T+1.':'Dampak harga moderat dari aliran ETF pada level ini.'},
+      chart:{xMin:0,xMax:2000,yMin:0,yMax:Math.max(...pts.map(p=>p.y))*1.15,vline:v.inflow,series:[{label:'Dampak Harga (%) vs ETF Inflow (M$)',color:COLORS.amber,pts}]}}
+  }
+},
+{id:'crypto-fx-corr',ch:4,year:2018,who:'Macro Strategists',name:'Crypto-FX Correlation',
+  desc:'Hubungan beta antara likuiditas Dollar global (DXY) dan aset kripto pro-risiko — korelasi negatif berarti penguatan dolar menekan harga kripto, dan sebaliknya.',
+  tex:'\\beta_{crypto,DXY}=\\frac{Cov(R_{crypto},R_{DXY})}{Var(R_{DXY})}',
+  vars:[
+    {k:'dxyChange',label:'Perubahan DXY',min:-5,max:5,step:0.1,def:1.5,unit:'%'},
+    {k:'beta',label:'Beta Kripto terhadap DXY',min:-5,max:0,step:0.1,def:-2.2,unit:''},
+    {k:'btcPrice',label:'Harga BTC Saat Ini',min:10000,max:150000,step:1000,def:60000,unit:''}
+  ],
+  calc(v){
+    const cryptoChange=v.beta*v.dxyChange;
+    const newPrice=v.btcPrice*(1+cryptoChange/100);
+    const pts=sweep(-5,5,60,dxy=>v.beta*dxy);
+    return {big:fmtNum(cryptoChange,2),bigUnit:'%',bigLabel:'Estimasi Dampak ke Kripto',
+      subs:[{l:'Perubahan DXY',v:fmtNum(v.dxyChange,2)+'%'},{l:'Harga BTC Prediksi',v:fmtCompact(newPrice)+'$'}],
+      note:{type: v.dxyChange>0?'warn':'good',text: v.dxyChange>0?'DXY menguat: tekanan likuiditas global memberatkan aset pro-risiko seperti kripto (beta negatif khas).':'DXY melemah: kondisi likuiditas longgar historis mendukung penguatan aset kripto.'},
+      chart:{xMin:-5,xMax:5,yMin:Math.min(...pts.map(p=>p.y))-1,yMax:Math.max(...pts.map(p=>p.y))+1,vline:v.dxyChange,hlines:[{y:0,color:COLORS.faint,dash:true}],series:[{label:'Perubahan Kripto (%) vs Perubahan DXY (%)',color:COLORS.red,pts}]}}
+  }
+},
+{id:'thermocap',ch:4,year:2019,who:'Nic Carter',name:'Bitcoin Thermocap',
+  desc:'Akumulasi total subsidi blok (block reward) sepanjang sejarah jaringan — memvalidasi "biaya intrinsik" keamanan jaringan, basis rasio valuasi Market Cap/Thermocap.',
+  tex:'Thermocap=\\sum_{t=0}^{T}(\\text{Block Reward}_t\\times P_t)',
+  vars:[
+    {k:'thermocap',label:'Thermocap Kumulatif (B$)',min:1,max:100,step:1,def:55,unit:' B$'},
+    {k:'mcap',label:'Market Cap Saat Ini (B$)',min:10,max:3000,step:10,def:1200,unit:' B$'}
+  ],
+  calc(v){
+    const ratio=v.mcap/v.thermocap;
+    const pts=sweep(10,3000,60,mc=>mc/v.thermocap);
+    return {big:fmtNum(ratio,1),bigUnit:'×',bigLabel:'Market Cap / Thermocap Ratio',
+      subs:[{l:'Thermocap',v:fmtNum(v.thermocap,1)+' B$'},{l:'Market Cap',v:fmtNum(v.mcap,0)+' B$'}],
+      note:{type: ratio>15?'warn':ratio<5?'good':'info',text: ratio>15?'Rasio tinggi: valuasi pasar jauh melampaui total biaya keamanan historis jaringan — zona euforia historis.':ratio<5?'Rasio rendah: harga mendekati "biaya intrinsik" jaringan — zona undervalued historis.':'Rasio dalam kisaran wajar historis.'},
+      chart:{xMin:10,xMax:3000,yMin:0,yMax:Math.min(Math.max(...pts.map(p=>p.y)),50),vline:v.mcap,hlines:[{y:15,color:COLORS.red,dash:true},{y:5,color:COLORS.green,dash:true}],series:[{label:'MCap/Thermocap vs Market Cap',color:COLORS.amber,pts}]}}
+  }
+}
+]);
+
+/* ===================== BAB 5: MARKET STRUCTURE, ARBITRAGE & DeFi (28) ===================== */
+addF([
+{id:'cirp',ch:5,year:1923,who:'John Maynard Keynes',name:'Covered Interest Rate Parity',
+  desc:'Arbitrase risk-free menggunakan kontrak forward untuk mengunci selisih suku bunga antar mata uang — basis pricing seluruh pasar FX forward global.',
+  tex:'F=S\\cdot\\frac{(1+r_d)}{(1+r_f)}',
+  vars:[{k:'S',label:'Spot Rate',min:0.5,max:20000,step:1,def:15900,unit:''},{k:'rd',label:'Suku Bunga Domestik (r_d)',min:0,max:20,step:0.25,def:6,unit:'%'},{k:'rf',label:'Suku Bunga Asing (r_f)',min:0,max:20,step:0.25,def:5.5,unit:'%'},{k:'T',label:'Tenor (th)',min:0.25,max:2,step:0.25,def:1,unit:''}],
+  calc(v){
+    const F=v.S*Math.pow((1+v.rd/100)/(1+v.rf/100),v.T);
+    const fwdPts=(F-v.S)/v.S*10000;
+    const pts=sweep(0.25,2,40,t=>v.S*Math.pow((1+v.rd/100)/(1+v.rf/100),t));
+    return {big:fmtNum(F,2),bigUnit:'',bigLabel:'Harga Forward CIRP',
+      subs:[{l:'Forward Points',v:fmtNum(fwdPts,0)+' bps'},{l:'Imbal Carry',v:fmtNum(v.rd-v.rf,2)+'%'}],
+      note:{type:'info',text:'Setiap penyimpangan dari CIRP menghadirkan arbitrase risk-free yang langsung dieksploitasi trader — salah satu paritas paling ketat di pasar keuangan.'},
+      chart:{xMin:0.25,xMax:2,yMin:Math.min(...pts.map(p=>p.y))*0.99,yMax:Math.max(...pts.map(p=>p.y))*1.01,vline:v.T,series:[{label:'Harga Forward vs Tenor',color:COLORS.violet,pts}]}}
+  }
+},
+{id:'fx-microstructure',ch:5,year:1991,who:'Richard Lyons',name:'FX Microstructure',
+  desc:'Mengungkap asimetri informasi dan order book imbalances yang menggerakkan kurs OTC — order flow merupakan transmisi utama informasi ke dalam harga FX.',
+  tex:'\\Delta P_t=\\lambda\\cdot Q_t+\\varepsilon_t',
+  vars:[{k:'orderFlow',label:'Order Flow Bersih (M$)',min:-500,max:500,step:10,def:100,unit:' M$'},{k:'lambda',label:'Dampak Harga (λ bps/M$)',min:0.01,max:1,step:0.01,def:0.2,unit:''},{k:'sigma',label:'Noise Pasar (bps)',min:0,max:20,step:0.5,def:5,unit:' bps'}],
+  calc(v){
+    const impact=v.lambda*v.orderFlow;
+    const pts=sweep(-500,500,60,q=>v.lambda*q);
+    return {big:fmtNum(impact,2),bigUnit:' bps',bigLabel:'Dampak Harga dari Order Flow',
+      subs:[{l:'Arah',v: v.orderFlow>0?'Net Buyer (Up Pressure)':'Net Seller (Down Pressure)'}],
+      note:{type:'info',text:'Penelitian Lyons menunjukkan ~90% pergerakan kurs intraday bisa dijelaskan oleh order flow, bukan oleh berita fundamental langsung.'},
+      chart:{xMin:-500,xMax:500,yMin:Math.min(...pts.map(p=>p.y))-2,yMax:Math.max(...pts.map(p=>p.y))+2,vline:v.orderFlow,hlines:[{y:0,color:COLORS.faint,dash:true}],series:[{label:'Dampak Harga (bps) vs Order Flow',color:COLORS.violet,pts}]}}
+  }
+},
+{id:'pow-difficulty',ch:5,year:2008,who:'Satoshi Nakamoto',name:'Proof of Work Difficulty',
+  desc:'Sinkronisasi algoritmik terdesentralisasi yang menjaga penerbitan blok rata-rata 10 menit — setiap 2016 blok, difficulty disesuaikan otomatis berdasarkan waktu aktual.',
+  tex:'D_{new}=D_{old}\\cdot\\frac{2016\\times 600s}{T_{actual}}',
+  vars:[{k:'D_old',label:'Difficulty Saat Ini',min:1e13,max:1e15,step:1e13,def:9e13,unit:''},{k:'T_actual',label:'Waktu Aktual 2016 Blok (hari)',min:10,max:30,step:0.5,def:13,unit:' hari'}],
+  calc(v){
+    const target=14*24*3600, actual=v.T_actual*24*3600;
+    const D_new=v.D_old*(target/actual);
+    const change=(D_new/v.D_old-1)*100;
+    const pts=sweep(10,30,60,t=>v.D_old*(target/(t*24*3600)));
+    return {big:fmtNum(change,2),bigUnit:'%',bigLabel:'Perubahan Difficulty',
+      subs:[{l:'Difficulty Baru',v:fmtCompact(D_new)},{l:'Waktu Target',v:'14 hari'}],
+      note:{type: change>10?'warn':change<-10?'good':'info',text: change>10?'Difficulty naik signifikan: blok diproduksi terlalu cepat, lebih banyak hashpower masuk.':change<-10?'Difficulty turun: penambang exit, jaringan memperlambat laju mining.':'Penyesuaian normal.'},
+      chart:{xMin:10,xMax:30,yMin:0,yMax:Math.max(...pts.map(p=>p.y))*1.1,vline:v.T_actual,series:[{label:'Difficulty Baru vs Waktu Aktual',color:COLORS.amber,pts}]}}
+  }
+},
+{id:'utxo',ch:5,year:2008,who:'Satoshi Nakamoto',name:'UTXO Model',
+  desc:'Model grafis anti double-spending berbasis status keluaran transaksi tak terpakai — setiap output hanya bisa digunakan sekali sebagai input transaksi berikutnya.',
+  tex:'\\sum Inputs = \\sum Outputs + Fee',
+  vars:[{k:'input1',label:'Input UTXO 1',min:0,max:10,step:0.001,def:1.5,unit:' BTC'},{k:'input2',label:'Input UTXO 2',min:0,max:10,step:0.001,def:0.3,unit:' BTC'},{k:'out1',label:'Output Tujuan',min:0,max:10,step:0.001,def:1.2,unit:' BTC'},{k:'feeRate',label:'Fee Rate',min:1,max:500,step:1,def:15,unit:' sat/vB'}],
+  calc(v){
+    const totalIn=v.input1+v.input2;
+    const txSize=225;
+    const fee=v.feeRate*txSize/1e8;
+    const change=totalIn-v.out1-fee;
+    return {big:fmtNum(change,6),bigUnit:' BTC',bigLabel:'Output Kembalian (Change UTXO)',
+      subs:[{l:'Total Input',v:fmtNum(totalIn,4)+' BTC'},{l:'Fee Transaksi',v:fmtNum(fee*1e8,0)+' sat ≈ '+fmtNum(fee,6)+' BTC'}],
+      note:{type: change<0?'warn':'good',text: change<0?'INVALID: total output + fee melebihi total input — transaksi akan ditolak node jaringan.':'UTXO valid: kembalian akan masuk dompet sebagai UTXO baru yang bisa digunakan berikutnya.'},
+      chart:{mode:'bars',decimals:4,unit:' BTC',bars:[{label:'Input 1',value:v.input1,color:COLORS.amber},{label:'Input 2',value:v.input2,color:COLORS.amber},{label:'Output Tujuan',value:v.out1,color:COLORS.cyan},{label:'Fee',value:fee,color:COLORS.red},{label:'Change',value:Math.max(change,0),color:COLORS.green}]}}
+  }
+},
+{id:'bonding-curve',ch:5,year:2017,who:'Simon de la Rouviere',name:'Bonding Curve',
+  desc:'Hubungan matematis kontinu antara pencetakan token dan persediaan cadangan — AMM pertama yang memungkinkan harga otomatis tanpa order book.',
+  tex:'P(s)=k\\cdot s^m,\\quad R=\\int_0^s P\\,ds=\\frac{k\\cdot s^{m+1}}{m+1}',
+  vars:[{k:'supply',label:'Total Supply Saat Ini (s)',min:100,max:10000,step:100,def:1000,unit:''},{k:'k',label:'Konstanta (k)',min:0.0001,max:0.1,step:0.0001,def:0.01,unit:''},{k:'m',label:'Eksponen Kurva (m)',min:0.5,max:3,step:0.1,def:1,unit:''},{k:'dS',label:'Token yang Ingin Dibeli (ΔS)',min:1,max:1000,step:1,def:100,unit:''}],
+  calc(v){
+    const P=v.k*Math.pow(v.supply,v.m);
+    const R=v.k*Math.pow(v.supply,v.m+1)/(v.m+1);
+    const newS=v.supply+v.dS;
+    const cost=v.k*Math.pow(newS,v.m+1)/(v.m+1)-R;
+    const avgPrice=cost/v.dS;
+    const pts=sweep(0,v.supply*2,60,s=>v.k*Math.pow(s,v.m));
+    return {big:fmtNum(P,4),bigUnit:'',bigLabel:'Harga Token Saat Ini P(s)',
+      subs:[{l:'Biaya Beli '+v.dS+' Token',v:fmtNum(cost,4)},{l:'Harga Rata-rata Pembelian',v:fmtNum(avgPrice,4)}],
+      note:{type:'info',text:'Setiap pembelian menaikan harga secara deterministik — tidak ada spread/slippage tersembunyi. Penjual menerima token baru, pembeli menyetor cadangan ke kontrak.'},
+      chart:{xMin:0,xMax:v.supply*2,yMin:0,yMax:Math.max(...pts.map(p=>p.y))*1.1,vline:v.supply,series:[{label:'Kurva Harga P(s)',color:COLORS.violet,pts}]}}
+  }
+},
+{id:'amm-cpmm',ch:5,year:2018,who:'Buterin, Adams',name:'Constant Product AMM (x·y=k)',
+  desc:'Paradigma pembuat pasar otomatis dengan invariant x·y=k — harga terbentuk murni dari rasio dua token dalam pool, tanpa perlu order book TradFi.',
+  tex:'x\\cdot y=k,\\quad \\Delta y=-\\frac{y\\cdot\\Delta x}{x+\\Delta x}',
+  vars:[{k:'x0',label:'Reserve Token X (ETH)',min:1,max:10000,step:1,def:1000,unit:''},{k:'y0',label:'Reserve Token Y (USDC)',min:1,max:10000000,step:1000,def:2000000,unit:''},{k:'dx',label:'Trade: Jual ΔX (ETH)',min:0.1,max:500,step:0.1,def:10,unit:''}],
+  calc(v){
+    const k=v.x0*v.y0;
+    const x1=v.x0+v.dx;
+    const y1=k/x1;
+    const dy=v.y0-y1;
+    const midPrice=v.y0/v.x0;
+    const execPrice=dy/v.dx;
+    const slip=(execPrice/midPrice-1)*100;
+    const pts=sweep(1,v.x0*2,60,x=>k/x);
+    return {big:fmtNum(dy,2),bigUnit:' USDC',bigLabel:'USDC Diterima',
+      subs:[{l:'Harga Mid Market',v:fmtNum(midPrice,2)+' USDC/ETH'},{l:'Harga Eksekusi',v:fmtNum(execPrice,2)+' USDC/ETH'},{l:'Price Impact/Slippage',v:fmtNum(Math.abs(slip),3)+'%'}],
+      note:{type: Math.abs(slip)>2?'warn':Math.abs(slip)>0.5?'info':'good',text: Math.abs(slip)>2?'Price impact besar: trade terlalu besar relatif pool — pertimbangkan split order atau routing multi-hop.':'Slippage minimal pada ukuran trade ini.'},
+      chart:{xMin:1,xMax:v.x0*2,yMin:0,yMax:v.y0*1.2,vline:v.x0,series:[{label:'Kurva AMM x·y=k',color:COLORS.green,pts}]}}
+  }
+},
+{id:'perp-funding',ch:5,year:2018,who:'Hayes / BitMEX',name:'Perpetual Funding Rate',
+  desc:'Ekuilibrium suku bunga bayaran yang mengikat harga perpetual futures agar konvergen ke harga spot — pembayaran tiap 8 jam dari holder long ke short atau sebaliknya.',
+  tex:'FR=\\text{clamp}\\Big(\\frac{P_{mark}-P_{index}}{P_{index}},\\pm 0.05\\%\\Big)',
+  vars:[{k:'pMark',label:'Harga Mark (Perpetual)',min:10000,max:150000,step:100,def:62000,unit:''},{k:'pIndex',label:'Harga Index (Spot)',min:10000,max:150000,step:100,def:61500,unit:''}],
+  calc(v){
+    const raw=(v.pMark-v.pIndex)/v.pIndex*100;
+    const fr=Math.max(-0.05,Math.min(0.05,raw));
+    const annualized=fr*3*365;
+    const pts=sweep(v.pIndex*0.9,v.pIndex*1.1,60,pm=>{const r=(pm-v.pIndex)/v.pIndex*100; return Math.max(-0.05,Math.min(0.05,r));});
+    return {big:fmtNum(fr,4),bigUnit:'%',bigLabel:'Funding Rate per 8 Jam',
+      subs:[{l:'Annualized',v:fmtNum(annualized,2)+'%'},{l:'Arah Pembayaran',v: fr>0?'Long bayar Short':'Short bayar Long'}],
+      note:{type: Math.abs(fr)>0.04?'warn':'info',text: Math.abs(fr)>0.04?'Funding rate mendekati cap — sinyal pasar satu arah ekstrem (overleveraged). Pertimbangkan funding arbitrage.':'Funding rate normal — premium/diskon wajar antara perp vs spot.'},
+      chart:{xMin:v.pIndex*0.9,xMax:v.pIndex*1.1,yMin:-0.06,yMax:0.06,vline:v.pMark,hlines:[{y:0,color:COLORS.faint,dash:true}],series:[{label:'Funding Rate (%) vs Harga Mark',color:COLORS.amber,pts}]}}
+  }
+},
+{id:'il',ch:5,year:2020,who:'DeFi Quants',name:'Impermanent Loss',
+  desc:'Matriks kerugian absolut efisiensi penyedia likuiditas AMM dibandingkan strategi HODL murni — muncul karena arbitrageur rebalancing pool secara kontinu.',
+  tex:'IL=\\frac{2\\sqrt{r}}{1+r}-1,\\quad r=\\frac{P_{new}}{P_{initial}}',
+  vars:[{k:'priceChange',label:'Perubahan Harga Token X',min:-90,max:500,step:5,def:100,unit:'%'}],
+  calc(v){
+    const r=1+v.priceChange/100;
+    const il=(2*Math.sqrt(r)/(1+r)-1)*100;
+    const pts=sweep(-90,500,80,pc=>{const rr=1+pc/100; return (2*Math.sqrt(rr)/(1+rr)-1)*100;});
+    return {big:fmtNum(il,2),bigUnit:'%',bigLabel:'Impermanent Loss vs HODL',
+      subs:[{l:'Rasio Harga Baru (r)',v:fmtNum(r,2)+'×'},{l:'Value LP (HODL=100)',v:fmtNum(100+il,2)}],
+      note:{type: Math.abs(il)>10?'warn':Math.abs(il)>5?'info':'good',text: Math.abs(il)>10?'IL signifikan: pastikan fee APR yang diperoleh dari pool melebihi IL ini agar LP menguntungkan.':'IL kecil pada level perubahan harga ini — fee LP biasanya mengkompensasi.'},
+      chart:{xMin:-90,xMax:500,yMin:Math.min(...pts.map(p=>p.y))-1,yMax:1,vline:v.priceChange,hlines:[{y:0,color:COLORS.faint,dash:true}],series:[{label:'Impermanent Loss (%) vs Perubahan Harga',color:COLORS.red,pts}]}}
+  }
+},
+{id:'liq-mining',ch:5,year:2020,who:'Synthetix, Compound',name:'Liquidity Mining APY',
+  desc:'Formula inflasi jaringan protokol yang didistribusikan sebagai subsidi akuisisi likuiditas (yield farming) — APY nyata harus dikurangi dilusi token reward.',
+  tex:'APY=\\frac{R_{daily}\\times P_{token}}{TVL}\\times 365\\times 100',
+  vars:[{k:'rewardDaily',label:'Reward Harian (token)',min:100,max:100000,step:100,def:10000,unit:''},{k:'tokenPrice',label:'Harga Token Reward',min:0.01,max:100,step:0.01,def:2,unit:'$'},{k:'tvl',label:'TVL Pool (M$)',min:0.1,max:1000,step:1,def:10,unit:' M$'}],
+  calc(v){
+    const apy=v.rewardDaily*v.tokenPrice/(v.tvl*1e6)*365*100;
+    const pts=sweep(0.1,1000,60,tvl=>v.rewardDaily*v.tokenPrice/(tvl*1e6)*365*100);
+    return {big:fmtNum(apy,1),bigUnit:'%',bigLabel:'APY Liquidity Mining',
+      subs:[{l:'Reward Harian (USD)',v:fmtCompact(v.rewardDaily*v.tokenPrice)+'$'},{l:'TVL',v:fmtCompact(v.tvl)+' M$'}],
+      note:{type: apy>200?'warn':'info',text: apy>200?'APY sangat tinggi biasanya tidak sustainable — harga token reward cenderung tertekan oleh penjualan miner/farmer.':apy>30?'APY menarik — pastikan risiko smart contract dan dilusi tokenomics diperhitungkan.':'APY modest, lebih sustainable jangka panjang.'},
+      chart:{xMin:0.1,xMax:1000,yMin:0,yMax:Math.min(Math.max(...pts.map(p=>p.y)),500),vline:v.tvl,series:[{label:'APY vs TVL',color:COLORS.green,pts}]}}
+  }
+},
+{id:'aave-rate',ch:5,year:2020,who:'Kulechov, Leshner',name:'Aave/Compound Interest Rate',
+  desc:'Suku bunga money market adaptif berdasarkan rasio utilisasi pool peminjaman — suku bunga naik cepat saat utilisasi mendekati ambang optimal untuk menarik deposan.',
+  tex:'R_{borrow}=R_{base}+\\frac{U}{U_{opt}}R_{slope1}\\ (U\\le U_{opt})',
+  vars:[{k:'U',label:'Utilisasi Pool (%)',min:0,max:100,step:1,def:70,unit:'%'},{k:'Uopt',label:'Utilisasi Optimal (%)',min:50,max:95,step:5,def:80,unit:'%'},{k:'Rbase',label:'Base Rate',min:0,max:5,step:0.1,def:0.5,unit:'%'},{k:'Rslope1',label:'Slope 1 (U ≤ Uopt)',min:0,max:20,step:0.5,def:4,unit:'%'},{k:'Rslope2',label:'Slope 2 (U > Uopt)',min:0,max:200,step:5,def:75,unit:'%'}],
+  calc(v){
+    function rate(U){
+      if(U<=v.Uopt) return v.Rbase+U/v.Uopt*v.Rslope1;
+      return v.Rbase+v.Rslope1+(U-v.Uopt)/(100-v.Uopt)*v.Rslope2;
+    }
+    const borrow=rate(v.U);
+    const supply=borrow*v.U/100*0.9;
+    const pts=sweep(0,100,80,rate);
+    return {big:fmtNum(borrow,2),bigUnit:'%',bigLabel:'Borrow APR',
+      subs:[{l:'Supply APY (deposan)',v:fmtNum(supply,2)+'%'},{l:'Utilisasi Pool',v:fmtNum(v.U,1)+'%'}],
+      note:{type: v.U>v.Uopt?'warn':'info',text: v.U>v.Uopt?'Utilisasi melampaui optimal: Slope 2 sangat curam — suku bunga tinggi mendorong deposan masuk dan peminjam keluar untuk rebalancing.':'Utilisasi di bawah optimal: suku bunga rendah, masih ada kapasitas meminjam.'},
+      chart:{xMin:0,xMax:100,yMin:0,yMax:Math.min(Math.max(...pts.map(p=>p.y)),100),vline:v.U,hlines:[{y:0,color:COLORS.faint,dash:true}],series:[{label:'Borrow Rate (%) vs Utilisasi',color:COLORS.cyan,pts}]}}
+  }
+},
+{id:'univ3',ch:5,year:2021,who:'Adams et al. (Uniswap)',name:'Uniswap v3 CLMM',
+  desc:'Injeksi likuiditas di interval rentang harga arbitrer — LP menyediakan likuiditas hanya dalam [P_low, P_high], meningkatkan efisiensi modal vs v2 hingga 4000×.',
+  tex:'L=\\frac{\\Delta x}{\\sqrt{P_{high}}-\\sqrt P},\\quad\\text{Capital Eff}=\\frac{P_{range}}{P_{full}}',
+  vars:[{k:'P',label:'Harga Saat Ini',min:1000,max:10000,step:50,def:3500,unit:' USDC'},{k:'Plo',label:'Batas Bawah Range (P_low)',min:500,max:9000,step:50,def:3000,unit:' USDC'},{k:'Phi',label:'Batas Atas Range (P_high)',min:2000,max:15000,step:50,def:4000,unit:' USDC'},{k:'L',label:'Likuiditas Disediakan (L)',min:100,max:100000,step:100,def:10000,unit:''}],
+  calc(v){
+    if(v.Plo>=v.Phi||v.P<v.Plo||v.P>v.Phi){
+      const note={type:'warn',text:'Harga saat ini di luar range — LP tidak aktif dan tidak menghasilkan fee.'};
+      return {big:'INACTIVE',bigUnit:'',bigLabel:'Status LP',subs:[],note,chart:{mode:'bars',bars:[{label:'P_low',value:v.Plo,color:COLORS.faint},{label:'P_current',value:v.P,color:COLORS.red},{label:'P_high',value:v.Phi,color:COLORS.faint}]}};
+    }
+    const x=v.L*(Math.sqrt(v.Phi)-Math.sqrt(v.P))/(Math.sqrt(v.P)*Math.sqrt(v.Phi));
+    const y=v.L*(Math.sqrt(v.P)-Math.sqrt(v.Plo));
+    const fullRangeEff=Math.sqrt(v.Phi/v.Plo)-1;
+    const capitalEff=1/fullRangeEff;
+    return {big:fmtNum(capitalEff,1),bigUnit:'×',bigLabel:'Efisiensi Modal vs v2',
+      subs:[{l:'Token X dalam Range',v:fmtNum(x,4)},{l:'Token Y (USDC) dalam Range',v:fmtNum(y,2)}],
+      note:{type:'good',text:'Range lebih sempit = efisiensi modal lebih tinggi, tapi risiko keluar range juga meningkat. LP aktif hanya saat P berada dalam [P_low, P_high].'},
+      chart:{mode:'bars',bars:[{label:'P_low',value:v.Plo,color:COLORS.faint},{label:'P_current',value:v.P,color:COLORS.amber},{label:'P_high',value:v.Phi,color:COLORS.faint}]}}
+  }
+},
+{id:'ve-token',ch:5,year:2021,who:'Michael Egorov (Curve)',name:'ve-Tokenomics',
+  desc:'Desain asimetris hak suara yang mengunci modal ventura — voting power berbanding lurus dengan jumlah token dan durasi penguncian, memberi insentif loyalitas jangka panjang.',
+  tex:'vePower=\\text{amount}\\times\\frac{t_{lock}}{t_{max}}',
+  vars:[{k:'amount',label:'Token Dikunci',min:1000,max:1000000,step:1000,def:100000,unit:''},{k:'lockYears',label:'Durasi Penguncian',min:0.25,max:4,step:0.25,def:2,unit:' th'},{k:'totalVe',label:'Total veToken di Protokol',min:1e6,max:1e9,step:1e6,def:50e6,unit:''}],
+  calc(v){
+    const maxYears=4;
+    const vePow=v.amount*(v.lockYears/maxYears);
+    const votingShare=vePow/v.totalVe*100;
+    const pts=sweep(0.25,4,40,t=>v.amount*(t/maxYears)/v.totalVe*100);
+    return {big:fmtNum(vePow,0),bigUnit:' veTkn',bigLabel:'Voting Power',
+      subs:[{l:'Porsi Voting',v:fmtNum(votingShare,4)+'%'},{l:'Boost APY Max',v:fmtNum(Math.min(votingShare*5,2.5),2)+'×'}],
+      note:{type:'info',text:'ve-Tokenomics "mengunci" modal dan insentif pemegang besar untuk tidak dump — terbukti menstabilkan protokol lewat Curve Wars.'},
+      chart:{xMin:0.25,xMax:4,yMin:0,yMax:Math.max(...pts.map(p=>p.y))*1.15,vline:v.lockYears,series:[{label:'Voting Share (%) vs Durasi Kunci',color:COLORS.violet,pts}]}}
+  }
+},
+{id:'mev',ch:5,year:2021,who:'Flashbots',name:'MEV (Maximal Extractable Value)',
+  desc:'Nilai tersembunyi yang diekstraksi miner/validator lewat penyusunan ulang, penyisipan, dan penghapusan transaksi dalam mempool — biaya tak kasat mata ekosistem blockchain.',
+  tex:'MEV=\\Pi_{arb}-C_{gas}-C_{bribe}',
+  vars:[{k:'arbProfit',label:'Profit Arbitrase Bruto',min:10,max:100000,step:10,def:500,unit:' USDC'},{k:'gasCost',label:'Biaya Gas',min:1,max:1000,step:1,def:30,unit:' USDC'},{k:'bribe',label:'Bribe ke Builder/Validator',min:0,max:90,step:1,def:40,unit:'%'}],
+  calc(v){
+    const bribeAmt=(v.arbProfit-v.gasCost)*v.bribe/100;
+    const netMEV=v.arbProfit-v.gasCost-bribeAmt;
+    return {big:fmtNum(netMEV,2),bigUnit:' USDC',bigLabel:'MEV Bersih (Searcher)',
+      subs:[{l:'Bribe ke Validator',v:fmtNum(bribeAmt,2)+' USDC'},{l:'Kompetisi Estimasi',v: netMEV>v.gasCost*3?'Layak':'Tipis'}],
+      note:{type: netMEV<0?'warn':'info',text: netMEV<0?'MEV negatif: biaya gas + bribe melebihi profit — transaksi tidak layak dieksekusi pada kondisi ini.':'MEV positif: searcher berhasil mengekstrak nilai dari arsitektur mempool.'},
+      chart:{mode:'bars',decimals:2,unit:' USDC',bars:[{label:'Profit Arb',value:v.arbProfit,color:COLORS.amber},{label:'Gas Cost',value:-v.gasCost,color:COLORS.red},{label:'Bribe',value:-bribeAmt,color:COLORS.red},{label:'Net MEV',value:netMEV,color: netMEV>0?COLORS.green:COLORS.red}]}}
+  }
+},
+{id:'real-yield',ch:5,year:2021,who:'GMX / SNX',name:'Real Yield Protocol',
+  desc:'Paradigma yield farming berbasis fee pendapatan organik protokol (bukan emisi token) — membagi pendapatan nyata ke staker, lebih sustainable dari inflasi token.',
+  tex:'RealAPY=\\frac{\\text{Protocol Fees (Annualized)}}{\\text{TVL Staked}}',
+  vars:[{k:'dailyFee',label:'Fee Harian Protokol',min:1000,max:10000000,step:1000,def:500000,unit:' $'},{k:'tvlStaked',label:'TVL yang Di-stake (M$)',min:0.1,max:5000,step:1,def:200,unit:' M$'}],
+  calc(v){
+    const apy=v.dailyFee*365/(v.tvlStaked*1e6)*100;
+    const pts=sweep(0.1,5000,60,tvl=>v.dailyFee*365/(tvl*1e6)*100);
+    return {big:fmtNum(apy,2),bigUnit:'%',bigLabel:'Real Yield APY',
+      subs:[{l:'Fee Tahunan',v:fmtCompact(v.dailyFee*365)+'$'}],
+      note:{type: apy>20?'good':apy>5?'info':'warn',text: apy>20?'Real Yield tinggi: protokol sangat profitable relatif TVL — yield ini benar-benar berkelanjutan (fee bukan emisi).':apy>5?'Real Yield moderat — masih atraktif vs TradFi.':'Real Yield rendah — protokol perlu tumbuhkan volume fee atau kurangi TVL.'},
+      chart:{xMin:0.1,xMax:5000,yMin:0,yMax:Math.min(Math.max(...pts.map(p=>p.y)),200),vline:v.tvlStaked,series:[{label:'Real APY vs TVL Staked',color:COLORS.green,pts}]}}
+  }
+},
+{id:'pol',ch:5,year:2021,who:'Zeus / OlympusDAO',name:'Protocol Owned Liquidity',
+  desc:'Protokol memiliki likuiditasnya sendiri melalui mekanisme obligasi — bukan menyewa likuiditas dari LP yang bisa exit kapan saja saat reward berhenti.',
+  tex:'POL\\%=\\frac{\\text{Protocol Owned LP}}{\\text{Total LP}}\\times 100',
+  vars:[{k:'protocolLP',label:'LP yang Dimiliki Protokol (M$)',min:0,max:500,step:1,def:50,unit:' M$'},{k:'totalLP',label:'Total Likuiditas Pool (M$)',min:1,max:2000,step:5,def:120,unit:' M$'},{k:'bondDisc',label:'Diskon Obligasi',min:0,max:20,step:0.5,def:5,unit:'%'}],
+  calc(v){
+    const polPct=v.protocolLP/v.totalLP*100;
+    return {big:fmtNum(polPct,1),bigUnit:'%',bigLabel:'Protocol Owned Liquidity %',
+      subs:[{l:'Likuiditas Protokol',v:fmtNum(v.protocolLP,0)+' M$'},{l:'Diskon Obligasi',v:fmtNum(v.bondDisc,1)+'%'}],
+      note:{type: polPct>50?'good':polPct>20?'info':'warn',text: polPct>50?'POL>50%: protokol "terlalu besar untuk ditinggalkan" oleh LP — likuiditas struktural sangat kuat.':polPct>20?'POL moderat — masih rentan terhadap flight of mercenary capital saat reward berkurang.':'POL rendah: protokol bergantung pada LP eksternal yang bisa exit — fragile liquidity.'},
+      chart:{mode:'bars',decimals:1,unit:' M$',bars:[{label:'Protokol LP',value:v.protocolLP,color:COLORS.green},{label:'Eksternal LP',value:v.totalLP-v.protocolLP,color:COLORS.faint}]}}
+  }
+},
+{id:'curve-stableswap',ch:5,year:2022,who:'Michael Egorov',name:'Curve StableSwap',
+  desc:'Algoritma hibrida yang menggabungkan constant sum (flat, zero slippage saat seimbang) dan constant product (bekerja di extremes) untuk aset pegged.',
+  tex:'A\\cdot n^n\\sum x_i + D = A\\cdot n^n\\cdot D + \\frac{D^{n+1}}{n^n\\prod x_i}',
+  vars:[{k:'x1',label:'Reserve Token 1 (USDC)',min:100,max:10000,step:100,def:3000,unit:''},{k:'x2',label:'Reserve Token 2 (USDT)',min:100,max:10000,step:100,def:3000,unit:''},{k:'A',label:'Amplification Parameter (A)',min:1,max:1000,step:10,def:200,unit:''},{k:'trade',label:'Jumlah USDC Ditukar',min:1,max:1000,step:1,def:100,unit:''}],
+  calc(v){
+    const D=v.x1+v.x2;
+    const n=2;
+    const Ann=v.A*n*n;
+    const newX1=v.x1+v.trade;
+    function solveY(x1,D,Ann,n){
+      const c=D*D*D/(Ann*n*n*x1), b=x1+D/Ann;
+      let y=D;
+      for(let i=0;i<100;i++){ const yPrev=y; y=(y*y+c)/(2*y+b-D); if(Math.abs(y-yPrev)<1e-6)break; }
+      return y;
+    }
+    const newX2=solveY(newX1,D,Ann,n);
+    const out=v.x2-newX2;
+    const slip=((v.x2/v.x1)-(v.x2-out)/(v.x1+v.trade))*100;
+    const uniOut=v.x1*v.x2/(v.x1+v.trade)-v.x2+v.x2*v.trade/(v.x1+v.trade);
+    return {big:fmtNum(out,4),bigUnit:' USDT',bigLabel:'USDT Diterima',
+      subs:[{l:'Slippage',v:fmtNum(Math.abs(slip),4)+'%'},{l:'vs AMM biasa (Uniswap v2)',v:fmtNum(out/Math.max(v.x1*v.x2/(v.x1+v.trade),0.001),3)+'× lebih efisien'}],
+      note:{type:'good',text:'Curve StableSwap hampir zero slippage saat pool seimbang karena berperilaku seperti constant sum (x+y=D) saat mendekati rasio 1:1.'},
+      chart:{mode:'bars',decimals:2,unit:'',bars:[{label:'USDC Reserve',value:newX1,color:COLORS.cyan},{label:'USDT Reserve',value:newX2,color:COLORS.green},{label:'USDT Keluar',value:out,color:COLORS.amber}]}}
+  }
+},
+{id:'twap',ch:5,year:2022,who:'Uniswap Quants',name:'TWAP Oracle',
+  desc:'Rata-rata harga tertimbang waktu on-chain — sterilisasi manipulasi Flash Loan dengan meratakan harga dalam window waktu sehingga attack cost meningkat drastis.',
+  tex:'TWAP=\\frac{\\text{cumPrice}(t_1)-\\text{cumPrice}(t_0)}{t_1-t_0}',
+  vars:[{k:'window',label:'Window TWAP (menit)',min:1,max:60,step:1,def:30,unit:' mnt'},{k:'spotPrice',label:'Harga Spot Saat Ini',min:100,max:100000,step:100,def:3500,unit:''},{k:'manipAttempt',label:'Harga Manipulasi dalam 1 Blok',min:100,max:150000,step:100,def:5000,unit:''}],
+  calc(v){
+    const blocksPerMin=5;
+    const totalBlocks=v.window*blocksPerMin;
+    const manipBlocks=2;
+    const twap=(v.spotPrice*(totalBlocks-manipBlocks)+v.manipAttempt*manipBlocks)/totalBlocks;
+    const deviation=Math.abs(twap-v.spotPrice)/v.spotPrice*100;
+    return {big:fmtNum(twap,2),bigUnit:'',bigLabel:'Harga TWAP '+v.window+' menit',
+      subs:[{l:'Dampak Manipulasi ke TWAP',v:fmtNum(deviation,4)+'%'},{l:'Harga Spot',v:fmtNum(v.spotPrice,2)}],
+      note:{type:'good',text:'Bahkan manipulasi harga ekstrem dalam 1 blok hanya menggeser TWAP sebesar '+fmtNum(deviation,4)+'% — menjadikannya oracle sangat mahal untuk diserang.'},
+      chart:{mode:'bars',decimals:2,bars:[{label:'Harga Spot',value:v.spotPrice,color:COLORS.amber},{label:'Harga Manipulasi',value:v.manipAttempt,color:COLORS.red},{label:'Harga TWAP',value:twap,color:COLORS.green}]}}
+  }
+},
+{id:'basis-trade',ch:5,year:2022,who:'Crypto Arbs',name:'Basis Trade & Cash-and-Carry',
+  desc:'Mengekstraksi premium non-arah dari selisih suku bunga perpetual futures dan yield on-chain — strategi market-neutral yang menjadi andalan hedge fund kripto.',
+  tex:'\\text{PnL}=\\text{Funding}_{3\\times/hari}-\\text{Yield}_{staking}',
+  vars:[{k:'fundingRate',label:'Funding Rate (per 8 jam)',min:-0.1,max:0.2,step:0.001,def:0.03,unit:'%'},{k:'stakingYield',label:'Yield Staking Tahunan',min:0,max:20,step:0.1,def:5,unit:'%'},{k:'capital',label:'Modal Strategi (M$)',min:0.1,max:100,step:0.1,def:10,unit:' M$'}],
+  calc(v){
+    const annualFunding=v.fundingRate/100*3*365*100;
+    const netYield=annualFunding-v.stakingYield;
+    const annualPnL=v.capital*1e6*netYield/100/1e3;
+    const pts=sweep(-0.1,0.2,60,fr=>fr/100*3*365*100-v.stakingYield);
+    return {big:fmtNum(annualFunding,2),bigUnit:'%',bigLabel:'Annualized Funding Yield',
+      subs:[{l:'Net Yield (Funding−Staking)',v:fmtNum(netYield,2)+'%'},{l:'PnL Tahunan Estimasi',v:fmtNum(annualPnL,0)+' rb$'}],
+      note:{type: netYield>5?'good':netYield<0?'warn':'info',text: netYield>5?'Spread menarik: funding rate jauh melebihi staking yield — momentum strategi basis trade positif.':netYield<0?'Funding negatif: strategi menjadi kontraproduktif, pertimbangkan reverse carry.':'Spread tipis — profitabilitas bergantung pada presisi eksekusi.'},
+      chart:{xMin:-0.1,xMax:0.2,yMin:Math.min(...pts.map(p=>p.y))*1.1-5,yMax:Math.max(...pts.map(p=>p.y))*1.1,vline:v.fundingRate,hlines:[{y:0,color:COLORS.faint,dash:true}],series:[{label:'Net Yield (%) vs Funding Rate',color:COLORS.amber,pts}]}}
+  }
+},
+{id:'gauge-voting',ch:5,year:2022,who:'DeFi Quants (Curve Wars)',name:'Gauge Voting & Curve Wars',
+  desc:'Mekanisme politik pasar untuk mengarahkan emisi token protokol utama — pemegang veToken memilih gauge yang menentukan distribusi CRV ke pool, memicu "war" antar protokol.',
+  tex:'\\text{Emissions}_i=\\text{Total CRV}\\times\\frac{\\text{Votes}_i}{\\sum\\text{Votes}}',
+  vars:[{k:'totalEmission',label:'Total Emisi CRV Mingguan',min:100,max:1000000,step:1000,def:400000,unit:' CRV'},{k:'myVotes',label:'Votes di Gauge Saya',min:0,max:100,step:1,def:15,unit:' M veCRV'},{k:'totalVotes',label:'Total Votes Semua Gauge',min:1,max:500,step:1,def:100,unit:' M veCRV'},{k:'crvPrice',label:'Harga CRV',min:0.01,max:5,step:0.01,def:0.35,unit:'$'}],
+  calc(v){
+    const share=v.myVotes/v.totalVotes;
+    const myEmission=v.totalEmission*share;
+    const usdValue=myEmission*v.crvPrice;
+    const pts=sweep(0,100,60,votes=>v.totalEmission*(votes/v.totalVotes));
+    return {big:fmtCompact(myEmission),bigUnit:' CRV/minggu',bigLabel:'Emisi CRV ke Gauge Saya',
+      subs:[{l:'Share Emisi',v:fmtNum(share*100,2)+'%'},{l:'Nilai USD/minggu',v:fmtCompact(usdValue)+'$'}],
+      note:{type:'info',text:'Setiap protokol (Convex, Yearn, dll.) bersaing membeli veCRV untuk mengarahkan emisi ke pool mereka — itulah inti "Curve Wars".'},
+      chart:{xMin:0,xMax:100,yMin:0,yMax:Math.max(...pts.map(p=>p.y))*1.1,vline:v.myVotes,series:[{label:'Emisi CRV vs Votes (M veCRV)',color:COLORS.violet,pts}]}}
+  }
+},
+{id:'bridge',ch:5,year:2022,who:'LayerZero / Wormhole',name:'Cross-Chain Bridge Model',
+  desc:'Infrastruktur perpindahan aset antar blockchain menggunakan mekanisme lock-and-mint atau burn-and-release, dengan risiko keamanan validator eksternal.',
+  tex:'\\text{Fee}_{bridge}=\\text{Gas}_{src}+\\text{Gas}_{dst}+\\text{Protocol Fee}',
+  vars:[{k:'amount',label:'Jumlah yang Di-bridge',min:100,max:1000000,step:100,def:10000,unit:'$'},{k:'gasSrc',label:'Gas Fee Chain Sumber',min:0.1,max:50,step:0.1,def:2,unit:'$'},{k:'gasDst',label:'Gas Fee Chain Tujuan',min:0.1,max:50,step:0.1,def:0.5,unit:'$'},{k:'protocolFee',label:'Protocol Fee',min:0,max:0.5,step:0.01,def:0.05,unit:'%'}],
+  calc(v){
+    const protoFee=v.amount*v.protocolFee/100;
+    const totalFee=v.gasSrc+v.gasDst+protoFee;
+    const feeRatio=totalFee/v.amount*100;
+    return {big:fmtNum(totalFee,2),bigUnit:'$',bigLabel:'Total Biaya Bridge',
+      subs:[{l:'Biaya vs Amount',v:fmtNum(feeRatio,3)+'%'}],
+      note:{type: feeRatio>1?'warn':'good',text: feeRatio>1?'Biaya bridge tinggi relatif amount — pertimbangkan bridge jumlah lebih besar atau tunggu gas lebih murah.':'Biaya efisien — bridge ekonomis pada ukuran ini.'},
+      chart:{mode:'bars',decimals:2,unit:'$',bars:[{label:'Gas Sumber',value:v.gasSrc,color:COLORS.red},{label:'Gas Tujuan',value:v.gasDst,color:COLORS.amber},{label:'Protocol Fee',value:protoFee,color:COLORS.cyan},{label:'Total Fee',value:totalFee,color:COLORS.violet}]}}
+  }
+},
+{id:'clmm-tick',ch:5,year:2023,who:'Uniswap Quants',name:'CLMM Tick Math',
+  desc:'Arsitektur pemetaan heksadesimal batas harga dalam smart contract berbiaya gas rendah — setiap tick mewakili perubahan harga 0.01% (1.0001^tick).',
+  tex:'P(\\text{tick})=1.0001^{tick},\\quad tick=\\lfloor\\log_{1.0001}(P)\\rfloor',
+  vars:[{k:'tick',label:'Tick Number',min:-887272,max:887272,step:100,def:80000,unit:''}],
+  calc(v){
+    const price=Math.pow(1.0001,v.tick);
+    const tickPerDollar=1/Math.log(1.0001)/price;
+    const pts=sweep(-887272,887272,80,t=>Math.log10(Math.pow(1.0001,t)));
+    return {big:fmtCompact(price),bigUnit:'',bigLabel:'Harga di Tick '+v.tick,
+      subs:[{l:'Tick per $1 perubahan',v:fmtCompact(tickPerDollar)},{l:'Perubahan per Tick',v:fmtNum(0.01,2)+'%'}],
+      note:{type:'info',text:'Desain tick memungkinkan representasi harga dari sangat kecil (negatif) hingga sangat besar (positif) dengan presisi konstan 0.01% per langkah.'},
+      chart:{xMin:-887272,xMax:887272,yMin:Math.min(...pts.map(p=>p.y)),yMax:Math.max(...pts.map(p=>p.y)),vline:v.tick,series:[{label:'log₁₀(Harga) vs Tick',color:COLORS.green,pts}]}}
+  }
+},
+{id:'lst',ch:5,year:2023,who:'Lido Quants',name:'Liquid Staking & LSTfi',
+  desc:'Aset staking terlikuidkan (stETH, rETH) yang mengakumulasi yield konsensus secara rolling dan digunakan sebagai agunan di seluruh ekosistem DeFi.',
+  tex:'P_{LST}=P_{ETH}\\times\\text{exchangeRate}(t)',
+  vars:[{k:'ethPrice',label:'Harga ETH',min:1000,max:10000,step:50,def:3500,unit:'$'},{k:'stakingYield',label:'Staking Yield Tahunan',min:2,max:10,step:0.1,def:4,unit:'%'},{k:'yearsStaked',label:'Durasi Staking',min:0,max:5,step:0.25,def:2,unit:' th'},{k:'defiBoost',label:'DeFi Boost (yield tambahan)',min:0,max:10,step:0.1,def:3,unit:'%'}],
+  calc(v){
+    const exchangeRate=Math.pow(1+v.stakingYield/100,v.yearsStaked);
+    const lstValue=v.ethPrice*exchangeRate;
+    const totalAPY=v.stakingYield+v.defiBoost;
+    const pts=sweep(0,5,60,t=>v.ethPrice*Math.pow(1+v.stakingYield/100,t));
+    return {big:fmtNum(lstValue,0),bigUnit:'$',bigLabel:'Nilai LST per Token',
+      subs:[{l:'Exchange Rate Akumulasi',v:fmtNum(exchangeRate,4)+'×'},{l:'Total APY (Staking+DeFi)',v:fmtNum(totalAPY,1)+'%'}],
+      note:{type:'good',text:'LST memungkinkan pemegang menikmati yield staking (ETH PoS) sekaligus mempertahankan likuiditas — digunakan sebagai agunan di Aave, Curve, Pendle, dll.'},
+      chart:{xMin:0,xMax:5,yMin:v.ethPrice*0.9,yMax:Math.max(...pts.map(p=>p.y))*1.1,vline:v.yearsStaked,series:[{label:'Nilai LST ($) vs Waktu Staking',color:COLORS.cyan,pts}]}}
+  }
+},
+{id:'perp-dex',ch:5,year:2023,who:'GMX, Hyperliquid',name:'Perp DEX Funding (On-chain)',
+  desc:'Struktur pembentukan harga perp on-chain — mark price dibentuk dari median oracle feeds dengan mekanisme funding identik BitMEX namun sepenuhnya tanpa matching engine off-chain.',
+  tex:'P_{mark}=\\text{median}(P_1,P_2,\\ldots,P_n)',
+  vars:[{k:'p1',label:'Oracle Harga 1',min:10000,max:100000,step:10,def:60050,unit:''},{k:'p2',label:'Oracle Harga 2',min:10000,max:100000,step:10,def:60020,unit:''},{k:'p3',label:'Oracle Harga 3',min:10000,max:100000,step:10,def:59980,unit:''},{k:'pPerp',label:'Harga Perp DEX',min:10000,max:100000,step:10,def:60200,unit:''}],
+  calc(v){
+    const sorted=[v.p1,v.p2,v.p3].sort((a,b)=>a-b);
+    const mark=sorted[1];
+    const fr=(v.pPerp-mark)/mark*100;
+    return {big:fmtNum(mark,0),bigUnit:'$',bigLabel:'Mark Price (Median Oracle)',
+      subs:[{l:'Harga Perp DEX',v:fmtNum(v.pPerp,0)+'$'},{l:'Selisih / Funding Signal',v:fmtNum(fr,4)+'%'}],
+      note:{type: Math.abs(fr)>0.05?'warn':'good',text: Math.abs(fr)>0.05?'Divergensi besar antara perp dan oracle — funding rate akan tinggi, arbitrageur akan menyempitkan gap.':'Mark price dekat dengan perp — sistem sehat, tidak ada insentif funding berlebih.'},
+      chart:{mode:'bars',decimals:0,bars:[{label:'Oracle 1',value:v.p1,color:COLORS.faint},{label:'Oracle 2',value:v.p2,color:COLORS.faint},{label:'Oracle 3',value:v.p3,color:COLORS.faint},{label:'Mark (Median)',value:mark,color:COLORS.green},{label:'Perp DEX',value:v.pPerp,color:COLORS.amber}]}}
+  }
+},
+{id:'llamma',ch:5,year:2023,who:'Michael Egorov',name:'crvUSD LLAMMA',
+  desc:'AMM khusus likuidasi soft iteratif crvUSD — kolateral bergeser perlahan antara "aktif" dan "terlikuidasi" seiring harga bergerak, memitigasi dampak kolaps mendadak.',
+  tex:'\\text{Band } i: [P_{low}^i, P_{high}^i],\\quad\\text{LP dinamis}',
+  vars:[{k:'collateral',label:'Kolateral (ETH)',min:0.1,max:100,step:0.1,def:10,unit:' ETH'},{k:'debt',label:'Hutang crvUSD',min:100,max:1000000,step:100,def:15000,unit:''},{k:'ethPrice',label:'Harga ETH Saat Ini',min:500,max:10000,step:50,def:3500,unit:''},{k:'liqPrice',label:'Harga Likuidasi LLAMMA',min:500,max:8000,step:50,def:2000,unit:''}],
+  calc(v){
+    const colUSD=v.collateral*v.ethPrice;
+    const healthFactor=colUSD/v.debt;
+    const bufferPct=(v.ethPrice-v.liqPrice)/v.ethPrice*100;
+    return {big:fmtNum(healthFactor,3),bigUnit:'×',bigLabel:'Health Factor',
+      subs:[{l:'Nilai Kolateral (USD)',v:fmtCompact(colUSD)+'$'},{l:'Buffer ke Likuidasi',v:fmtNum(bufferPct,1)+'%'}],
+      note:{type: healthFactor<1.2?'warn':healthFactor<1.5?'info':'good',text: healthFactor<1.2?'Health Factor rendah: LLAMMA akan mulai secara perlahan melikuidasi kolateral menjadi crvUSD. Tambah kolateral!':healthFactor>2?'Posisi aman: buffer besar dari threshold likuidasi LLAMMA.':'Posisi moderat, pantau harga ETH.'},
+      chart:{mode:'bars',decimals:0,unit:'$',bars:[{label:'Nilai Kolateral',value:colUSD,color:COLORS.green},{label:'Hutang crvUSD',value:v.debt,color:COLORS.amber},{label:'Harga Liq. LLAMMA',value:v.liqPrice,color:COLORS.red}]}}
+  }
+},
+{id:'eigenlayer',ch:5,year:2023,who:'Sreeram Kannan',name:'Restaking & EigenLayer AVS',
+  desc:'Keamanan jaringan paralel di mana staker ETH yang sama bisa memvalidasi multiple AVS (Actively Validated Services) — yield lebih tinggi, slashing risk lebih kompleks.',
+  tex:'Yield_{total}=Yield_{ETH}+\\sum_i Yield_{AVS_i}-\\text{Slashing Risk}',
+  vars:[{k:'ethYield',label:'ETH Staking Base Yield',min:2,max:8,step:0.1,def:4,unit:'%'},{k:'avs1',label:'AVS 1 Yield',min:0,max:15,step:0.5,def:5,unit:'%'},{k:'avs2',label:'AVS 2 Yield',min:0,max:15,step:0.5,def:3,unit:'%'},{k:'slashProb',label:'Probabilitas Slashing Gabungan',min:0,max:10,step:0.1,def:1,unit:'%'},{k:'slashSize',label:'Ukuran Slashing',min:0,max:50,step:1,def:10,unit:'%'}],
+  calc(v){
+    const gross=v.ethYield+v.avs1+v.avs2;
+    const slashCost=v.slashProb/100*v.slashSize;
+    const net=gross-slashCost;
+    return {big:fmtNum(net,2),bigUnit:'%',bigLabel:'Yield Restaking Bersih',
+      subs:[{l:'Gross Yield',v:fmtNum(gross,2)+'%'},{l:'Expected Slashing Cost',v:fmtNum(slashCost,2)+'%/th'}],
+      note:{type: slashCost>gross*0.3?'warn':'good',text: slashCost>gross*0.3?'Risiko slashing signifikan — pilih AVS dengan rekam jejak keamanan terpercaya sebelum meng-opt-in.':'Restaking menarik: expected slashing cost jauh di bawah yield tambahan dari AVS.'},
+      chart:{mode:'bars',decimals:2,unit:'%',bars:[{label:'ETH Base Yield',value:v.ethYield,color:COLORS.cyan},{label:'AVS 1',value:v.avs1,color:COLORS.green},{label:'AVS 2',value:v.avs2,color:COLORS.violet},{label:'Slashing Risk',value:-slashCost,color:COLORS.red},{label:'Net Yield',value:net,color:COLORS.amber}]}}
+  }
+},
+{id:'pendle',ch:5,year:2024,who:'TN Lee',name:'Pendle Yield Tokenization',
+  desc:'Memisahkan aset menjadi Principal Token (PT, mendapat nilai pokok di jatuh tempo) dan Yield Token (YT, mendapat semua yield dari aset hingga jatuh tempo).',
+  tex:'PT+YT=\\text{Underlying Value},\\quad YT\\approx\\frac{Y}{r-g}',
+  vars:[{k:'underlying',label:'Nilai Underlying (per token)',min:100,max:10000,step:10,def:3500,unit:'$'},{k:'yieldRate',label:'Yield Rate Saat Ini',min:1,max:30,step:0.5,def:8,unit:'%/th'},{k:'T',label:'Waktu ke Jatuh Tempo (th)',min:0.1,max:2,step:0.05,def:0.5,unit:''}],
+  calc(v){
+    const ytValue=v.underlying*(1-Math.exp(-v.yieldRate/100*v.T));
+    const ptValue=v.underlying-ytValue;
+    const impliedYield=-Math.log(ptValue/v.underlying)/v.T*100;
+    return {big:fmtNum(ptValue,2),bigUnit:'$',bigLabel:'Harga PT (Principal Token)',
+      subs:[{l:'Harga YT (Yield Token)',v:fmtNum(ytValue,2)+'$'},{l:'Implied APY dari PT',v:fmtNum(impliedYield,2)+'%'}],
+      note:{type:'info',text:'PT cocok untuk investor yang ingin "fix yield" — membeli PT di bawah par dan menahan hingga jatuh tempo menjamin yield pasti (mirip zero-coupon bond).'},
+      chart:{mode:'bars',decimals:2,unit:'$',bars:[{label:'PT (Pokok)',value:ptValue,color:COLORS.amber},{label:'YT (Yield Future)',value:ytValue,color:COLORS.cyan},{label:'Underlying Total',value:v.underlying,color:COLORS.faint}]}}
+  }
+},
+{id:'intent-trading',ch:5,year:2024,who:'CowSwap / UniswapX',name:'Intent-Based Trading',
+  desc:'Paradigma perpindahan beban eksekusi ke Solver kompetitif — user menyatakan "niat" (intent) bukan rute spesifik, solver mencari eksekusi terbaik dan bersaing memenangkan order.',
+  tex:'\\text{Solver wins}=\\arg\\max_{s}(\\text{output}_s - \\text{SolverCost}_s)',
+  vars:[{k:'inputAmt',label:'Input Token (USDC)',min:100,max:1000000,step:100,def:10000,unit:'$'},{k:'bestSolver',label:'Output Solver Terbaik (ETH eq.)',min:0.01,max:1000,step:0.1,def:2.85,unit:''},{k:'worstSolver',label:'Output Solver Terburuk (ETH eq.)',min:0.01,max:1000,step:0.1,def:2.78,unit:''},{k:'onchainAMM',label:'Output AMM Langsung (ETH eq.)',min:0.01,max:1000,step:0.1,def:2.80,unit:''}],
+  calc(v){
+    const improvement=(v.bestSolver/v.onchainAMM-1)*100;
+    const solverSpread=(v.bestSolver-v.worstSolver)/v.bestSolver*100;
+    return {big:fmtNum(improvement,3),bigUnit:'%',bigLabel:'Surplus vs AMM Langsung',
+      subs:[{l:'Output Terbaik (Solver)',v:fmtNum(v.bestSolver,4)+' ETH'},{l:'Output AMM (baseline)',v:fmtNum(v.onchainAMM,4)+' ETH'},{l:'Spread Antar Solver',v:fmtNum(solverSpread,3)+'%'}],
+      note:{type: improvement>0.5?'good':'info',text: improvement>0.5?'Solver kompetitif memberikan eksekusi lebih baik dari AMM langsung — "price improvement" nyata bagi pengguna.':'Kompetisi solver minimal pada ukuran order ini — mungkin kembali ke AMM direct lebih efisien.'},
+      chart:{mode:'bars',decimals:4,unit:' ETH',bars:[{label:'Solver Terbaik',value:v.bestSolver,color:COLORS.green},{label:'AMM Langsung',value:v.onchainAMM,color:COLORS.amber},{label:'Solver Terburuk',value:v.worstSolver,color:COLORS.red}]}}
+  }
+},
+{id:'hyperliquid',ch:5,year:2024,who:'Hyperliquid Devs',name:'Hyperliquid Order Book (L1)',
+  desc:'Order book on-chain pertama yang beroperasi di L1 monolitik sendiri dengan throughput institusional — menggabungkan kecepatan CEX dengan keamanan on-chain.',
+  tex:'P_{fill}=\\arg\\min_{ask}(ask\\geq P_{bid})',
+  vars:[{k:'bid',label:'Best Bid',min:10000,max:100000,step:1,def:60000,unit:'$'},{k:'ask',label:'Best Ask',min:10000,max:100000,step:1,def:60010,unit:'$'},{k:'bidDepth',label:'Depth Bid (total USD)',min:1000,max:1000000,step:1000,def:200000,unit:'$'},{k:'askDepth',label:'Depth Ask (total USD)',min:1000,max:1000000,step:1000,def:180000,unit:'$'},{k:'tradeSize',label:'Ukuran Order Market',min:100,max:500000,step:100,def:50000,unit:'$'}],
+  calc(v){
+    const spread=v.ask-v.bid;
+    const spreadBps=spread/v.bid*10000;
+    const impact=v.tradeSize/v.askDepth*spreadBps;
+    const imbalance=(v.bidDepth-v.askDepth)/(v.bidDepth+v.askDepth)*100;
+    return {big:fmtNum(spreadBps,2),bigUnit:' bps',bigLabel:'Bid-Ask Spread',
+      subs:[{l:'Spread (USD)',v:fmtNum(spread,1)+'$'},{l:'Price Impact Estimasi',v:fmtNum(impact,2)+' bps'},{l:'Order Book Imbalance',v:fmtNum(imbalance,1)+'%'}],
+      note:{type: imbalance>30?'good':imbalance<-30?'warn':'info',text: imbalance>30?'Bid lebih dalam dari ask: tekanan beli lebih kuat — sinyal bullish jangka sangat pendek.':imbalance<-30?'Ask lebih dalam: tekanan jual lebih besar — sinyal bearish intraday.':'Order book relatif seimbang — tidak ada sinyal arah kuat dari depth.'},
+      chart:{mode:'bars',decimals:0,unit:'$',bars:[{label:'Bid Depth',value:v.bidDepth,color:COLORS.green},{label:'Ask Depth',value:v.askDepth,color:COLORS.red}]}}
+  }
+}
+]);
+
+
+/* =========================================================
+   QUANT CODEX — UI ENGINE
+   ========================================================= */
+let activeId=null, currentSeed=(Date.now()&0xffffff), chartInst=null, searchQ='';
+
+function $(id){return document.getElementById(id);}
+function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function chColorKey(ch){return ({1:'amber',2:'red',3:'green',4:'cyan',5:'violet'})[ch]||'amber';}
+function chColor(ch){return COLORS[chColorKey(ch)];}
+function chIcon(ch){return ({1:'💎',2:'⚡',3:'📊',4:'🌍',5:'🔮'})[ch]||'•';}
+
+/* ---------- ticker ---------- */
+function buildTicker(){
+  const html=FORMULAS.map(f=>`<span class="tick-item" onclick="selectFormula('${f.id}')"><b>${f.year}</b>&nbsp;${esc(f.name)}</span>`).join('');
+  $('tickerTrack').innerHTML=html+html;
+}
+
+/* ---------- sidebar ---------- */
+function buildSidebar(){
+  const q=searchQ.trim().toLowerCase();
+  let html='';
+  let totalShown=0;
+  CHAPTER_META.forEach(ch=>{
+    const fms=FORMULAS.filter(f=>f.ch===ch.id && (!q || (f.name+' '+f.who+' '+f.year+' '+f.id).toLowerCase().includes(q)));
+    if(!fms.length) return;
+    totalShown+=fms.length;
+    const collapsed = q ? '' : '';
+    html+=`<div class="chapter-group ${collapsed}" data-ch="${ch.id}">
+      <div class="chapter-head" onclick="toggleChapterGroup(this)">
+        <div>
+          <div class="ch-title" style="color:${chColor(ch.id)}">${chIcon(ch.id)}&nbsp; Bab ${ch.id} · ${esc(ch.title)}</div>
+          <div class="ch-sub">${esc(ch.sub)}</div>
+        </div>
+        <span class="ch-count">${fms.length}</span>
+        <span class="chev">▾</span>
+      </div>
+      <div class="chapter-body">
+        ${fms.map(f=>`<div class="formula-row${f.id===activeId?' active':''}" data-id="${f.id}" onclick="selectFormula('${f.id}')">
+          <span class="yr">${f.year}</span><span class="nm">${esc(f.name)}</span>
+        </div>`).join('')}
+      </div>
+    </div>`;
+  });
+  $('sidebar').innerHTML = html || `<div style="padding:30px 16px;text-align:center;color:var(--faint);font-size:12.5px;">Tidak ada rumus yang cocok dengan pencarian.</div>`;
+  $('statCount').textContent = q ? totalShown : FORMULAS.length;
+}
+function toggleChapterGroup(headEl){
+  headEl.parentElement.classList.toggle('collapsed');
+}
+$('searchInput').addEventListener('input',e=>{
+  searchQ=e.target.value;
+  buildSidebar();
+  if(searchQ.trim()){
+    document.querySelectorAll('.chapter-group').forEach(g=>g.classList.remove('collapsed'));
+  }
+});
+
+/* ---------- welcome / intro screen ---------- */
+function renderWelcome(){
+  $('main').innerHTML=`
+    <div class="intro-card">
+      <b>⚗️ Selamat datang di Quant Codex.</b> Perpustakaan interaktif berisi <b>${FORMULAS.length} rumus</b> quant finance dari tahun 1900–2024, terbagi dalam 5 bab.
+      Pilih rumus dari daftar di samping (atau dari ticker berjalan di atas), lalu geser parameter untuk melihat hasil kalkulasi dan grafik bergerak secara real-time.
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;">
+      ${CHAPTER_META.map(ch=>{
+        const cnt=FORMULAS.filter(f=>f.ch===ch.id).length;
+        const first=FORMULAS.find(f=>f.ch===ch.id);
+        return `<div class="card" style="cursor:pointer;border-color:${chColor(ch.id)}33" onclick="selectFormula('${first.id}')">
+          <div style="font-size:1.7em;margin-bottom:8px;">${chIcon(ch.id)}</div>
+          <div style="font-size:12.5px;font-weight:700;color:var(--text);line-height:1.35;margin-bottom:4px;">${esc(ch.title)}</div>
+          <div style="font-size:10.5px;color:var(--faint);line-height:1.4;margin-bottom:10px;">${esc(ch.sub)}</div>
+          <div style="font-family:var(--mono);font-size:10.5px;color:${chColor(ch.id)};">${cnt} rumus →</div>
+        </div>`;
+      }).join('')}
+    </div>`;
+}
+
+/* ---------- formula detail view ---------- */
+function buildControlsHTML(f){
+  return (f.vars||[]).map(v=>{
+    if(v.type==='toggle'){
+      return `<div class="ctrl" data-vk="${v.k}" data-vtype="toggle">
+        <div class="ctrl-label"><span>${esc(v.label)}</span></div>
+        <div class="toggle-wrap">
+          <button type="button" class="${v.def?'on':''}" data-val="true" onclick="onToggleClick(this)">${esc(v.onLabel||'On')}</button>
+          <button type="button" class="${!v.def?'on':''}" data-val="false" onclick="onToggleClick(this)">${esc(v.offLabel||'Off')}</button>
+        </div>
+      </div>`;
+    }
+    return `<div class="ctrl" data-vk="${v.k}" data-vtype="range">
+      <div class="ctrl-label"><span>${esc(v.label)}</span><span class="val" id="val_${v.k}">${fmtNum(v.def, decimalsFor(v))}${v.unit||''}</span></div>
+      <input type="range" id="rng_${v.k}" min="${v.min}" max="${v.max}" step="${v.step}" value="${v.def}" oninput="onSliderInput('${v.k}')">
+    </div>`;
+  }).join('');
+}
+function decimalsFor(v){
+  const s=String(v.step);
+  const dot=s.indexOf('.');
+  return dot===-1?0:Math.min(4,s.length-dot-1);
+}
+function onToggleClick(btn){
+  const wrap=btn.parentElement;
+  [...wrap.children].forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');
+  updateFormula();
+}
+function onSliderInput(key){
+  const f=getActiveFormula(); if(!f) return;
+  const vDef=(f.vars||[]).find(x=>x.k===key);
+  const el=$('rng_'+key), out=$('val_'+key);
+  if(out) out.textContent=fmtNum(+el.value, decimalsFor(vDef))+(vDef.unit||'');
+  updateFormula();
+}
+function getActiveFormula(){ return FORMULAS.find(x=>x.id===activeId); }
+function gatherParams(f){
+  const p={};
+  (f.vars||[]).forEach(v=>{
+    if(v.type==='toggle'){
+      const wrap=document.querySelector(`.ctrl[data-vk="${v.k}"] .toggle-wrap`);
+      const onBtn=wrap?wrap.querySelector('button.on'):null;
+      p[v.k]= onBtn ? onBtn.dataset.val==='true' : v.def;
+    } else {
+      const el=$('rng_'+v.k);
+      p[v.k]= el ? +el.value : v.def;
+    }
+  });
+  return p;
+}
+
+function selectFormula(id){
+  const f=FORMULAS.find(x=>x.id===id);
+  if(!f) return;
+  activeId=id;
+  currentSeed=(Date.now()&0xffffff);
+  buildSidebar();
+  const idx=FORMULAS.indexOf(f);
+  const prev=FORMULAS[idx-1], next=FORMULAS[idx+1];
+  const ck=chColorKey(f.ch);
+
+  $('main').innerHTML=`
+    <div class="f-meta">
+      <span class="pill ch" style="color:${chColor(f.ch)};border-color:${chColor(f.ch)}44;background:${chColor(f.ch)}1a;">Bab ${f.ch} · ${esc(CHAPTER_META[f.ch-1].title)}</span>
+      <span class="pill">${f.year}</span>
+    </div>
+    <h1 class="f-title">${esc(f.name)}</h1>
+    <div class="f-who">${esc(f.who)}</div>
+    <p class="f-desc">${esc(f.desc)}</p>
+    <div class="f-formula-box"><span id="texHolder"></span></div>
+    <div class="f-grid">
+      <div class="card">
+        <h4>🎛️ Parameter</h4>
+        <div id="ctrlHolder">${buildControlsHTML(f)}</div>
+      </div>
+      <div class="card">
+        <h4>📊 Hasil Kalkulasi</h4>
+        <div id="readoutHolder"></div>
+      </div>
+    </div>
+    <div class="f-chartwrap">
+      <div class="chart-head">
+        <h4>Grafik Interaktif</h4>
+        ${f.stochastic?`<button class="randbtn" onclick="reseed()">🎲 Acak Ulang</button>`:''}
+      </div>
+      <canvas id="chartCanvas"></canvas>
+      <div class="legend" id="legendHolder"></div>
+    </div>
+    <div style="display:flex;justify-content:space-between;gap:12px;margin:24px 0 40px;">
+      ${prev?`<div class="card" style="cursor:pointer;flex:1;max-width:340px;" onclick="selectFormula('${prev.id}')"><div style="font-family:var(--mono);font-size:10px;color:var(--faint);text-transform:uppercase;">← Sebelumnya</div><div style="font-size:12.5px;color:var(--dim);margin-top:4px;">${esc(prev.name)}</div></div>`:'<div></div>'}
+      ${next?`<div class="card" style="cursor:pointer;flex:1;max-width:340px;text-align:right;" onclick="selectFormula('${next.id}')"><div style="font-family:var(--mono);font-size:10px;color:var(--faint);text-transform:uppercase;">Berikutnya →</div><div style="font-size:12.5px;color:var(--dim);margin-top:4px;">${esc(next.name)}</div></div>`:'<div></div>'}
+    </div>`;
+
+  try{ katex.render(f.tex, $('texHolder'), {throwOnError:false, displayMode:true}); }catch(e){}
+
+  if(chartInst){ chartInst.destroy(); chartInst=null; }
+  chartInst = new QChart($('chartCanvas'));
+
+  updateFormula();
+
+  if(window.innerWidth<=880) closeSidebar();
+  $('main').scrollTop=0;
+}
+
+function reseed(){ currentSeed=(Date.now()&0xffffff)^Math.floor(Math.random()*1e6); updateFormula(); }
+
+function updateFormula(){
+  const f=getActiveFormula(); if(!f) return;
+  const params=gatherParams(f);
+  let result;
+  try{
+    const rng=mulberry32(currentSeed);
+    result=f.calc(params, rng);
+  }catch(e){
+    console.error('calc error', f.id, e);
+    result={big:'ERR',bigUnit:'',bigLabel:'Kesalahan kalkulasi',subs:[],note:{type:'danger',text:'Terjadi kesalahan saat menghitung rumus ini.'},chart:null};
+  }
+
+  const ro=$('readoutHolder');
+  const subsHtml=(result.subs||[]).map(s=>`<div class="sub-stat"><span class="l">${esc(s.l)}</span><span class="v">${esc(String(s.v))}</span></div>`).join('');
+  const noteType=result.note?result.note.type:'';
+  const noteHtml=result.note?`<div class="note-badge ${noteType}">${esc(result.note.text)}</div>`:'';
+  ro.innerHTML=`<div class="readout-big">
+      <div class="lbl">${esc(result.bigLabel||'Hasil')}</div>
+      <div class="num">${esc(String(result.big))}<small>${esc(result.bigUnit||'')}</small></div>
+    </div>
+    <div class="sub-stats">${subsHtml}</div>
+    ${noteHtml}`;
+
+  const legend=$('legendHolder');
+  if(result.chart && chartInst){
+    chartInst.set(result.chart);
+    if(result.chart.mode==='bars'){
+      legend.innerHTML=(result.chart.bars||[]).map(b=>`<span class="legend-item"><span class="legend-sw" style="background:${b.color}"></span>${esc(b.label)}</span>`).join('');
+    } else {
+      legend.innerHTML=(result.chart.series||[]).map(s=>`<span class="legend-item"><span class="legend-sw${s.dash?' dash':''}" style="background:${s.dash?'none':s.color};border-color:${s.color}"></span>${esc(s.label)}</span>`).join('');
+    }
+  } else if(legend){
+    legend.innerHTML='';
+  }
+}
+
+/* ---------- mobile sidebar ---------- */
+$('hamburger').addEventListener('click',()=>{
+  $('sidebar').classList.toggle('open');
+  $('body').classList.toggle('sb-open');
+});
+function closeSidebar(){ $('sidebar').classList.remove('open'); $('body').classList.remove('sb-open'); }
+$('body').addEventListener('click',e=>{
+  if($('body').classList.contains('sb-open') && e.target.id==='body'){ closeSidebar(); }
+});
+
+/* ---------- boot ---------- */
+buildTicker();
+buildSidebar();
+renderWelcome();
+</script>
+</body>
+</html>
